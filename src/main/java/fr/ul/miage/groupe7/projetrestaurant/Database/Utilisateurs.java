@@ -1,5 +1,7 @@
 package fr.ul.miage.groupe7.projetrestaurant.Database;
 
+import org.bson.Document;
+
 public class Utilisateurs {
 
     String nom,prenom,role,identifiant,mdp;
@@ -10,6 +12,14 @@ public class Utilisateurs {
         this.role = role;
         this.identifiant = identifiant;
         this.mdp = mdp;
+    }
+
+    public Utilisateurs(Document d){
+        nom = (String)d.get("nom");
+        prenom = (String)d.get("prenom");
+        role = (String) d.get("role");
+        identifiant = (String)d.get("identifiant");
+        mdp = (String)d.get("mdp");
     }
 
     public String getNom() {

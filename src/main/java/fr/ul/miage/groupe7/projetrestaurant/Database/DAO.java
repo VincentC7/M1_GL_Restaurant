@@ -1,15 +1,22 @@
 package fr.ul.miage.groupe7.projetrestaurant.Database;
 
+import com.mongodb.client.MongoCollection;
+import org.bson.Document;
+
 public abstract class DAO<T> {
 
-    //public Connection connect = db.connect();
+    final MongoCollection<Document> connect ;
+
+    DAO(String table){
+        connect = BDD_Connexion.getInstance().getCollection(table);
+    }
 
     /**
      * Permet de récupérer un objet via son ID
      * @param id
      * @return
      */
-    public abstract T find(String id);
+    public abstract T find(String... id );
 
     /**
      * Permet de créer une entrée dans la base de données
