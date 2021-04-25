@@ -3,11 +3,42 @@ package fr.ul.miage.groupe7.projetrestaurant.Database;
 import com.mongodb.lang.NonNull;
 import org.bson.Document;
 
+import java.util.Arrays;
+
 public class Utilisateurs {
 
     String _id,nom,prenom,role,identifiant,mdp;
 
-    public Utilisateurs(@NonNull String nom,@NonNull String prenom,@NonNull String role,@NonNull String mdp,String identifiant) {
+    public enum ROLE{
+        DIRECTEUR("Directeur"),
+        SERVEUR("Serveur"),
+        CUISINIER("Cuisinier"),
+        ASSISTANT_SERVICE("Assistant service"),
+        MAITRE_HOTEL("Maître d'hôtel");
+
+        private final String text;
+
+        /**
+         * @param text
+         */
+        ROLE(final String text) {
+            this.text = text;
+        }
+
+        /* (non-Javadoc)
+         * @see java.lang.Enum#toString()
+         */
+        @Override
+        public String toString() {
+            return text;
+        }
+    }
+
+    public Utilisateurs(@NonNull String nom,@NonNull String prenom,@NonNull String role, String mdp,String identifiant) throws IllegalArgumentException {
+        if( (nom.length() < 2)  || prenom.length() < 2 || Arrays.stream(ROLE.values()).noneMatch(role1 -> role1.toString().equals(role))
+                || (mdp != null && mdp.length() < 6) || (identifiant != null && identifiant.length() < 4)){
+            throw new IllegalArgumentException ();
+        }
         this.nom = nom;
         this.prenom = prenom;
         this.role = role;
@@ -63,6 +94,10 @@ public class Utilisateurs {
 
     public void setMdp(String mdp) {
         this.mdp = mdp;
+    }
+
+    public String getMdp() {
+        return mdp;
     }
 
     public String get_id() {

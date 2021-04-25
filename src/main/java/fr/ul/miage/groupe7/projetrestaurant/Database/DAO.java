@@ -2,6 +2,7 @@ package fr.ul.miage.groupe7.projetrestaurant.Database;
 
 import com.mongodb.client.MongoCollection;
 import org.bson.Document;
+import org.bson.types.ObjectId;
 
 public abstract class DAO<T> {
 
@@ -16,7 +17,7 @@ public abstract class DAO<T> {
      * @param id
      * @return
      */
-    public abstract T find(String id);
+    public abstract T find(ObjectId id);
 
     /**
      * Permet de créer une entrée dans la base de données
