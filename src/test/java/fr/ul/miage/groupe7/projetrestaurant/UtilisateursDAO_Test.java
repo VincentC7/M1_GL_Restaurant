@@ -80,19 +80,18 @@ public class UtilisateursDAO_Test {
         @DisplayName("Crée un utilisateur sans mdp")
         void CreateUtilisateurWithoutMdp(){
             Utilisateurs u = userDAO.create(new Utilisateurs("Noirot","Quentin","Serveur",null,"QNoirot"));
-            System.out.println(u.getMdp());
             assertNotNull(u);
             assertNotNull(u.getMdp());
+            assertTrue(u.getMdp().matches("^[a-zA-Z0-9]*$"));
         }
 
         @Test
         @DisplayName("Crée un utilisateur sans identifiant")
         void CreateUtilisateurWithoutIdentifiant(){
             Utilisateurs u = userDAO.create(new Utilisateurs("Noirot","Quentin","Serveur","azerty",null));
-            System.out.println(u.getMdp());
             assertNotNull(u);
-            assertNotNull(u.getMdp());
-            assertTrue(u.getMdp().matches("^[a-zA-Z0-9]*$"));
+            assertNotNull(u.getIdentifiant());
+
         }
     }
 
