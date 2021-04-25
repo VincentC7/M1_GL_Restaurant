@@ -6,10 +6,10 @@ import fr.ul.miage.groupe7.projetrestaurant.Database.UtilisateursDAO;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
 
-public class UtilisateursTest {
+import static org.junit.jupiter.api.Assertions.*;
+
+class UtilisateursTest {
 
     static UtilisateursDAO userDAO;
 
@@ -25,6 +25,7 @@ public class UtilisateursTest {
         assertEquals("Sion",u.getNom());
         assertEquals("Eva",u.getPrenom());
         assertEquals("Directeur",u.getRole());
+        assertTrue(u.isMdp("FCSilmi"));
     }
 
     @Test
@@ -32,5 +33,19 @@ public class UtilisateursTest {
     void findUtilisateurNull(){
         Utilisateurs u = userDAO.find("test","test");
         assertNull(u);
+    }
+
+    @Test
+    @DisplayName("Check l'affichage toString")
+    void checkUtilisateur_toString(){
+        Utilisateurs u = userDAO.find("Esion","FCSilmi");
+        var stringReference =
+                "===================================\r\n" +
+                "nom         : Sion\r\n" +
+                "prénom      : Eva\r\n" +
+                "role        : Directeur\r\n" +
+                "identifiant : Esion\r\n"+
+                "===================================\r\n";
+        assertEquals(stringReference,u.toString());
     }
 }
