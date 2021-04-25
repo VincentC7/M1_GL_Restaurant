@@ -39,4 +39,20 @@ class TestCustomScanner {
         assertFalse(res);
     }
 
+    // ==================== double =======================
+
+    @Test
+    @DisplayName("Chaine de caractère qui est un double")
+    void verifDouble(){
+        boolean res = CustomScanner.isDouble("12.34");
+        assertTrue(res);
+    }
+
+    @Test
+    @DisplayName("Chaine de caractère non double")
+    void verifNotDouble(){
+        boolean res = CustomScanner.isDouble("Salut");
+        assertFalse(res);
+    }
+
 }
