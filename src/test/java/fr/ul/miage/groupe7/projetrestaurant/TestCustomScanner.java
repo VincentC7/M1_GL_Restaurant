@@ -3,6 +3,9 @@ package fr.ul.miage.groupe7.projetrestaurant;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.io.ByteArrayInputStream;
+import java.math.BigDecimal;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class TestCustomScanner {
@@ -53,6 +56,30 @@ class TestCustomScanner {
     void verifNotDouble(){
         boolean res = CustomScanner.isDouble("Salut");
         assertFalse(res);
+    }
+
+
+    // ==================== test Scanner =======================
+
+    @Test
+    @DisplayName("verifScannerInt")
+    void verifScannerInt(){
+        ByteArrayInputStream in = new ByteArrayInputStream("10".getBytes());
+        System.setIn(in);
+        CustomScanner customScanner = new CustomScanner();
+        int res = customScanner.get_int();
+        assertEquals(10,res);
+    }
+
+    @Test
+    @DisplayName("verifScannerFloat")
+    void verifScannerDouble(){
+        ByteArrayInputStream in = new ByteArrayInputStream("1.23".getBytes());
+        System.setIn(in);
+        CustomScanner customScanner = new CustomScanner();
+        BigDecimal actual = customScanner.get_float();
+        BigDecimal expected = new BigDecimal("1.23");
+        assertEquals(expected,actual);
     }
 
 }
