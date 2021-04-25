@@ -35,6 +35,7 @@ public abstract class DAO<T> {
     /**
      * Permet la suppression d'une entrée de la base
      * @param obj
+     * @return boolean qui permet de savoir si l'objet a bien été supprimé
      */
-    public abstract void delete(T obj);
+    public abstract boolean delete(T obj);
 }

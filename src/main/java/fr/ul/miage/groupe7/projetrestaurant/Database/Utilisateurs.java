@@ -2,12 +2,14 @@ package fr.ul.miage.groupe7.projetrestaurant.Database;
 
 import com.mongodb.lang.NonNull;
 import org.bson.Document;
+import org.bson.types.ObjectId;
 
 import java.util.Arrays;
 
 public class Utilisateurs {
 
-    String _id,nom,prenom,role,identifiant,mdp;
+    ObjectId _id;
+    String nom,prenom,role,identifiant,mdp;
 
     public enum ROLE{
         DIRECTEUR("Directeur"),
@@ -47,7 +49,7 @@ public class Utilisateurs {
     }
 
     public Utilisateurs(Document d){
-        _id = d.get("_id").toString();
+        _id = (ObjectId) d.get("_id");
         nom = d.getString("nom");
         prenom = d.getString("prenom");
         role =  d.getString("role");
@@ -100,11 +102,11 @@ public class Utilisateurs {
         return mdp;
     }
 
-    public String get_id() {
+    public ObjectId get_id() {
         return _id;
     }
 
-    public void set_id(String _id) {
+    public void set_id(ObjectId _id) {
         this._id = _id;
     }
 

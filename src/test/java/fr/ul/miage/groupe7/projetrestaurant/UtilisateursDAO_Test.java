@@ -51,8 +51,25 @@ public class UtilisateursDAO_Test {
     @Test
     @DisplayName("Trouve un utilisateur par son _id")
     void findUtilisateurById(){
-        //Utilisateurs u = userDAO.find("_id de l'utilisateur");
-        assertTrue(false);
+        Utilisateurs u1 = userDAO.find("Esion","FCSilmi");
+        Utilisateurs u2 = userDAO.find(u1.get_id());
+        assertNotNull(u2);
+    }
+
+    @Test
+    @DisplayName("Supprime un utilisateur")
+    void deleteUser(){
+        Utilisateurs user = userDAO.create(new Utilisateurs("Luc","Tristan","Serveur","tmgerp",null));
+        Boolean res = userDAO.delete(user);
+        assertTrue(res);
+    }
+
+    @Test
+    @DisplayName("Supprime un utilisateur")
+    void deleteUserFailed(){
+        Utilisateurs user = new Utilisateurs("Luc","Tristan","Serveur","tmgerp",null);
+        Boolean res = userDAO.delete(user);
+        assertFalse(res);
     }
 
     @Nested
@@ -69,28 +86,28 @@ public class UtilisateursDAO_Test {
         @Test
         @DisplayName("Crée un utilisateur")
         void CreateUtilisateur(){
-            Utilisateurs u = userDAO.create(new Utilisateurs("Noirot","Quentin","Serveur","azerty","Testing"));
-            assertNotNull(u);
-            assertEquals("Noirot",u.getNom());
-            assertEquals("Quentin",u.getPrenom());
-            assertEquals("Serveur",u.getRole());
+            user = userDAO.create(new Utilisateurs("Noirot","Quentin","Serveur","azerty","Testing"));
+            assertNotNull(user);
+            assertEquals("Noirot",user.getNom());
+            assertEquals("Quentin",user.getPrenom());
+            assertEquals("Serveur",user.getRole());
         }
 
         @Test
         @DisplayName("Crée un utilisateur sans mdp")
         void CreateUtilisateurWithoutMdp(){
-            Utilisateurs u = userDAO.create(new Utilisateurs("Noirot","Quentin","Serveur",null,"QNoirot"));
-            assertNotNull(u);
-            assertNotNull(u.getMdp());
-            assertTrue(u.getMdp().matches("^[a-zA-Z0-9]*$"));
+            user = userDAO.create(new Utilisateurs("Noirot","Quentin","Serveur",null,"QNoirot"));
+            assertNotNull(user);
+            assertNotNull(user.getMdp());
+            assertTrue(user.getMdp().matches("^[a-zA-Z0-9]*$"));
         }
 
         @Test
         @DisplayName("Crée un utilisateur sans identifiant")
         void CreateUtilisateurWithoutIdentifiant(){
-            Utilisateurs u = userDAO.create(new Utilisateurs("Noirot","Quentin","Serveur","azerty",null));
-            assertNotNull(u);
-            assertNotNull(u.getIdentifiant());
+            user = userDAO.create(new Utilisateurs("Noirot","Quentin","Serveur","azerty",null));
+            assertNotNull(user);
+            assertNotNull(user.getIdentifiant());
 
         }
     }
