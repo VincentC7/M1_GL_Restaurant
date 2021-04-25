@@ -14,7 +14,6 @@ public class UtilisateursDAO extends DAO<Utilisateurs> {
     @Override
     public Utilisateurs find(String... id) {
         Document d = connect.find(and(eq("identifiant",id[0]),eq("mdp",id[1]))).first();
-
         return (d == null) ? null
                 : new Utilisateurs(d);
     }
