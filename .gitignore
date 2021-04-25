@@ -1,4 +1,5 @@
 .idea/*
+config.properties
 *.iml
 /target
-config.properties
+
