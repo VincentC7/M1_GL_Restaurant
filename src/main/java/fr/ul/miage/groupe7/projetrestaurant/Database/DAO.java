@@ -16,7 +16,7 @@ public abstract class DAO<T> {
      * @param id
      * @return
      */
-    public abstract T find(String... id );
+    public abstract T find(String id);
 
     /**
      * Permet de créer une entrée dans la base de données

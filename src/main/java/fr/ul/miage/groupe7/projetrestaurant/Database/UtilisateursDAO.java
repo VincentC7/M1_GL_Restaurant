@@ -11,12 +11,20 @@ public class UtilisateursDAO extends DAO<Utilisateurs> {
         super("Utilisateurs");
     }
 
-    @Override
-    public Utilisateurs find(String... id) {
-        Document d = connect.find(and(eq("identifiant",id[0]),eq("mdp",id[1]))).first();
+
+    public Utilisateurs find(String identifiant,String mdp) {
+        Document d = connect.find(and(eq("identifiant",identifiant),eq("mdp",mdp))).first();
         return (d == null) ? null
                 : new Utilisateurs(d);
     }
+
+    @Override
+    public Utilisateurs find(String id) {
+        Document d = connect.find(eq(id)).first();
+        return (d == null) ? null
+                : new Utilisateurs(d);
+    }
+
 
     @Override
     public Utilisateurs create(Utilisateurs obj) {
@@ -30,6 +38,6 @@ public class UtilisateursDAO extends DAO<Utilisateurs> {
 
     @Override
     public void delete(Utilisateurs obj) {
-
+        //TODO
     }
 }

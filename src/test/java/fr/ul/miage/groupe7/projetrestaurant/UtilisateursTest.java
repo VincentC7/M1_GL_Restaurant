@@ -19,8 +19,8 @@ class UtilisateursTest {
     }
 
     @Test
-    @DisplayName("Cherche un utilisateur")
-    void findUtilisateur(){
+    @DisplayName("Cherche un utilisateur par son identifiant et mdp")
+    void findUtilisateurByIdentifiantAndMdp(){
         Utilisateurs u = userDAO.find("Esion","FCSilmi");
         assertEquals("Sion",u.getNom());
         assertEquals("Eva",u.getPrenom());
@@ -31,7 +31,7 @@ class UtilisateursTest {
     @Test
     @DisplayName("Ne trouve pas un utilisateur")
     void findUtilisateurNull(){
-        Utilisateurs u = userDAO.find("test","test");
+        Utilisateurs u = userDAO.find("test");
         assertNull(u);
     }
 
@@ -48,4 +48,13 @@ class UtilisateursTest {
                 "===================================\r\n";
         assertEquals(stringReference,u.toString());
     }
+
+    @Test
+    @DisplayName("Trouve un utilisateur par son _id")
+    void findUtilisateurById(){
+        assertTrue(true);
+        //TODO
+    }
+
+
 }
