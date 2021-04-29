@@ -31,7 +31,8 @@ public class MatierePremiere {
         }
     }
 
-    public MatierePremiere(@NonNull String nom,@NonNull int quantitee,@NonNull UNITE unite) {
+    public MatierePremiere(@NonNull String nom, @NonNull int quantitee, @NonNull UNITE unite) throws IllegalArgumentException {
+        if (quantitee < 0 || quantitee > Integer.MAX_VALUE || nom == null || unite == null) throw new IllegalArgumentException();
         this.nom = nom;
         this.quantitee = quantitee;
         this.unite = unite;
