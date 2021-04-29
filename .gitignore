@@ -1,2 +1,5 @@
 .idea/*
-M1_GL_Restaurant.iml
+config.properties
+*.iml
+/target
+
