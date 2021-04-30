@@ -10,8 +10,8 @@ public class BDD_Connexion {
     private static BDD_Connexion bdd_connexion;
     private static MongoDatabase database;
     private static boolean test = false;
-    private final static String DATABASE_NAME="DATABASE_NAME";
-    private final static String DATABASE_TEST="DATABASE_TEST";
+    public final static String DATABASE_NAME="DATABASE_NAME";
+    public final static String DATABASE_TEST="DATABASE_TEST";
 
     private BDD_Connexion(){
         MongoClient mongoClient = MongoClients.create();
@@ -30,5 +30,9 @@ public class BDD_Connexion {
 
     public static void setTest(){
         test = true;
+    }
+
+    public static void setDev(){
+        test = false;
     }
 }
