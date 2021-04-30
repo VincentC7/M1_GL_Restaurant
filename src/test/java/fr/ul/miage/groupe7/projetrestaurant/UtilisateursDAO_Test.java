@@ -1,14 +1,11 @@
 package fr.ul.miage.groupe7.projetrestaurant;
 
+import fr.ul.miage.groupe7.projetrestaurant.Database.BDD_Connexion;
 import fr.ul.miage.groupe7.projetrestaurant.Database.Utilisateurs;
 import fr.ul.miage.groupe7.projetrestaurant.Database.UtilisateursDAO;
 import org.bson.types.ObjectId;
 import org.junit.jupiter.api.*;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class UtilisateursDAO_Test {
@@ -17,7 +14,7 @@ public class UtilisateursDAO_Test {
 
     @BeforeAll
     static void init(){
-
+        BDD_Connexion.setTest();
         userDAO = new UtilisateursDAO();
 
     }
