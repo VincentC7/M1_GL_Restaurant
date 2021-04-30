@@ -59,15 +59,11 @@ public class UtilisateursDAO extends DAO<Utilisateurs> {
     public boolean delete(Utilisateurs obj) {
         if(obj != null){
             DeleteResult res = connect.deleteOne(eq("_id", obj.get_id()));
-            if(res.getDeletedCount() == 0){
-                return false;
-            }else{
-                return true;
-            }
-        }else{
-            System.err.println("L'utilisateur que vous cherchez à supprimer n'existe pas");
-            return false;
+            return res.getDeletedCount() != 0;
         }
+        System.err.println("L'utilisateur que vous cherchez à supprimer n'existe pas");
+        return false;
+
     }
 
     private String generateIdentifiant(String nom,String prenom){
