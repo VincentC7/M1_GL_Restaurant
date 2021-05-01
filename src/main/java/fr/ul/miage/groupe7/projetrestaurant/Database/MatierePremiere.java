@@ -3,11 +3,13 @@ package fr.ul.miage.groupe7.projetrestaurant.Database;
 import com.mongodb.lang.NonNull;
 import org.bson.types.ObjectId;
 
+import java.math.BigDecimal;
+
 public class MatierePremiere {
 
     private ObjectId _id;
     private String nom;
-    private int quantitee;
+    private BigDecimal quantitee;
     private UNITE unite;
 
     public enum UNITE {
@@ -31,8 +33,8 @@ public class MatierePremiere {
         }
     }
 
-    public MatierePremiere(@NonNull String nom, @NonNull int quantitee, @NonNull UNITE unite) throws IllegalArgumentException {
-        if (quantitee < 0 || quantitee > Integer.MAX_VALUE || nom == null || unite == null) throw new IllegalArgumentException();
+    public MatierePremiere(@NonNull String nom, @NonNull BigDecimal quantitee, @NonNull UNITE unite) throws IllegalArgumentException {
+        if ( new BigDecimal(0).compareTo(quantitee) > 0 || quantitee.compareTo(new BigDecimal(Integer.MAX_VALUE)) > 0 || nom == null || unite == null) throw new IllegalArgumentException();
         this.nom = nom;
         this.quantitee = quantitee;
         this.unite = unite;
@@ -54,11 +56,11 @@ public class MatierePremiere {
         this.nom = nom;
     }
 
-    public int getQuantitee() {
+    public BigDecimal getQuantitee() {
         return quantitee;
     }
 
-    public void setQuantitee(int quantitee) {
+    public void setQuantitee(BigDecimal quantitee) {
         this.quantitee = quantitee;
     }
 

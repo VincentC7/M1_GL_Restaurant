@@ -7,6 +7,8 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.math.BigDecimal;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 public class MatierePremierDAO_Test {
@@ -23,7 +25,7 @@ public class MatierePremierDAO_Test {
     @DisplayName("Creation d'une matiere premiere que ne devrait pas lever d'erreurs")
     void insererMatierePremierSimple() {
         MatierePremiere matierePremiere = matierePremiereDAO.create(
-                new MatierePremiere("Poisson",2, MatierePremiere.UNITE.SIMPLE_UNITE)
+                new MatierePremiere("Poisson",new BigDecimal( 2.00), MatierePremiere.UNITE.SIMPLE_UNITE)
         );
         assertNotNull(matierePremiere);
         assertEquals("Poisson", matierePremiere.getNom());
@@ -36,7 +38,7 @@ public class MatierePremierDAO_Test {
     void insererMatierePremierUitilisateurErronne()throws IllegalArgumentException {
         assertThrows(IllegalArgumentException.class, () -> {
             MatierePremiere matierePremiere = matierePremiereDAO.create(
-                    new MatierePremiere("Poisson",-1, MatierePremiere.UNITE.SIMPLE_UNITE)
+                    new MatierePremiere("Poisson",new BigDecimal( -1.00), MatierePremiere.UNITE.SIMPLE_UNITE)
             );
         });
     }

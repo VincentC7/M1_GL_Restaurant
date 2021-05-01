@@ -4,6 +4,8 @@ import fr.ul.miage.groupe7.projetrestaurant.Database.MatierePremiere;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.math.BigDecimal;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -12,9 +14,9 @@ public class MatierePremiereTest {
     @Test
     @DisplayName("Creation d'une matiere premiere sans erreur")
     void matierePremiereSimpleTest(){
-        MatierePremiere mp = new MatierePremiere("Carotte", 0, MatierePremiere.UNITE.KILOGRAMME);
+        MatierePremiere mp = new MatierePremiere("Carotte", new BigDecimal( 0), MatierePremiere.UNITE.KILOGRAMME);
         assertEquals("Carotte",mp.getNom());
-        assertEquals(0,mp.getQuantitee());
+        assertEquals(new BigDecimal( 0),mp.getQuantitee());
         assertEquals(MatierePremiere.UNITE.KILOGRAMME,mp.getUnite());
     }
 
@@ -22,7 +24,7 @@ public class MatierePremiereTest {
     @DisplayName("Creation d'une matiere premiere sans nom")
     void matierePremierNomNull() throws IllegalArgumentException {
         assertThrows(IllegalArgumentException.class, () -> {
-            MatierePremiere mp = new MatierePremiere(null, 0, MatierePremiere.UNITE.KILOGRAMME);
+            MatierePremiere mp = new MatierePremiere(null, new BigDecimal( 0), MatierePremiere.UNITE.KILOGRAMME);
         });
     }
 
@@ -31,7 +33,7 @@ public class MatierePremiereTest {
     @DisplayName("Creation d'une matiere premiere avec une quantitée négative")
     void matierePremierQuentiteeNegative() throws IllegalArgumentException {
         assertThrows(IllegalArgumentException.class, () -> {
-            MatierePremiere mp = new MatierePremiere("Carotte", -1, MatierePremiere.UNITE.KILOGRAMME);
+            MatierePremiere mp = new MatierePremiere("Carotte", new BigDecimal( -1), MatierePremiere.UNITE.KILOGRAMME);
         });
     }
 
@@ -39,7 +41,7 @@ public class MatierePremiereTest {
     @DisplayName("Creation d'une matiere premiere avec une quantitée trop grande")
     void matierePremierQuentiteeTropGrande()throws IllegalArgumentException {
         assertThrows(IllegalArgumentException.class, () -> {
-            MatierePremiere mp = new MatierePremiere("Carotte", Integer.MAX_VALUE + 1, MatierePremiere.UNITE.KILOGRAMME);
+            MatierePremiere mp = new MatierePremiere("Carotte", new BigDecimal( Integer.MAX_VALUE + 1), MatierePremiere.UNITE.KILOGRAMME);
         });
     }
 
@@ -47,7 +49,7 @@ public class MatierePremiereTest {
     @DisplayName("Creation d'une matiere premiere avec une unitée nulle")
     void matierePremierQuentiteeUniteNull()throws IllegalArgumentException {
         assertThrows(IllegalArgumentException.class, () -> {
-            MatierePremiere mp = new MatierePremiere("Carotte", 0, null);
+            MatierePremiere mp = new MatierePremiere("Carotte", new BigDecimal( 0), null);
         });
     }
 
