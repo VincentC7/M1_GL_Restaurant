@@ -1,10 +1,12 @@
 package fr.ul.miage.groupe7.projetrestaurant.Database;
 
+import com.mongodb.client.result.DeleteResult;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 
 import java.util.Objects;
 
+import static com.mongodb.client.model.Filters.*;
 
 public class MatierePremiereDAO extends DAO<MatierePremiere> {
 
@@ -14,16 +16,27 @@ public class MatierePremiereDAO extends DAO<MatierePremiere> {
 
     @Override
     public MatierePremiere find(ObjectId id) {
-        return null;
+        Document document = connect.find(eq(id)).first();
+        return (document == null) ? null : new MatierePremiere(document);
     }
 
     public MatierePremiere findByName(String nom) {
-        return null;
+        Document document = connect.find(eq("nom",nom)).first();
+        return (document == null) ? null : new MatierePremiere(document);
     }
 
     @Override
     public MatierePremiere create(MatierePremiere obj) {
-        return null;
+        MatierePremiere testexist = findByName(obj.getNom());
+        if (testexist != null) return null;
+        Document document = new Document(
+                "nom", obj.getNom())
+                .append("quantitee",obj.getQuantitee())
+                .append("unite",obj.getUnite().toString());
+        if (obj.get_id() != null) document.append("_id",obj.get_id());
+        var insert = connect.insertOne(document);
+        ObjectId id = Objects.requireNonNull(insert.getInsertedId()).asObjectId().getValue();
+        return (insert.wasAcknowledged()) ? find(id) : null;
     }
 
     @Override
@@ -33,7 +46,11 @@ public class MatierePremiereDAO extends DAO<MatierePremiere> {
 
     @Override
     public boolean delete(MatierePremiere obj) {
-        return false;
+        if(obj != null){
+            DeleteResult res = connect.deleteOne(eq("_id", obj.get_id()));
+            return res.getDeletedCount() != 0;
+        }
+        return false; //exite pas
     }
 
 }

@@ -34,7 +34,11 @@ public class MatierePremiere {
         }
 
         public static UNITE getInstance(String str) throws IllegalArgumentException {
-            return null;
+            UNITE[] unites = UNITE.values();
+            for (UNITE unite : unites){
+                if (unite.str.equals(str)) return unite;
+            }
+            throw new IllegalArgumentException("L'unité que vous recherchez n'existe pas") ;
         }
     }
 
@@ -46,7 +50,10 @@ public class MatierePremiere {
     }
 
     public MatierePremiere(Document document) throws IllegalArgumentException {
-
+        _id = (ObjectId) document.get("_id");
+        nom = document.getString("nom");
+        quantitee = new BigDecimal(""+document.get("quantitee"));
+        unite = UNITE.getInstance(document.getString("unite"));
     }
 
     public ObjectId get_id() {
