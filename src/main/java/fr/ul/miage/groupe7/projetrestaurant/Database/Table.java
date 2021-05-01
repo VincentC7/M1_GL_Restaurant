@@ -15,7 +15,7 @@ public class Table {
 
         PROPRE("Propre"),
         SALE("Sale"),
-        SECOND_SERVICE("A dresser pour un second_service"),
+        SECOND_SERVICE("A dresser pour un second service"),
         OCUPEE("Ocupée"),
         RESERVEE("Réservée");
 
@@ -54,11 +54,18 @@ public class Table {
         this.etat = etat;
     }
 
+    public Table(int etage, int numero, ETAT etat, Utilisateurs serveur) {
+        this.etage = etage;
+        this.numero = numero;
+        this.etat = etat;
+        this.serveur = serveur;
+    }
+
     public Table(Document d){
         _id = (ObjectId) d.get("_id");
         etage = d.getInteger("etage");
-        numero = d.getInteger("prenom");
-        etat = (ETAT) d.get("role");
+        numero = d.getInteger("numero");
+        etat = ETAT.valueOf(d.getString("etat"));
         UtilisateursDAO uti = new UtilisateursDAO();
         serveur = uti.find((ObjectId) d.get("identifiant"));
     }
