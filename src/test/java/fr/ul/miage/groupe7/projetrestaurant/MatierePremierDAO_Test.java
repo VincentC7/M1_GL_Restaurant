@@ -3,6 +3,8 @@ package fr.ul.miage.groupe7.projetrestaurant;
 import fr.ul.miage.groupe7.projetrestaurant.Database.BDD_Connexion;
 import fr.ul.miage.groupe7.projetrestaurant.Database.MatierePremiere;
 import fr.ul.miage.groupe7.projetrestaurant.Database.MatierePremiereDAO;
+import org.bson.types.ObjectId;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -13,29 +15,67 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class MatierePremierDAO_Test {
 
+
     static MatierePremiereDAO matierePremiereDAO;
 
     @BeforeAll
     static void beforeAll(){
         BDD_Connexion.setTest();
         matierePremiereDAO = new MatierePremiereDAO();
+        MatierePremiere matierePremiere = new MatierePremiere("Salade",new BigDecimal( 2), MatierePremiere.UNITE.SIMPLE_UNITE);
+        matierePremiere.set_id(new ObjectId("608d568601f9ee6a1eec44c7"));
+        matierePremiereDAO.create(matierePremiere);
+        matierePremiere = new MatierePremiere("Supprimer",new BigDecimal( 2), MatierePremiere.UNITE.SIMPLE_UNITE);
+        matierePremiereDAO.create(matierePremiere);
+    }
+
+    @Test
+    @DisplayName("Chercher une matiere premiere avec un ID")
+    void findMatierePremierById(){
+        ObjectId id = new ObjectId("608d568601f9ee6a1eec44c7");
+        MatierePremiere matierePremiere = matierePremiereDAO.find(id);
+        assertEquals("Salade", matierePremiere.getNom());
+        assertEquals(new BigDecimal(2), matierePremiere.getQuantitee());
+        assertEquals(MatierePremiere.UNITE.SIMPLE_UNITE, matierePremiere.getUnite());
+    }
+
+    @Test
+    @DisplayName("Chercher une matiere premiere avec un ID inexistant")
+    void findMatierePremierByIdInconnu(){
+        ObjectId id = new ObjectId("111111111111111111111111");
+        MatierePremiere matierePremiere = matierePremiereDAO.find(id);
+        assertNull(matierePremiere);
+    }
+
+    @Test
+    @DisplayName("Chercher une matiere premiere avec un nom")
+    void findMatierePremierimpleByNom(){
+        MatierePremiere matierePremiere = matierePremiereDAO.findByName("Salade");
+        assertEquals("Salade", matierePremiere.getNom());
+    }
+
+    @Test
+    @DisplayName("Chercher une matiere premiere avec un nom inexistant")
+    void findMatierePremierimpleByNomInexistant(){
+        MatierePremiere matierePremiere = matierePremiereDAO.findByName("lolilol");
+        assertNull(matierePremiere);
     }
 
     @Test
     @DisplayName("Creation d'une matiere premiere que ne devrait pas lever d'erreurs")
-    void insererMatierePremierSimple() {
+    void insererMatierePremiereSimple() {
         MatierePremiere matierePremiere = matierePremiereDAO.create(
                 new MatierePremiere("Poisson",new BigDecimal( 2.00), MatierePremiere.UNITE.SIMPLE_UNITE)
         );
         assertNotNull(matierePremiere);
         assertEquals("Poisson", matierePremiere.getNom());
-        assertEquals(2, matierePremiere.getQuantitee());
+        assertEquals(new BigDecimal(2), matierePremiere.getQuantitee());
         assertEquals(MatierePremiere.UNITE.SIMPLE_UNITE, matierePremiere.getUnite());
     }
 
     @Test
-    @DisplayName("Creation d'une matiere premiere avec un utilisateur erroné")
-    void insererMatierePremierUitilisateurErronne()throws IllegalArgumentException {
+    @DisplayName("Creation d'une matiere premiere avec des param faux")
+    void insererMatierePremiereErronne()throws IllegalArgumentException {
         assertThrows(IllegalArgumentException.class, () -> {
             MatierePremiere matierePremiere = matierePremiereDAO.create(
                     new MatierePremiere("Poisson",new BigDecimal( -1.00), MatierePremiere.UNITE.SIMPLE_UNITE)
@@ -43,4 +83,50 @@ public class MatierePremierDAO_Test {
         });
     }
 
+    @Test
+    @DisplayName("Creation d'une matiere premiere avec un nom déjà existant")
+    void insererMatierePremiereNomDejaExistant() {
+        MatierePremiere matierePremiere = matierePremiereDAO.create(
+                new MatierePremiere("Poisson",new BigDecimal( 2), MatierePremiere.UNITE.SIMPLE_UNITE)
+        );
+        assertNull(matierePremiere);
+    }
+
+    @Test
+    @DisplayName("Récupérer une unité à partir d'une chaine existante")
+    void getUniteExistant() {
+        MatierePremiere.UNITE unite = MatierePremiere.UNITE.getInstance("Kg");
+        assertEquals(MatierePremiere.UNITE.KILOGRAMME, unite);
+    }
+
+    @Test
+    @DisplayName("Récupérer une unité à partir d'une chaine non existante")
+    void getUniteNonExistant(){
+        assertThrows(IllegalArgumentException.class, () -> {
+            MatierePremiere.UNITE unite = MatierePremiere.UNITE.getInstance("blablabla");
+        });
+    }
+
+    @Test
+    @DisplayName("Supprimer une matiere premiere existante")
+    void supprimerMatierePremiereSimple(){
+        MatierePremiere matierePremiere = matierePremiereDAO.findByName("Supprimer");
+        boolean res = matierePremiereDAO.delete(matierePremiere);
+        assertTrue(res);
+    }
+
+    @Test
+    @DisplayName("Supprimer une matiere premiere non existante")
+    void supprimerMatierePremiereNonExistante(){
+        boolean res = matierePremiereDAO.delete(null);
+        assertFalse(res);
+    }
+
+    @AfterAll
+    static void afeterAll(){
+        MatierePremiere matierePremiere = matierePremiereDAO.find(new ObjectId("608d568601f9ee6a1eec44c7"));
+        matierePremiereDAO.delete(matierePremiere);
+        matierePremiere = matierePremiereDAO.findByName("Poisson");
+        matierePremiereDAO.delete(matierePremiere);
+    }
 }

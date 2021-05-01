@@ -1,6 +1,7 @@
 package fr.ul.miage.groupe7.projetrestaurant.Database;
 
 import com.mongodb.lang.NonNull;
+import org.bson.Document;
 import org.bson.types.ObjectId;
 
 import java.math.BigDecimal;
@@ -31,6 +32,10 @@ public class MatierePremiere {
         public String toString() {
             return str;
         }
+
+        public static UNITE getInstance(String str) throws IllegalArgumentException {
+            return null;
+        }
     }
 
     public MatierePremiere(@NonNull String nom, @NonNull BigDecimal quantitee, @NonNull UNITE unite) throws IllegalArgumentException {
@@ -38,6 +43,10 @@ public class MatierePremiere {
         this.nom = nom;
         this.quantitee = quantitee;
         this.unite = unite;
+    }
+
+    public MatierePremiere(Document document) throws IllegalArgumentException {
+
     }
 
     public ObjectId get_id() {
