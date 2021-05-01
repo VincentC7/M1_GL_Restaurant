@@ -56,6 +56,10 @@ public class MatierePremiere {
         unite = UNITE.getInstance(document.getString("unite"));
     }
 
+    public void ajouter(BigDecimal bigDecimal) {
+
+    }
+
     public ObjectId get_id() {
         return _id;
     }

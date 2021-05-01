@@ -6,8 +6,7 @@ import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class MatierePremiereTest {
 
@@ -52,5 +51,49 @@ public class MatierePremiereTest {
             MatierePremiere mp = new MatierePremiere("Carotte", new BigDecimal( 0), null);
         });
     }
+
+    @Test
+    @DisplayName("Ajouter du stock")
+    void ajouterStock(){
+        MatierePremiere mp = new MatierePremiere("Carotte", new BigDecimal( 0), MatierePremiere.UNITE.KILOGRAMME);
+        assertEquals(new BigDecimal(0), mp.getQuantitee());
+        mp.ajouter(new BigDecimal(10));
+        assertEquals(new BigDecimal(10), mp.getQuantitee());
+    }
+
+    @Test
+    @DisplayName("Ajouter du stock negatif")
+    void ajouterStockNegatif(){
+        assertThrows(IllegalArgumentException.class, () -> {
+            MatierePremiere mp = new MatierePremiere("Carotte", new BigDecimal( 0), MatierePremiere.UNITE.KILOGRAMME);
+            mp.ajouter(new BigDecimal(-1));
+        });
+    }
+
+    @Test
+    @DisplayName("Ajouter du stock max")
+    void ajouterStockMax(){
+        MatierePremiere mp = new MatierePremiere("Carotte", new BigDecimal(Integer.MAX_VALUE), MatierePremiere.UNITE.KILOGRAMME);
+        assertEquals(new BigDecimal(Integer.MAX_VALUE), mp.getQuantitee());
+    }
+
+    @Test
+    @DisplayName("Ajouter du stock d'un valeur trop grande")
+    void ajouterStockTropGrand(){
+        assertThrows(IllegalArgumentException.class, () -> {
+            MatierePremiere mp = new MatierePremiere("Carotte", new BigDecimal( 0), MatierePremiere.UNITE.KILOGRAMME);
+            mp.ajouter(new BigDecimal(Integer.MAX_VALUE+1));
+        });
+    }
+
+    @Test
+    @DisplayName("Ajouter du stock valide mais qui fait dépacer la valeur max")
+    void ajouterStockDepacerLimite(){
+        assertThrows(IllegalArgumentException.class, () -> {
+            MatierePremiere mp = new MatierePremiere("Carotte", new BigDecimal( Integer.MAX_VALUE - 10 ), MatierePremiere.UNITE.KILOGRAMME);
+            mp.ajouter(new BigDecimal(11));
+        });
+    }
+
 
 }

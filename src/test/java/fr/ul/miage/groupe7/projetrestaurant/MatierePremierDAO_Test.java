@@ -27,6 +27,8 @@ public class MatierePremierDAO_Test {
         matierePremiereDAO.create(matierePremiere);
         matierePremiere = new MatierePremiere("Supprimer",new BigDecimal( 2), MatierePremiere.UNITE.SIMPLE_UNITE);
         matierePremiereDAO.create(matierePremiere);
+        matierePremiere = new MatierePremiere("Modifier",new BigDecimal( 2), MatierePremiere.UNITE.SIMPLE_UNITE);
+        matierePremiereDAO.create(matierePremiere);
     }
 
     @Test
@@ -122,11 +124,42 @@ public class MatierePremierDAO_Test {
         assertFalse(res);
     }
 
+    @Test
+    @DisplayName("Mettre à jour une matiere premiere existante")
+    void updateMatierePremiereSimple(){
+        MatierePremiere matierePremiere = matierePremiereDAO.findByName("Modifier");
+        assertEquals(new BigDecimal(2), matierePremiere.getQuantitee());
+        matierePremiere.setQuantitee(new BigDecimal(10));
+        matierePremiereDAO.update(matierePremiere);
+        //Verification de l'élément en base
+        matierePremiere = matierePremiereDAO.findByName("Modifier");
+        assertEquals(new BigDecimal(10), matierePremiere.getQuantitee());
+    }
+
+    @Test
+    @DisplayName("Mettre à jour une matiere premiere avec une valeur invalide (negative)")
+    void updateMatierePremiereValeurNegative(){
+        assertThrows(IllegalArgumentException.class, () -> {
+            MatierePremiere matierePremiere = matierePremiereDAO.find(new ObjectId("608d568601f9ee6a1eec44c7"));
+            matierePremiere.ajouter(new BigDecimal(-10));
+            matierePremiereDAO.update(matierePremiere);
+        });
+
+    }
+
+    @Test
+    @DisplayName("Mettre à jour une matiere premiere existante")
+    void updateMatierePremiereNull(){
+        assertNull(matierePremiereDAO.update(null));
+    }
+
     @AfterAll
     static void afeterAll(){
         MatierePremiere matierePremiere = matierePremiereDAO.find(new ObjectId("608d568601f9ee6a1eec44c7"));
         matierePremiereDAO.delete(matierePremiere);
         matierePremiere = matierePremiereDAO.findByName("Poisson");
+        matierePremiereDAO.delete(matierePremiere);
+        matierePremiere = matierePremiereDAO.findByName("Modifier");
         matierePremiereDAO.delete(matierePremiere);
     }
 }
