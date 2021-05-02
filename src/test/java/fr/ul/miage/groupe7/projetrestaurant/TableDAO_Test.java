@@ -7,7 +7,13 @@ import fr.ul.miage.groupe7.projetrestaurant.Database.TableDAO;
 import fr.ul.miage.groupe7.projetrestaurant.Database.Utilisateurs;
 import fr.ul.miage.groupe7.projetrestaurant.Database.UtilisateursDAO;
 
+
 import java.util.List;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.Date;
+
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -16,11 +22,11 @@ public class TableDAO_Test {
     private static TableDAO tableDAO;
     private static UtilisateursDAO utilisateursDAO;
 
-    private static Table table;
-    private static Utilisateurs utilisateur,utilisateur2;
+    private static Table table,table2;
+    private static Utilisateurs utilisateur;
 
-    @BeforeAll
-    static void init(){
+    @BeforeEach
+    void init(){
         BDD_Connexion.setTest();
         tableDAO = new TableDAO();
         utilisateursDAO = new UtilisateursDAO();
@@ -29,10 +35,11 @@ public class TableDAO_Test {
         table = tableDAO.create(new Table(1, 1, Table.ETAT.PROPRE, utilisateur));
     }
 
-    @AfterAll
-    static void end(){
+    @AfterEach
+    void end(){
         utilisateursDAO.delete(utilisateur);
         tableDAO.delete(table);
+        tableDAO.delete(table2);
     }
 
 
@@ -67,14 +74,14 @@ public class TableDAO_Test {
 
     @Test
     @DisplayName("Trouve les tables par serveur")
-    void finTableByServeurNull(){
+    void findTableByServeurNull(){
         var tables = tableDAO.findByServeurNull();
         assertEquals(0,tables.size());
     }
 
     @Test
     @DisplayName("Trouve toutes les tables")
-    void finTableAll(){
+    void findTableAll(){
         var tables = tableDAO.findAll();
         assertEquals(1,tables.size());
     }
@@ -83,27 +90,72 @@ public class TableDAO_Test {
 
     @Test
     @DisplayName("Supprime une table")
-    void deleteUser(){
-        Table t = tableDAO.create(new Table(1, 2, Table.ETAT.PROPRE, utilisateur));
+    void deleteTable(){
+        Table t = tableDAO.create(new Table(1, 1, Table.ETAT.PROPRE, utilisateur));
         Boolean res = tableDAO.delete(t);
         assertTrue(res);
     }
 
     @Test
     @DisplayName("Ne trouve pas la table à supprimer")
-    void deleteUserFailed(){
-        Table t = new Table(1, 2, Table.ETAT.PROPRE, utilisateur);
+    void deleteTableFailed(){
+        Table t = new Table(1, 1, Table.ETAT.PROPRE, utilisateur);
         Boolean res = tableDAO.delete(t);
         assertFalse(res);
     }
+
+
+    @Test
+    @DisplayName("Ajoute une reservation")
+    void ajoutTableReservation(){
+        Table t = new Table(1, 1, Table.ETAT.PROPRE, utilisateur);
+        t.addReservation( new Reservation(Reservation.CRENEAU.MATIN,"Luc", LocalDate.of(2021,6,17)));
+        assertEquals(1,t.getReservations().size());
+
+    }
+
+    @Test
+    @DisplayName("Ajoute une reservation")
+    void ajoutTableReservationBDD(){
+        table2 = new Table(1, 2, Table.ETAT.PROPRE);
+        table2.addReservation( new Reservation(Reservation.CRENEAU.MATIN,"Luc", LocalDate.of(2021,6,17)));
+        table2 = tableDAO.create(table2);
+        assertEquals(1,table2.getReservations().size());
+        assertTrue(table2.getReservations().stream().anyMatch(reservation -> reservation.getNom().equals("Luc")));
+        assertTrue(table2.getReservations().stream().anyMatch(reservation -> reservation.getCreneau().equals("Matin")));
+        assertTrue(table2.getReservations().stream().anyMatch(reservation -> reservation.getDate().equals(LocalDate.of(2021,6,17))));
+    }
+
+    @Test
+    @DisplayName("Ajoute une reservation à la même date qu'une autre")
+    void ajoutTableRéservationMemeDate(){
+        table2 = new Table(1, 2, Table.ETAT.PROPRE);
+        table2.addReservation( new Reservation(Reservation.CRENEAU.MATIN,"Luc", LocalDate.of(2021,6,17)));
+        table2.addReservation( new Reservation(Reservation.CRENEAU.MATIN,"Noirot", LocalDate.of(2021,6,17)));
+        assertEquals(1,table2.getReservations().size());
+    }
+
+    @Test
+    @DisplayName("Ajoute une reservation à la même date qu'une autre")
+    void ajoutTableRéservationMemeDatePasMemeCreneau(){
+        table2 = new Table(1, 2, Table.ETAT.PROPRE);
+        table2.addReservation( new Reservation(Reservation.CRENEAU.MATIN,"Luc", LocalDate.of(2021,6,17)));
+        table2.addReservation( new Reservation(Reservation.CRENEAU.SOIR,"Noirot", LocalDate.of(2021,6,17)));
+        assertEquals(2,table2.getReservations().size());
+    }
+
+
+
+
 
     @Nested
     @DisplayName("Test sur le update")
     class UPDATE {
 
-        private Utilisateurs utilisateur2 = new Utilisateurs("Noirot", "Quentin", "Serveur", "azerty", "QNoirot");
-        ;
 
+        private Utilisateurs utilisateur2 = new Utilisateurs("Noirot", "Quentin", "Serveur", "azerty", "QNoirot");
+
+        
         @AfterEach
         void afterEach() {
             table.setServeur(utilisateur);
@@ -138,6 +190,17 @@ public class TableDAO_Test {
             table.setServeur(null);
             Table t = tableDAO.update(table);
             assertNull(t.getServeur());
+        }
+
+        @Test
+        @DisplayName("Ajoute d'une reservation sur table existante")
+        void ajoutTableReservationBDD(){
+            table.addReservation( new Reservation(Reservation.CRENEAU.MATIN,"Luc", LocalDate.of(2021,6,17)));
+            tableDAO.update(table);
+            assertEquals(1,table.getReservations().size());
+            assertTrue(table.getReservations().stream().anyMatch(reservation -> reservation.getNom().equals("Luc")));
+            assertTrue(table.getReservations().stream().anyMatch(reservation -> reservation.getCreneau().equals("Matin")));
+            assertTrue(table.getReservations().stream().anyMatch(reservation -> reservation.getDate().equals(LocalDate.of(2021,6,17))));
         }
 
     }
