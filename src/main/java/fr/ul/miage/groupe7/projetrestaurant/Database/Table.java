@@ -4,6 +4,13 @@ import com.mongodb.lang.NonNull;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+
 public class Table implements Comparable<Table>{
 
     private ObjectId _id;
@@ -11,6 +18,7 @@ public class Table implements Comparable<Table>{
     private int numero;
     private ETAT etat;
     private Utilisateurs serveur;
+    private HashSet<Reservation> reservations;
 
     public enum ETAT{
 
@@ -53,10 +61,14 @@ public class Table implements Comparable<Table>{
         this(etage,numero,etat,null);
     }
 
-    public Table(@NonNull int etage, @NonNull int numero, ETAT etat, Utilisateurs serveur) {
+
+
+
+    public Table(int etage, int numero, ETAT etat, Utilisateurs serveur) {
         setEtage(etage);
         setNumero(numero);
         setEtat(etat);
+        this.reservations = new HashSet<>();
         setServeur(serveur);
     }
 
@@ -67,6 +79,18 @@ public class Table implements Comparable<Table>{
         etat = ETAT.valueOf(d.getString("etat"));
         UtilisateursDAO uti = new UtilisateursDAO();
         serveur = uti.find((ObjectId) d.get("serveur"));
+        reservations = new HashSet<>();
+        var reservationsList = d.getList("reservations",Document.class);
+        for(Document doc : reservationsList){
+            reservations.add(new Reservation(
+                    doc.getString("creneau"),
+                    doc.getString("nom"),
+                    Instant.ofEpochMilli(doc.getDate("date").getTime())
+                            .atZone(ZoneId.systemDefault())
+                            .toLocalDate()
+
+            ));
+        }
     }
 
 
@@ -78,6 +102,14 @@ public class Table implements Comparable<Table>{
         if( serveur != null && !serveur.getRole().equals(Utilisateurs.ROLE.SERVEUR.toString())   )
             throw new IllegalArgumentException();
         this.serveur = serveur;
+    }
+
+    public void addReservation(Reservation r) {
+        this.reservations.add(r);
+    }
+
+    public HashSet<Reservation> getReservations() {
+        return reservations;
     }
 
     public ObjectId get_id() {
