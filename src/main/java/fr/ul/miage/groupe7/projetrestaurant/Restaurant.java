@@ -7,6 +7,8 @@ import fr.ul.miage.groupe7.projetrestaurant.Database.Table;
 import fr.ul.miage.groupe7.projetrestaurant.service.GeneralProperties;
 
 import java.math.BigDecimal;
+import java.sql.SQLOutput;
+import java.util.HashSet;
 import java.util.Scanner;
 
 public class Restaurant {
@@ -16,6 +18,7 @@ public class Restaurant {
                     "0 : Quitter l'application",
                     "1 : Afficher l'état des tables",
                     "2 : Ajouter une matiere premiere au stock",
+                    "3 : Visualiser le stock",
             };
 
 
@@ -34,6 +37,9 @@ public class Restaurant {
                 break;
             case 2:
                 ajouter_mp_stock();
+                break;
+            case 3:
+                afficher_stock();
                 break;
             default:
                 break;
@@ -118,5 +124,18 @@ public class Restaurant {
             else
                 System.out.println("Votre matiere premiere {"+matierePremiere+"} a bien été créé");
         }while (matierePremiere == null);
+    }
+
+    private void afficher_stock(){
+        MatierePremiereDAO matierePremiereDAO = new MatierePremiereDAO();
+        HashSet<MatierePremiere> matierePremieres = matierePremiereDAO.findAll();
+        if (matierePremieres.size() != 0){
+            System.out.println("Voici le stock :");
+            for (MatierePremiere matierePremiere : matierePremieres) {
+                System.out.println("\t * "+matierePremiere.getNom()+" ("+matierePremiere.getQuantitee()+" "+matierePremiere.getUnite()+")");
+            }
+        }else{
+            System.out.println("Vous n'avez pas encore de matière première en stock");
+        }
     }
 }
