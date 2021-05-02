@@ -6,6 +6,8 @@ import fr.ul.miage.groupe7.projetrestaurant.service.GeneralProperties;
 import org.bson.types.ObjectId;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -35,7 +37,8 @@ public class Restaurant {
                     "3 : Modifier une matiere premiere du stock",
                     "4 : Visualiser le stock",
                     "5 : Modifie le serveur de la table",
-                    "6 : Ajouter un plat"
+                    "6 : Ajouter un plat",
+                    "7 : Réserver une table"
             };
 
 
@@ -66,6 +69,9 @@ public class Restaurant {
                 break;
             case 6:
                 ajouter_plat();
+                break;
+            case 7:
+                reserver_une_table();
                 break;
             default:
                 break;
@@ -303,6 +309,46 @@ public class Restaurant {
         }while (unite < 0);
         hm.put(mp.get_id(),unite);
         return hm;
+    }
+
+    //Ajouter un PLAT
+
+    //Réserver une table
+    private void reserver_une_table(){
+        List<Table> tablesVide =tablesDAO.findAll();
+        int user_action;
+        do {
+            System.out.println(afficher_table_sans_serveur(tablesVide));
+            System.out.println("Sélectionner une table");
+            user_action = scanner.get_int();
+        } while (!table_existe(user_action));
+        Table t = tablesDAO.findByNum(user_action);
+        String nom,creneau;
+        int year,month,day;
+        LocalDate date;
+        do{
+            System.out.println("\tQuel est le nom de la personne qui reserve ?");
+            nom = scanner.get_simple();
+        }while (nom.equals(""));
+        do{
+            System.out.println("\tIndiquer le creneau (Matin/Soir)");
+            creneau = scanner.get_simple();
+            creneau = creneau.substring(0, 1).toUpperCase() + creneau.substring(1);
+        }while ( !creneau.equals("Soir") && !creneau.equals("Matin") );
+        LocalDateTime ldt;
+        do{
+            System.out.println("\tIndiquer l'année");
+            year = scanner.get_int();
+            System.out.println("\tIndiquer le mois");
+            month = scanner.get_int();
+            System.out.println("\tIndiquer le jour");
+            day = scanner.get_int();
+            date = LocalDate.of(year,month,day);
+            ldt = (creneau.equals("Matin")) ? date.atTime(12,0) : date.atTime(19,0);
+            System.out.println(LocalDateTime.now().isBefore(ldt));
+        }while (LocalDateTime.now().isAfter(ldt)) ;
+        t.addReservation(new Reservation(creneau,nom,date));
+        tablesDAO.update(t);
     }
 
 

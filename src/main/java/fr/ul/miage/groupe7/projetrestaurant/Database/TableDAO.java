@@ -50,10 +50,19 @@ public class TableDAO extends DAO<Table> {
     @Override
     public Table create(Table obj) {
         Document d;
+        List<Document> reservations = new ArrayList<>();
+                obj.getReservations().forEach(
+                reservation -> reservations.add(
+                        new Document("creneau",reservation.getCreneau())
+                                .append("date",reservation.getDate())
+                                .append("nom",reservation.getNom())
+                )
+        );
         d = new Document("etage", obj.getEtage())
                 .append("numero", obj.getNumero())
                 .append("etat", obj.getEtat().name())
-                .append("serveur", (obj.getServeur() != null) ? obj.getServeur().get_id() : null);
+                .append("serveur", (obj.getServeur() != null) ? obj.getServeur().get_id() : null)
+                .append("reservations",reservations);
 
         var insert =  connect.insertOne(d);
         ObjectId id = insert.getInsertedId().asObjectId().getValue();
@@ -65,16 +74,29 @@ public class TableDAO extends DAO<Table> {
     public Table update(Table obj) {
         if(obj.get_id() != null) {
             List<Bson> updates = new ArrayList<>();
+            Table t = this.find(obj.get_id());
             //UPDATE du serveur de la table
-            Utilisateurs serveur = this.find(obj.get_id()).getServeur();
+            Utilisateurs serveur = t.getServeur();
             if ( !(obj.getServeur() != null && obj.getServeur().get_id() == null) && !Objects.equals(serveur, obj.getServeur())) {
                 updates.add((obj.getServeur() == null) ? set("serveur", null)
                         : set("serveur", obj.getServeur().get_id()));
             }
-            int etage = this.find(obj.get_id()).getEtage();
+            int etage = t.getEtage();
             if ( obj.getEtage() != etage) {
-                updates.add(set("etage", etage));
+                updates.add(set("etage", obj.getEtage()));
             }
+            if( !(obj.getReservations().equals(t.getReservations()))) {
+                List<Document> reservations = new ArrayList<>();
+                obj.getReservations().forEach(
+                        reservation -> reservations.add(
+                                new Document("creneau", reservation.getCreneau())
+                                        .append("date", reservation.getDate())
+                                        .append("nom", reservation.getNom())
+                        )
+                );
+                updates.add(set("reservations", reservations));
+            }
+
             if (!(updates.isEmpty()))
                 connect.updateOne(eq(obj.get_id()), updates);
             return find(obj.get_id());
