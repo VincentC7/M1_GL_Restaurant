@@ -30,7 +30,7 @@ public class CustomScanner {
         while (true) {
             user_action = scanner.nextLine();
             while (!isDouble(user_action)){
-                System.out.println("Veuillez donner donner un prix correct");
+                System.out.println("Veuillez donner une valeur correct");
                 user_action = scanner.nextLine();
             }
             try {

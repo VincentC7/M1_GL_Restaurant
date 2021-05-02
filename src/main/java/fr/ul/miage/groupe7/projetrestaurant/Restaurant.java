@@ -18,7 +18,8 @@ public class Restaurant {
                     "0 : Quitter l'application",
                     "1 : Afficher l'état des tables",
                     "2 : Ajouter une matiere premiere au stock",
-                    "3 : Visualiser le stock",
+                    "3 : Modifier une matiere premiere du stock",
+                    "4 : Visualiser le stock",
             };
 
 
@@ -39,6 +40,9 @@ public class Restaurant {
                 ajouter_mp_stock();
                 break;
             case 3:
+                modifier_mp_stock();
+                break;
+            case 4:
                 afficher_stock();
                 break;
             default:
@@ -138,4 +142,31 @@ public class Restaurant {
             System.out.println("Vous n'avez pas encore de matière première en stock");
         }
     }
+
+    private void modifier_mp_stock() {
+        MatierePremiereDAO matierePremiereDAO = new MatierePremiereDAO();
+        HashSet<MatierePremiere> matierePremieres = matierePremiereDAO.findAll();
+        System.out.println("Pour quelle matiere premiere voulez vous ajouter du sock ? (tapez 0 pour quitter à tout moment)");
+        CustomScanner scanner = new CustomScanner();
+        boolean valid;
+        int choix;
+        do {
+            System.out.println("\tQuel est l'unitée de votre matiere premiere ?");
+            int i=1;
+            for (MatierePremiere mp : matierePremieres){
+                System.out.println("\t"+(i++)+" : "+mp.getNom()+"("+mp.getQuantitee()+" "+mp.getUnite()+")");
+            }
+            choix = scanner.get_int();
+            if (choix == 0)return; //Quitter
+            valid = choix > 0 && choix < i;
+        }while (!valid);
+        Object[] mps = matierePremieres.toArray();
+        MatierePremiere mp_modif = (MatierePremiere) mps[choix-1];
+        System.out.println("Combien d'unité voulez vous ajouter à "+mp_modif.getNom()+"(en "+mp_modif.getUnite()+")");
+        mp_modif.ajouter(new BigDecimal(String.valueOf(scanner.get_float())));
+        matierePremiereDAO.update(mp_modif);
+    }
+    // ==================== Fin Stock ====================
+
+
 }
