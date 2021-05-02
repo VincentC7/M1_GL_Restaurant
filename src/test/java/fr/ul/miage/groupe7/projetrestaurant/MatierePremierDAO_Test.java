@@ -10,6 +10,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
+import java.util.HashSet;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -22,6 +23,8 @@ public class MatierePremierDAO_Test {
     static void beforeAll(){
         BDD_Connexion.setTest();
         matierePremiereDAO = new MatierePremiereDAO();
+        HashSet<MatierePremiere> matierePremieres = matierePremiereDAO.findAll();
+        assertEquals(0,matierePremieres.size());
         MatierePremiere matierePremiere = new MatierePremiere("Salade",new BigDecimal( 2), MatierePremiere.UNITE.SIMPLE_UNITE);
         matierePremiere.set_id(new ObjectId("608d568601f9ee6a1eec44c7"));
         matierePremiereDAO.create(matierePremiere);
@@ -61,6 +64,13 @@ public class MatierePremierDAO_Test {
     void findMatierePremierimpleByNomInexistant(){
         MatierePremiere matierePremiere = matierePremiereDAO.findByName("lolilol");
         assertNull(matierePremiere);
+    }
+
+    @Test
+    @DisplayName("Chercher tous les éléments de la collection (devrait en avoir 3 {Salade, Modfier, Supprimer} pour les tests")
+    void findAllMatierePremiere(){
+        HashSet<MatierePremiere> matierePremiere = matierePremiereDAO.findAll();
+        assertEquals(3,matierePremiere.size());
     }
 
     @Test

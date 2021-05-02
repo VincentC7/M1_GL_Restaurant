@@ -4,6 +4,7 @@ import com.mongodb.client.result.DeleteResult;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 
+import java.util.HashSet;
 import java.util.Objects;
 
 import static com.mongodb.client.model.Filters.*;
@@ -24,6 +25,14 @@ public class MatierePremiereDAO extends DAO<MatierePremiere> {
     public MatierePremiere findByName(String nom) {
         Document document = connect.find(eq("nom",nom)).first();
         return (document == null) ? null : new MatierePremiere(document);
+    }
+
+    public HashSet<MatierePremiere> findAll(){
+        HashSet<MatierePremiere> matierePremieres = new HashSet<>();
+        for (Document document : connect.find()){
+            matierePremieres.add(new MatierePremiere(document));
+        }
+        return matierePremieres;
     }
 
     @Override
