@@ -49,13 +49,13 @@ public class CustomScanner {
 
 
     public static boolean isDouble(String s){
-        return s.matches("[-+]?[0-9]*\\.?[0-9]+");
+        return s.matches("[+]?[0-9]*\\.?[0-9]+");
     }
 
     public static boolean isInt(String s) {
-        boolean match = s.matches("-?\\d+");
+        boolean match = s.matches("[+]?\\d+");
         if (match) {
-            if (s.length() > 10 || s.compareTo("2147483647") > 1) return false;
+            if (s.length() > 9) return false;
         }
         return match;
     }
