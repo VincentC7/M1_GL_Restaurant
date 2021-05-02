@@ -1,10 +1,13 @@
 package fr.ul.miage.groupe7.projetrestaurant;
 
 import fr.ul.miage.groupe7.projetrestaurant.Database.*;
-import org.bson.types.ObjectId;
 import org.junit.jupiter.api.*;
+import fr.ul.miage.groupe7.projetrestaurant.Database.Table;
+import fr.ul.miage.groupe7.projetrestaurant.Database.TableDAO;
+import fr.ul.miage.groupe7.projetrestaurant.Database.Utilisateurs;
+import fr.ul.miage.groupe7.projetrestaurant.Database.UtilisateursDAO;
 
-import java.math.BigDecimal;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -81,7 +84,7 @@ public class TableDAO_Test {
     @Test
     @DisplayName("Supprime une table")
     void deleteUser(){
-        Table t = tableDAO.create(new Table(1, 1, Table.ETAT.PROPRE, utilisateur));
+        Table t = tableDAO.create(new Table(1, 2, Table.ETAT.PROPRE, utilisateur));
         Boolean res = tableDAO.delete(t);
         assertTrue(res);
     }
@@ -89,20 +92,20 @@ public class TableDAO_Test {
     @Test
     @DisplayName("Ne trouve pas la table à supprimer")
     void deleteUserFailed(){
-        Table t = new Table(1, 1, Table.ETAT.PROPRE, utilisateur);
+        Table t = new Table(1, 2, Table.ETAT.PROPRE, utilisateur);
         Boolean res = tableDAO.delete(t);
         assertFalse(res);
     }
-
 
     @Nested
     @DisplayName("Test sur le update")
     class UPDATE {
 
-        private Utilisateurs utilisateur2 = new Utilisateurs("Noirot","Quentin","Serveur","azerty","QNoirot");;
+        private Utilisateurs utilisateur2 = new Utilisateurs("Noirot", "Quentin", "Serveur", "azerty", "QNoirot");
+        ;
 
         @AfterEach
-        void afterEach(){
+        void afterEach() {
             table.setServeur(utilisateur);
             tableDAO.update(table);
             utilisateursDAO.delete(utilisateur2);
@@ -111,31 +114,56 @@ public class TableDAO_Test {
 
         @Test
         @DisplayName("Succes sur l'update du serveur")
-        void updateServeurSucces(){
+        void updateServeurSucces() {
             utilisateur2 = utilisateursDAO.create(utilisateur2);
             table.setServeur(utilisateur2);
             Table t = tableDAO.update(table);
-            assertEquals(utilisateur2,t.getServeur());
-            assertEquals("Noirot",t.getServeur().getNom());
+            assertEquals(utilisateur2, t.getServeur());
+            assertEquals("Noirot", t.getServeur().getNom());
         }
 
         @Test
         @DisplayName("Echec sur l'update du serveur car inexistant dans la base")
-        void updateServeurFailServeurInexistant(){
+        void updateServeurFailServeurInexistant() {
             table.setServeur(utilisateur2);
             Table t = tableDAO.update(table);
-            assertNotEquals(utilisateur2,t.getServeur());
-            assertEquals(utilisateur,t.getServeur());
-            assertEquals("Luc",t.getServeur().getNom());
+            assertNotEquals(utilisateur2, t.getServeur());
+            assertEquals(utilisateur, t.getServeur());
+            assertEquals("Luc", t.getServeur().getNom());
         }
+
         @Test
         @DisplayName("Succes sur l'update du serveur avec null")
-        void updateServeurSuccesNull(){
+        void updateServeurSuccesNull() {
             table.setServeur(null);
             Table t = tableDAO.update(table);
             assertNull(t.getServeur());
         }
 
+    }
+
+    @Test
+    @DisplayName("Trouve les tables d'un serveur")
+    void findServeurTable(){
+        Table t1 = tableDAO.create(new Table(2,1, Table.ETAT.PROPRE, utilisateur));
+        Table t2 = tableDAO.create(new Table(2,2, Table.ETAT.PROPRE, utilisateur));
+
+        List<Table> tables = tableDAO.findByServeur(utilisateur);
+        assertEquals(3, tables.size());
+        assertEquals(2, tables.get(1).getEtage());
+
+        tableDAO.delete(t1);
+        tableDAO.delete(t2);
+    }
+
+    @Test
+    @DisplayName("Exception quand un utilisateur qui n'est pas un serveur essaye de voir ses tables")
+    void findTableException(){
+        Utilisateurs u = new Utilisateurs("Luc","Tristan","Directeur","tmgerp",null);
+
+        assertThrows(IllegalArgumentException.class,() -> {
+            tableDAO.findByServeur(u);
+        });
     }
 
 }

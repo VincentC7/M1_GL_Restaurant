@@ -60,8 +60,6 @@ public class UtilisateursDAO_Test {
         assertEquals(1,utlisateurs.size());
     }
 
-
-
     @Test
     @DisplayName("Supprime un utilisateur")
     void deleteUser(){

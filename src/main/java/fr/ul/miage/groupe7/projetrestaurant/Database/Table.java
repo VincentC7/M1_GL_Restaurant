@@ -1,5 +1,6 @@
 package fr.ul.miage.groupe7.projetrestaurant.Database;
 
+import com.mongodb.lang.NonNull;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 
@@ -10,9 +11,6 @@ public class Table implements Comparable<Table>{
     private int numero;
     private ETAT etat;
     private Utilisateurs serveur;
-
-
-
 
     public enum ETAT{
 
@@ -55,10 +53,10 @@ public class Table implements Comparable<Table>{
         this(etage,numero,etat,null);
     }
 
-    public Table(int etage, int numero, ETAT etat, Utilisateurs serveur) {
-        this.etage = etage;
-        this.numero = numero;
-        this.etat = etat;
+    public Table(@NonNull int etage, @NonNull int numero, ETAT etat, Utilisateurs serveur) {
+        setEtage(etage);
+        setNumero(numero);
+        setEtat(etat);
         setServeur(serveur);
     }
 
@@ -95,7 +93,11 @@ public class Table implements Comparable<Table>{
     }
 
     public void setEtage(int etage) {
-        this.etage = etage;
+        if(etage >= 1){
+            this.etage = etage;
+        }else{
+            throw new IllegalArgumentException();
+        }
     }
 
     public int getNumero() {
@@ -103,7 +105,11 @@ public class Table implements Comparable<Table>{
     }
 
     public void setNumero(int numero) {
-        this.numero = numero;
+        if(numero >= 1){
+            this.numero = numero;
+        }else{
+            throw new IllegalArgumentException();
+        }
     }
 
     public ETAT getEtat() {
@@ -111,7 +117,11 @@ public class Table implements Comparable<Table>{
     }
 
     public void setEtat(ETAT etat) {
-        this.etat = etat;
+        if(etat == null){
+            this.etat = ETAT.PROPRE;
+        }else{
+            this.etat = etat;
+        }
     }
 
     @Override
@@ -122,5 +132,16 @@ public class Table implements Comparable<Table>{
     @Override
     public String toString() {
          return "["+this.etat.code()+"]";
+    }
+
+    public String toStringServeur() {
+        var sb = new StringBuilder();
+        var format = "%-7s: %s%n";
+        sb.append("=".repeat(10)).append("\r\n");
+        sb.append(String.format(format,"étage", etage));
+        sb.append(String.format(format,"numéro", numero));
+        sb.append(String.format(format,"etat", etat.code()));
+        sb.append("=".repeat(10)).append("\r\n");
+        return sb.toString();
     }
 }

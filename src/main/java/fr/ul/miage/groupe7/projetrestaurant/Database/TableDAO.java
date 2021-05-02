@@ -17,7 +17,7 @@ import static com.mongodb.client.model.Updates.set;
 public class TableDAO extends DAO<Table> {
 
     public TableDAO() {
-        super("table");
+        super("Tables");
     }
 
     @Override
@@ -40,11 +40,21 @@ public class TableDAO extends DAO<Table> {
                 : d.stream().map(Table::new).collect(Collectors.toList());
     }
 
-    public List<Table> findAll(){
+    public List<Table> findAll() {
         var d = connect.find()
                 .into(new ArrayList<>());
         return (d.isEmpty()) ? Collections.emptyList()
                 : d.stream().map(Table::new).collect(Collectors.toList());
+    }
+
+    public List<Table> findByServeur(Utilisateurs obj){
+        if(obj.role.equals("Serveur")){
+            ArrayList<Document> list = connect.find(eq("serveur",obj.get_id())).into(new ArrayList<>());
+            return (list.isEmpty()) ? Collections.emptyList()
+                    : list.stream().map(Table::new).collect(Collectors.toList());
+        }else{
+            throw new IllegalArgumentException();
+        }
     }
 
     @Override
