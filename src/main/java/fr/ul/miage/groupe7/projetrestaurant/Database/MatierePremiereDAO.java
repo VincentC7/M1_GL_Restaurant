@@ -7,6 +7,7 @@ import org.bson.types.ObjectId;
 import java.util.Objects;
 
 import static com.mongodb.client.model.Filters.*;
+import static com.mongodb.client.model.Updates.*;
 
 public class MatierePremiereDAO extends DAO<MatierePremiere> {
 
@@ -41,6 +42,10 @@ public class MatierePremiereDAO extends DAO<MatierePremiere> {
 
     @Override
     public MatierePremiere update(MatierePremiere obj) {
+        if (obj != null){
+            connect.updateOne(eq("_id", obj.get_id()), set("quantitee",obj.getQuantitee()));
+            return obj;
+        }
         return null;
     }
 

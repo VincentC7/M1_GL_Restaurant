@@ -57,7 +57,13 @@ public class MatierePremiere {
     }
 
     public void ajouter(BigDecimal bigDecimal) {
-
+        BigDecimal max = new BigDecimal(Integer.MAX_VALUE);
+        if (bigDecimal.compareTo(new BigDecimal(0)) < 0 ||
+                max.compareTo(bigDecimal) < 0 ||
+                max.compareTo(getQuantitee().add(bigDecimal)) < 0){
+            throw new IllegalArgumentException();
+        }
+        setQuantitee(getQuantitee().add(bigDecimal));
     }
 
     public ObjectId get_id() {
