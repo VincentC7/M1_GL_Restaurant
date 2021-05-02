@@ -117,10 +117,40 @@ public class Table implements Comparable<Table>{
     }
 
     public void setEtat(ETAT etat) {
-        if(etat == null){
+        if (etat == null) {
             this.etat = ETAT.PROPRE;
-        }else{
+        } else if(etat == ETAT.RESERVEE || this.etat == null) {
             this.etat = etat;
+        } else{
+            // l'état propre peut seulement passer à l'état occupée
+            if(this.etat == ETAT.PROPRE){
+                if(etat == ETAT.OCUPEE){
+                    this.etat = etat;
+                }else{
+                    throw new IllegalArgumentException();
+                }
+                // l'état occupée peut seulement passer à l'état sale
+            }else if(this.etat == ETAT.OCUPEE){
+                if(etat == ETAT.SALE){
+                    this.etat = etat;
+                }else{
+                    throw new IllegalArgumentException();
+                }
+                // l'état sale peut seulement passer à l'état second service
+            }else if(this.etat == ETAT.SALE){
+                if(etat == ETAT.SECOND_SERVICE){
+                    this.etat = etat;
+                }else{
+                    throw new IllegalArgumentException();
+                }
+                // l'état seconde service peut seulement passer à l'état propre
+            } else if(this.etat == ETAT.SECOND_SERVICE){
+                if(etat == ETAT.PROPRE){
+                    this.etat = etat;
+                }else{
+                    throw new IllegalArgumentException();
+                }
+            }
         }
     }
 

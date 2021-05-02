@@ -40,6 +40,13 @@ public class TableDAO extends DAO<Table> {
                 : d.stream().map(Table::new).collect(Collectors.toList());
     }
 
+    public List<Table> findByEtat(Table.ETAT etat){
+        var d = connect.find(eq("etat",etat.name()))
+                .into(new ArrayList<>());
+        return (d.isEmpty()) ? Collections.emptyList()
+                : d.stream().map(Table::new).collect(Collectors.toList());
+    }
+
     public List<Table> findAll() {
         var d = connect.find()
                 .into(new ArrayList<>());
@@ -84,6 +91,10 @@ public class TableDAO extends DAO<Table> {
             int etage = this.find(obj.get_id()).getEtage();
             if ( obj.getEtage() != etage) {
                 updates.add(set("etage", etage));
+            }
+            Table.ETAT etat = this.find(obj.get_id()).getEtat();
+            if ( obj.getEtat() != etat) {
+                updates.add(set("etat", etat.name()));
             }
             if (!(updates.isEmpty()))
                 connect.updateOne(eq(obj.get_id()), updates);

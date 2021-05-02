@@ -79,8 +79,6 @@ public class TableDAO_Test {
         assertEquals(1,tables.size());
     }
 
-
-
     @Test
     @DisplayName("Supprime une table")
     void deleteUser(){
@@ -95,6 +93,40 @@ public class TableDAO_Test {
         Table t = new Table(1, 2, Table.ETAT.PROPRE, utilisateur);
         Boolean res = tableDAO.delete(t);
         assertFalse(res);
+    }
+
+    @Test
+    @DisplayName("Trouve les tables d'un serveur")
+    void findServeurTable(){
+        Table t1 = tableDAO.create(new Table(2,1, Table.ETAT.PROPRE, utilisateur));
+        Table t2 = tableDAO.create(new Table(2,2, Table.ETAT.PROPRE, utilisateur));
+
+        List<Table> tables = tableDAO.findByServeur(utilisateur);
+        assertEquals(3, tables.size());
+        assertEquals(2, tables.get(1).getEtage());
+
+        tableDAO.delete(t1);
+        tableDAO.delete(t2);
+    }
+
+    @Test
+    @DisplayName("Exception quand un utilisateur qui n'est pas un serveur essaye de voir ses tables")
+    void findTableException(){
+        Utilisateurs u = new Utilisateurs("Luc","Tristan","Directeur","tmgerp",null);
+
+        assertThrows(IllegalArgumentException.class,() -> {
+            tableDAO.findByServeur(u);
+        });
+    }
+
+    @Test
+    @DisplayName("Changer l'état d'une table")
+    void changeEtat(){
+        table.setEtat(Table.ETAT.OCUPEE);
+        tableDAO.update(table);
+        Table t2 = tableDAO.find(table.get_id());
+
+        assertEquals(Table.ETAT.PROPRE, t2.getEtat());
     }
 
     @Nested
@@ -142,28 +174,5 @@ public class TableDAO_Test {
 
     }
 
-    @Test
-    @DisplayName("Trouve les tables d'un serveur")
-    void findServeurTable(){
-        Table t1 = tableDAO.create(new Table(2,1, Table.ETAT.PROPRE, utilisateur));
-        Table t2 = tableDAO.create(new Table(2,2, Table.ETAT.PROPRE, utilisateur));
-
-        List<Table> tables = tableDAO.findByServeur(utilisateur);
-        assertEquals(3, tables.size());
-        assertEquals(2, tables.get(1).getEtage());
-
-        tableDAO.delete(t1);
-        tableDAO.delete(t2);
-    }
-
-    @Test
-    @DisplayName("Exception quand un utilisateur qui n'est pas un serveur essaye de voir ses tables")
-    void findTableException(){
-        Utilisateurs u = new Utilisateurs("Luc","Tristan","Directeur","tmgerp",null);
-
-        assertThrows(IllegalArgumentException.class,() -> {
-            tableDAO.findByServeur(u);
-        });
-    }
 
 }
