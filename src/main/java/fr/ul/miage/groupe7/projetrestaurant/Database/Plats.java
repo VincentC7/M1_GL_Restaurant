@@ -102,8 +102,8 @@ public class Plats {
         sb.append(String.format(format,"Plat ", nom));
         MatierePremiereDAO dao = new MatierePremiereDAO();
         for(var entrySet : matieres_premieres.entrySet()){
-            //MatierePremiere mp = dao.find(entrySet.getKey());
-            //sb.append(String.format("\t %-12s : %d%n",mp.getNom(), entrySet.getValue()));
+            MatierePremiere mp = dao.find(entrySet.getKey());
+            sb.append(String.format("\t %-12s : %d%n",mp.getNom(), entrySet.getValue()));
         }
 
         sb.append(String.format(format,"Catégories", categories));

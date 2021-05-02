@@ -3,11 +3,10 @@ package fr.ul.miage.groupe7.projetrestaurant;
 
 import fr.ul.miage.groupe7.projetrestaurant.Database.*;
 import fr.ul.miage.groupe7.projetrestaurant.service.GeneralProperties;
+import org.bson.types.ObjectId;
 
 import java.math.BigDecimal;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 
@@ -35,7 +34,8 @@ public class Restaurant {
                     "2 : Ajouter une matiere premiere au stock",
                     "3 : Modifier une matiere premiere du stock",
                     "4 : Visualiser le stock",
-                    "5 : Modifie le serveur de la table"
+                    "5 : Modifie le serveur de la table",
+                    "6 : Ajouter un plat"
             };
 
 
@@ -63,6 +63,9 @@ public class Restaurant {
                 break;
             case 5:
                 display_Modification_Serveur_Table();
+                break;
+            case 6:
+                ajouter_plat();
                 break;
             default:
                 break;
@@ -181,9 +184,7 @@ public class Restaurant {
     // ==================== Stock ====================
     private void ajouter_mp_stock(){
         System.out.println("\tVous allez à présent créer une nouvelle matiere premiere (tapez 0 pour quitter à tout moment)");
-        CustomScanner scanner = new CustomScanner();
         MatierePremiere matierePremiere;
-        MatierePremiereDAO matierePremiereDAO = new MatierePremiereDAO();
         do {
             System.out.println("\tQuel nom voulez vous donner à votre matiere premiere ?");
             String nom;
@@ -214,7 +215,6 @@ public class Restaurant {
     }
 
     private void afficher_stock(){
-        MatierePremiereDAO matierePremiereDAO = new MatierePremiereDAO();
         HashSet<MatierePremiere> matierePremieres = matierePremiereDAO.findAll();
         if (matierePremieres.size() != 0){
             System.out.println("Voici le stock :");
@@ -227,10 +227,8 @@ public class Restaurant {
     }
 
     private void modifier_mp_stock() {
-        MatierePremiereDAO matierePremiereDAO = new MatierePremiereDAO();
         HashSet<MatierePremiere> matierePremieres = matierePremiereDAO.findAll();
         System.out.println("Pour quelle matiere premiere voulez vous ajouter du sock ? (tapez 0 pour quitter à tout moment)");
-        CustomScanner scanner = new CustomScanner();
         boolean valid;
         int choix;
         do {
@@ -250,6 +248,62 @@ public class Restaurant {
         matierePremiereDAO.update(mp_modif);
     }
     // ==================== Fin Stock ====================
+
+    //Ajouter un PLAT
+    private void ajouter_plat(){
+        System.out.println("\tVous allez à présent créer un nouveau plat (tapez 0 pour quitter à tout moment)");
+        Plats plats;
+        do {
+            String nom,enfant;
+            HashMap<ObjectId,Integer> hm = new HashMap<>();
+            BigDecimal prix;
+            do{
+                System.out.println("\tQuel nom voulez vous donner à votre plats ?");
+                nom = scanner.get_simple();
+            }while (nom.equals(""));
+            if (nom.equals("0"))break;
+            String ingredients;
+            do{
+                afficher_stock();
+                System.out.println("\tQuel ingrédients avez vous besoins ? Appuyez sur T pour terminer cette étape");
+                ingredients = scanner.get_simple();
+                if(!ingredients.equals("T"))
+                    hm = (HashMap<ObjectId, Integer>) select_matiere_premiere(hm,ingredients);
+            }while (!ingredients.equals("T"));
+            do{
+                System.out.println("\tQuel est le prix");
+                prix = scanner.get_float();
+            }while (prix.doubleValue() < 0);
+            do{
+                System.out.println("\tEst ce un plat pour enfant y or n");
+                enfant = scanner.get_simple().toLowerCase(Locale.ROOT);
+            }while ( !enfant.equals("y") && !enfant.equals("n") );
+            /*
+            Ici pour les catégories plus tard
+             */
+            plats = new Plats(nom,hm,prix,null,enfant.equals("y"));
+            plats = platsDAO.create(plats);
+            if (plats == null)
+                System.out.println("\tLes paramètres que vous avez fourni sont faux, recommencez.");
+            else
+                System.out.println("Votre plats {"+ Main.RETOUR_LIGNE +plats+"} a bien été créé");
+        }while (plats == null);
+    }
+
+    public Map<ObjectId,Integer> select_matiere_premiere(Map<ObjectId,Integer> hm, String nom){
+        MatierePremiere mp = matierePremiereDAO.findByName(nom);
+        if(mp == null){
+            System.out.println("Ce n'est pas une matière première");
+            return hm;
+        }
+        int unite;
+        do {
+            System.out.println("Combien en avez vous besoin pour la recette");
+            unite = scanner.get_int();
+        }while (unite < 0);
+        hm.put(mp.get_id(),unite);
+        return hm;
+    }
 
 
 }
