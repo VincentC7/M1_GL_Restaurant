@@ -43,6 +43,10 @@ public class CustomScanner {
         return value;
     }
 
+    public String get_simple(){
+        return scanner.nextLine();
+    }
+
 
     public static boolean isDouble(String s){
         return s.matches("[-+]?[0-9]*\\.?[0-9]+");

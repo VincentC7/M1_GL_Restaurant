@@ -1,8 +1,13 @@
 package fr.ul.miage.groupe7.projetrestaurant;
 
 
+import fr.ul.miage.groupe7.projetrestaurant.Database.MatierePremiere;
+import fr.ul.miage.groupe7.projetrestaurant.Database.MatierePremiereDAO;
 import fr.ul.miage.groupe7.projetrestaurant.Database.Table;
 import fr.ul.miage.groupe7.projetrestaurant.service.GeneralProperties;
+
+import java.math.BigDecimal;
+import java.util.Scanner;
 
 public class Restaurant {
 
@@ -10,6 +15,7 @@ public class Restaurant {
             {
                     "0 : Quitter l'application",
                     "1 : Afficher l'état des tables",
+                    "2 : Ajouter une matiere premiere au stock",
             };
 
 
@@ -25,6 +31,10 @@ public class Restaurant {
             case 1:
                 Table[][] tables = creer_tables();
                 System.out.println(afficher_tables(tables));
+                break;
+            case 2:
+                ajouter_mp_stock();
+                break;
             default:
                 break;
         }
@@ -72,5 +82,41 @@ public class Restaurant {
         }
 
         return res;
+    }
+
+
+    // ==================== Stock ====================
+    private void ajouter_mp_stock(){
+        System.out.println("\tVous allez à présent créer une nouvelle matiere premiere (tapez 0 pour quitter à tout moment)");
+        CustomScanner scanner = new CustomScanner();
+        MatierePremiere matierePremiere;
+        MatierePremiereDAO matierePremiereDAO = new MatierePremiereDAO();
+        do {
+            System.out.println("\tQuel nom voulez vous donner à votre matiere premiere ?");
+            String nom;
+            do{
+                nom = scanner.get_simple();
+                if (nom.equals("")) System.out.println("Veuillez donner un nom");
+            }while (nom.equals(""));
+            if (nom.equals("0"))break;
+            boolean valid;
+            int unite;
+            do {
+                System.out.println("\tQuel est l'unitée de votre matiere premiere ?");
+                int i=1;
+                for (MatierePremiere.UNITE u : MatierePremiere.UNITE.values()){
+                    System.out.println("\t"+(i++)+" : "+u.toString());
+                }
+                unite = scanner.get_int();
+                if (unite == 0)return;
+                valid = unite > 0 && unite < i;
+            }while (!valid);
+            matierePremiere = new MatierePremiere(nom,new BigDecimal(0), MatierePremiere.UNITE.values()[unite-1]);
+            matierePremiere = matierePremiereDAO.create(matierePremiere);
+            if (matierePremiere == null)
+                System.out.println("\tLes paramètres que vous avez fourni sont faux, recommencez.");
+            else
+                System.out.println("Votre matiere premiere {"+matierePremiere+"} a bien été créé");
+        }while (matierePremiere == null);
     }
 }
