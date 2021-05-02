@@ -1,11 +1,10 @@
 package fr.ul.miage.groupe7.projetrestaurant;
 
-import fr.ul.miage.groupe7.projetrestaurant.Database.Table;
-import fr.ul.miage.groupe7.projetrestaurant.Database.TableDAO;
-import fr.ul.miage.groupe7.projetrestaurant.Database.Utilisateurs;
-import fr.ul.miage.groupe7.projetrestaurant.Database.UtilisateursDAO;
+import fr.ul.miage.groupe7.projetrestaurant.Database.*;
 import org.bson.types.ObjectId;
 import org.junit.jupiter.api.*;
+
+import java.math.BigDecimal;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -15,10 +14,11 @@ public class TableDAO_Test {
     private static UtilisateursDAO utilisateursDAO;
 
     private static Table table;
-    private static Utilisateurs utilisateur;
+    private static Utilisateurs utilisateur,utilisateur2;
 
     @BeforeAll
     static void init(){
+        BDD_Connexion.setTest();
         tableDAO = new TableDAO();
         utilisateursDAO = new UtilisateursDAO();
 
@@ -36,7 +36,10 @@ public class TableDAO_Test {
     @Test
     @DisplayName("Trouve une table par son id")
     void finTableById(){
-        assertNotNull(tableDAO.find(table.get_id()));
+        Table t = tableDAO.find(table.get_id());
+        assertNotNull(t);
+        assertNotNull(t.getServeur());
+
     }
 
     @Test
@@ -59,6 +62,21 @@ public class TableDAO_Test {
         assertNull(tableDAO.findByNum(-3));
     }
 
+    @Test
+    @DisplayName("Trouve les tables par serveur")
+    void finTableByServeurNull(){
+        var tables = tableDAO.findByServeurNull();
+        assertEquals(0,tables.size());
+    }
+
+    @Test
+    @DisplayName("Trouve toutes les tables")
+    void finTableAll(){
+        var tables = tableDAO.findAll();
+        assertEquals(1,tables.size());
+    }
+
+
 
     @Test
     @DisplayName("Supprime une table")
@@ -74,6 +92,50 @@ public class TableDAO_Test {
         Table t = new Table(1, 1, Table.ETAT.PROPRE, utilisateur);
         Boolean res = tableDAO.delete(t);
         assertFalse(res);
+    }
+
+
+    @Nested
+    @DisplayName("Test sur le update")
+    class UPDATE {
+
+        private Utilisateurs utilisateur2 = new Utilisateurs("Noirot","Quentin","Serveur","azerty","QNoirot");;
+
+        @AfterEach
+        void afterEach(){
+            table.setServeur(utilisateur);
+            tableDAO.update(table);
+            utilisateursDAO.delete(utilisateur2);
+
+        }
+
+        @Test
+        @DisplayName("Succes sur l'update du serveur")
+        void updateServeurSucces(){
+            utilisateur2 = utilisateursDAO.create(utilisateur2);
+            table.setServeur(utilisateur2);
+            Table t = tableDAO.update(table);
+            assertEquals(utilisateur2,t.getServeur());
+            assertEquals("Noirot",t.getServeur().getNom());
+        }
+
+        @Test
+        @DisplayName("Echec sur l'update du serveur car inexistant dans la base")
+        void updateServeurFailServeurInexistant(){
+            table.setServeur(utilisateur2);
+            Table t = tableDAO.update(table);
+            assertNotEquals(utilisateur2,t.getServeur());
+            assertEquals(utilisateur,t.getServeur());
+            assertEquals("Luc",t.getServeur().getNom());
+        }
+        @Test
+        @DisplayName("Succes sur l'update du serveur avec null")
+        void updateServeurSuccesNull(){
+            table.setServeur(null);
+            Table t = tableDAO.update(table);
+            assertNull(t.getServeur());
+        }
+
     }
 
 }

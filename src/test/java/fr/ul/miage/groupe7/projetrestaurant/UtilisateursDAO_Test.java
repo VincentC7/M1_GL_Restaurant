@@ -54,6 +54,15 @@ public class UtilisateursDAO_Test {
     }
 
     @Test
+    @DisplayName("Trouve tous les serveur")
+    void findServeurs(){
+        var utlisateurs = userDAO.findAllServeur();
+        assertEquals(1,utlisateurs.size());
+    }
+
+
+
+    @Test
     @DisplayName("Supprime un utilisateur")
     void deleteUser(){
         Utilisateurs user = userDAO.create(new Utilisateurs("Luc","Tristan","Serveur","tmgerp",null));
@@ -62,7 +71,7 @@ public class UtilisateursDAO_Test {
     }
 
     @Test
-    @DisplayName("Supprime un utilisateur")
+    @DisplayName("Supprime un utilisateur echec")
     void deleteUserFailed(){
         Utilisateurs user = new Utilisateurs("Luc","Tristan","Serveur","tmgerp",null);
         Boolean res = userDAO.delete(user);
