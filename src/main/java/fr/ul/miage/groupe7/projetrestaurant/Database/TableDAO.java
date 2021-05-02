@@ -4,12 +4,18 @@ import com.mongodb.client.result.DeleteResult;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import static com.mongodb.client.model.Filters.eq;
 
 public class TableDAO extends DAO<Table> {
 
     public TableDAO() {
-        super("table");
+        super("Tables");
     }
 
     @Override
@@ -25,13 +31,24 @@ public class TableDAO extends DAO<Table> {
                 : new Table(d);
     }
 
+    public List<Table> findByServeur(Utilisateurs obj){
+        if(obj.role.equals("Serveur")){
+            ArrayList<Document> list = connect.find(eq("serveur",obj.get_id())).into(new ArrayList<>());
+            return (list.isEmpty()) ? Collections.emptyList()
+                    : list.stream().map(Table::new).collect(Collectors.toList());
+        }else{
+            throw new IllegalArgumentException();
+        }
+
+    }
+
     @Override
     public Table create(Table obj) {
         Document d;
         d = new Document("etage", obj.getEtage())
                 .append("numero", obj.getNumero())
                 .append("etat", obj.getEtat().name())
-                .append("serveur", obj.getServeur().get_id());
+                .append("serveur", (obj.getServeur().get_id() == null) ? null: obj.getServeur().get_id() );
 
         var insert =  connect.insertOne(d);
         ObjectId id = insert.getInsertedId().asObjectId().getValue();
@@ -47,11 +64,6 @@ public class TableDAO extends DAO<Table> {
     @Override
     public boolean delete(Table obj) {
         DeleteResult res = connect.deleteOne(eq("_id", obj.get_id()));
-
-        if(res.getDeletedCount() == 0){
-            return false;
-        }else{
-            return true;
-        }
+        return res.getDeletedCount() != 0;
     }
 }

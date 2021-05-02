@@ -62,7 +62,7 @@ public class UtilisateursDAO_Test {
     }
 
     @Test
-    @DisplayName("Supprime un utilisateur")
+    @DisplayName("Supprime un utilisateur échec")
     void deleteUserFailed(){
         Utilisateurs user = new Utilisateurs("Luc","Tristan","Serveur","tmgerp",null);
         Boolean res = userDAO.delete(user);
