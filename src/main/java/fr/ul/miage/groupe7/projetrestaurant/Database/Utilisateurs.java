@@ -5,6 +5,7 @@ import org.bson.Document;
 import org.bson.types.ObjectId;
 
 import java.util.Arrays;
+import java.util.Objects;
 
 public class Utilisateurs {
 
@@ -122,5 +123,13 @@ public class Utilisateurs {
         sb.append(String.format(format,"identifiant", identifiant));
         sb.append("=".repeat(35)).append("\r\n");
         return sb.toString();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Utilisateurs that = (Utilisateurs) o;
+        return Objects.equals(_id, that._id);
     }
 }

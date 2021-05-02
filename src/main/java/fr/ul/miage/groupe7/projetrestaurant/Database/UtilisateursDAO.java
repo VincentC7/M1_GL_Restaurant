@@ -5,7 +5,11 @@ import org.bson.Document;
 import org.bson.types.ObjectId;
 
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 import static com.mongodb.client.model.Filters.*;
 
@@ -28,6 +32,15 @@ public class UtilisateursDAO extends DAO<Utilisateurs> {
         Document d = connect.find(eq( id)).first();
         return (d == null) ? null
                 : new Utilisateurs(d);
+    }
+
+
+    public List<Utilisateurs> findAllServeur() {
+        var d = connect.find(eq("role", Utilisateurs.ROLE.SERVEUR.toString()))
+                .into(new ArrayList<>())
+                ;
+        return (d.isEmpty()) ? Collections.emptyList()
+                : d.stream().map(Utilisateurs::new).collect(Collectors.toList());
     }
 
 
