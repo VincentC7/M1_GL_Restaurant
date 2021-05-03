@@ -99,7 +99,7 @@ public class Table implements Comparable<Table>{
     }
 
     public void setServeur(Utilisateurs serveur) {
-        if( serveur != null && !serveur.getRole().equals(Utilisateurs.ROLE.SERVEUR.toString())   )
+        if( serveur != null && !serveur.getRole().equals(Utilisateurs.ROLE.SERVEUR.toString()))
             throw new IllegalArgumentException();
         this.serveur = serveur;
     }

@@ -10,6 +10,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 
 public class Restaurant {
@@ -19,6 +20,7 @@ public class Restaurant {
     private UtilisateursDAO utilisateursDAO;
     private MatierePremiereDAO matierePremiereDAO;
     private CustomScanner scanner;
+    private Utilisateurs utilisateur;
 
     public Restaurant(){
         scanner = new CustomScanner();
@@ -27,6 +29,11 @@ public class Restaurant {
         utilisateursDAO = new UtilisateursDAO();
         matierePremiereDAO = new MatierePremiereDAO();
         creer_tables();
+
+        utilisateur = utilisateursDAO.find("Tluc", "azerty");
+        if(utilisateur == null){
+            utilisateur = utilisateursDAO.create( new Utilisateurs("Luc","Tristan","Serveur","azerty",null));
+        }
     }
 
     private static String[] actions =
@@ -38,7 +45,8 @@ public class Restaurant {
                     "4 : Visualiser le stock",
                     "5 : Modifie le serveur de la table",
                     "6 : Ajouter un plat",
-                    "7 : Réserver une table"
+                    "7 : Réserver une table",
+                    "8 : Débarrasser une table"
             };
 
 
@@ -72,6 +80,9 @@ public class Restaurant {
                 break;
             case 7:
                 reserver_une_table();
+                break;
+            case 8:
+                debarrasser_une_table();
                 break;
             default:
                 break;
@@ -349,6 +360,52 @@ public class Restaurant {
         }while (LocalDateTime.now().isAfter(ldt)) ;
         t.addReservation(new Reservation(creneau,nom,date));
         tablesDAO.update(t);
+    }
+
+    /**
+     * Permet de débarrasser une table (Passer de l'état sale à second_service)
+     */
+    private void debarrasser_une_table() {
+        Table t1 = tablesDAO.findByNum(1);
+        t1.setServeur(utilisateur);
+        t1.setEtat(Table.ETAT.OCUPEE);
+        t1.setEtat(Table.ETAT.SALE);
+        tablesDAO.update(t1);
+        Table t2 = tablesDAO.findByNum(2);
+        t2.setEtat(Table.ETAT.OCUPEE);
+        t2.setEtat(Table.ETAT.SALE);
+        t2.setServeur(utilisateur);
+        tablesDAO.update(t2);
+
+        List<Table> tables = tablesDAO.findByServeur(utilisateur);
+        tables.forEach((e) -> {
+            // on affiche que les tables sales que le serveur peut débarrasser
+            if(e.getEtat().equals(Table.ETAT.SALE)){
+                System.out.print(e.toStringServeur());
+            }
+        });
+
+        int num_table;
+        do{
+            System.out.println("Entrez le numéro de la table que vous voulez débarrasser");
+            num_table = scanner.get_int();
+        }while (num_table < 1 || num_table > tables.size());
+
+        Table tmp = null;
+        for(Table t: tables){
+            if(t.getNumero() == num_table){
+                tmp = t;
+            }
+        }
+        tmp.setEtat(Table.ETAT.SECOND_SERVICE);
+        tablesDAO.update(tmp);
+        System.out.println("Table débarrassée, à drésser pour un second service !");
+
+        // on remet les tables par défaut
+        t1.setEtat(null);
+        tablesDAO.update(t1);
+        t2.setEtat(null);
+        tablesDAO.update(t2);
     }
 
 
