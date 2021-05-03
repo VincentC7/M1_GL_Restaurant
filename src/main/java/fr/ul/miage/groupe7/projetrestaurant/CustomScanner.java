@@ -30,7 +30,7 @@ public class CustomScanner {
         while (true) {
             user_action = scanner.nextLine();
             while (!isDouble(user_action)){
-                System.out.println("Veuillez donner donner un prix correct");
+                System.out.println("Veuillez donner une valeur correct");
                 user_action = scanner.nextLine();
             }
             try {
@@ -43,15 +43,19 @@ public class CustomScanner {
         return value;
     }
 
+    public String get_simple(){
+        return scanner.nextLine();
+    }
+
 
     public static boolean isDouble(String s){
-        return s.matches("[-+]?[0-9]*\\.?[0-9]+");
+        return s.matches("[+]?[0-9]*\\.?[0-9]+");
     }
 
     public static boolean isInt(String s) {
-        boolean match = s.matches("-?\\d+");
+        boolean match = s.matches("[+]?\\d+");
         if (match) {
-            if (s.length() > 10 || s.compareTo("2147483647") > 1) return false;
+            if (s.length() > 9) return false;
         }
         return match;
     }

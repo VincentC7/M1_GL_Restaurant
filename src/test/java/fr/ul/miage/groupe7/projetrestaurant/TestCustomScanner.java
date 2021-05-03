@@ -27,18 +27,23 @@ class TestCustomScanner {
     }
 
     @Test
-    @DisplayName("int str max")
+    @DisplayName("int str max accepté")
     void verifMaxInt(){
-        String max_int = Integer.MAX_VALUE + "";
-        boolean res = CustomScanner.isInt(max_int);
+        boolean res = CustomScanner.isInt("999999999");
         assertTrue(res);
     }
 
     @Test
-    @DisplayName("int str qui dépasse la valeur max de int")
+    @DisplayName("int str dans le negatif (refusé)")
+    void verifMaxIntNegatif(){
+        boolean res = CustomScanner.isInt("-1");
+        assertFalse(res);
+    }
+
+    @Test
+    @DisplayName("int str qui dépasse la valeur max de int accepté")
     void verifMoreMaxInt(){
-        String bigint_str = (Integer.MAX_VALUE + 1) + "";
-        boolean res = CustomScanner.isInt(bigint_str);
+        boolean res = CustomScanner.isInt("1000000000");
         assertFalse(res);
     }
 

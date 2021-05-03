@@ -1,14 +1,11 @@
 package fr.ul.miage.groupe7.projetrestaurant;
 
+import fr.ul.miage.groupe7.projetrestaurant.Database.BDD_Connexion;
 import fr.ul.miage.groupe7.projetrestaurant.Database.Utilisateurs;
 import fr.ul.miage.groupe7.projetrestaurant.Database.UtilisateursDAO;
 import org.bson.types.ObjectId;
 import org.junit.jupiter.api.*;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class UtilisateursDAO_Test {
@@ -17,7 +14,7 @@ public class UtilisateursDAO_Test {
 
     @BeforeAll
     static void init(){
-
+        BDD_Connexion.setTest();
         userDAO = new UtilisateursDAO();
 
     }
@@ -57,6 +54,13 @@ public class UtilisateursDAO_Test {
     }
 
     @Test
+    @DisplayName("Trouve tous les serveur")
+    void findServeurs(){
+        var utlisateurs = userDAO.findAllServeur();
+        assertEquals(1,utlisateurs.size());
+    }
+
+    @Test
     @DisplayName("Supprime un utilisateur")
     void deleteUser(){
         Utilisateurs user = userDAO.create(new Utilisateurs("Luc","Tristan","Serveur","tmgerp",null));
@@ -65,7 +69,7 @@ public class UtilisateursDAO_Test {
     }
 
     @Test
-    @DisplayName("Supprime un utilisateur")
+    @DisplayName("Supprime un utilisateur echec")
     void deleteUserFailed(){
         Utilisateurs user = new Utilisateurs("Luc","Tristan","Serveur","tmgerp",null);
         Boolean res = userDAO.delete(user);
