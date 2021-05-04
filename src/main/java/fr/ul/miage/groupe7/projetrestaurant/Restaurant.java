@@ -10,6 +10,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 
 public class Restaurant {
@@ -326,14 +327,7 @@ public class Restaurant {
 
     //Réserver une table
     private void reserver_une_table(){
-        List<Table> tablesVide =tablesDAO.findAll();
-        int user_action;
-        do {
-            System.out.println(afficher_table_sans_serveur(tablesVide));
-            System.out.println("Sélectionner une table");
-            user_action = scanner.get_int();
-        } while (!table_existe(user_action));
-        Table t = tablesDAO.findByNum(user_action);
+
         String nom,creneau;
         int year,month,day;
         LocalDate date;
@@ -358,8 +352,32 @@ public class Restaurant {
             ldt = (creneau.equals("Matin")) ? date.atTime(12,0) : date.atTime(19,0);
             System.out.println(LocalDateTime.now().isBefore(ldt));
         }while (LocalDateTime.now().isAfter(ldt)) ;
+        int user_action;
+        List<Table> tablesVide =tablesDAO.findAll();
+        tablesVide = tables_sans_reservation(tablesVide,date,creneau);
+        do {
+            System.out.println("Les tables disponibles pour la date");
+            tablesVide.forEach(t -> System.out.println("\t" + t.getNumero()));
+            System.out.println("Sélectionner une table");
+            user_action = scanner.get_int();
+        } while (!table_existe(user_action));
+        Table t = tablesDAO.findByNum(user_action);
         t.addReservation(new Reservation(creneau,nom,date));
         tablesDAO.update(t);
+    }
+
+    /**
+     * Renvoie une liste de table qui n'ont pas de résevration
+     * pour une date précise
+     * @param tables liste de table
+     * @param ld date de la réservation
+     * @param creneau créneau de la réservation (Matin/Soir)
+     * @return une liste filtré
+     */
+    private List<Table> tables_sans_reservation(List<Table> tables,LocalDate ld,String creneau){
+        return tables.stream()
+                .filter(t -> !(t.getReservations().contains(new Reservation(creneau,"nom", ld))))
+                .collect(Collectors.toList());
     }
 
     /**
