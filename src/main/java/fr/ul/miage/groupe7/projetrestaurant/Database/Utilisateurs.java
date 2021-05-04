@@ -21,16 +21,6 @@ public class Utilisateurs {
 
         private final String text;
 
-        public ROLE stringToRole(String role){
-            switch (role){
-                case "Directeur" : return DIRECTEUR;
-                case "Cuisinier" : return CUISINIER;
-                case "Assistant service" : return ASSISTANT_SERVICE;
-                case "Maître d'hôtel" : return MAITRE_HOTEL;
-                default: return SERVEUR;
-            }
-        }
-
         /**
          * @param text
          */

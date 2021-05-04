@@ -14,11 +14,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class Restaurant {
 
-    private PlatsDAO platsDAO;
-    private TableDAO tablesDAO;
-    private UtilisateursDAO utilisateursDAO;
-    private MatierePremiereDAO matierePremiereDAO;
-    private CustomScanner scanner;
+    private final PlatsDAO platsDAO;
+    private final TableDAO tablesDAO;
+    private final UtilisateursDAO utilisateursDAO;
+    private final MatierePremiereDAO matierePremiereDAO;
+    private final CustomScanner scanner;
     private Utilisateurs utilisateur;
 
     public Restaurant(){
@@ -72,7 +72,7 @@ public class Restaurant {
                 afficher_stock();
                 break;
             case 5:
-                display_Modification_Serveur_Table();
+                modification_Serveur_Table();
                 break;
             case 6:
                 ajouter_plat();
@@ -97,9 +97,9 @@ public class Restaurant {
     public String afficher_tables(List<Table> tables){
         StringBuilder res = new StringBuilder();
         Collections.sort(tables);
-        AtomicInteger etage = new AtomicInteger(1);
-        String format = "%nEtage %d : %s ";
-        String format2 = "%s ";
+        var etage = new AtomicInteger(1);
+        var format = "%nEtage %d : %s ";
+        var format2 = "%s ";
         tables.forEach(t -> res.append(
                 (t.getEtage() == etage.get()) ? String.format(format ,etage.getAndIncrement(), t)
                         : String.format(format2,t)
@@ -108,11 +108,12 @@ public class Restaurant {
     }
 
     /**
-     * Affiche les tables sans serveur
+     * Affiche les tables ne possédant pas de serveur
+     * @param tablesVide liste de table vide
      * @return
      */
     public String afficher_table_sans_serveur(List<Table> tablesVide){
-        StringBuilder sb = new StringBuilder();
+        var sb = new StringBuilder();
 
         tablesVide.forEach(t -> sb.append("La table ")
                 .append(t.getNumero())
@@ -132,7 +133,7 @@ public class Restaurant {
      * Methode qui effectue toutes las actions correspondantes à l'ajout d'un serveur à une table
      * @return
      */
-    public void display_Modification_Serveur_Table(){
+    public void modification_Serveur_Table(){
         int user_action;
         List<Table> tablesVide = tablesDAO.findByServeurNull();
         do {
@@ -140,7 +141,7 @@ public class Restaurant {
             System.out.println("Sélectionner une table");
             user_action = scanner.get_int();
         } while (!table_existe(user_action));
-        Table t = tablesDAO.findByNum(user_action);
+        var t = tablesDAO.findByNum(user_action);
         List<Utilisateurs> serveurs = utilisateursDAO.findAllServeur();
         do {
             System.out.println(affiche_des_utilisateurs(serveurs));
@@ -320,8 +321,8 @@ public class Restaurant {
         hm.put(mp.get_id(),unite);
         return hm;
     }
-
     //Ajouter un PLAT
+
 
     //Réserver une table
     private void reserver_une_table(){
