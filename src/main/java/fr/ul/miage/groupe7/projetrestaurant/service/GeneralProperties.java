@@ -1,6 +1,5 @@
 package fr.ul.miage.groupe7.projetrestaurant.service;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;

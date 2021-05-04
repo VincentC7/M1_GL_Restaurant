@@ -3,7 +3,6 @@ package fr.ul.miage.groupe7.projetrestaurant;
 import com.mongodb.client.MongoDatabase;
 import fr.ul.miage.groupe7.projetrestaurant.Database.BDD_Connexion;
 import fr.ul.miage.groupe7.projetrestaurant.service.GeneralProperties;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

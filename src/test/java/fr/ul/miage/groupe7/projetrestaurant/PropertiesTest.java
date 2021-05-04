@@ -4,7 +4,6 @@ import fr.ul.miage.groupe7.projetrestaurant.service.GeneralProperties;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-
 import static org.junit.jupiter.api.Assertions.*;
 
 public class PropertiesTest {

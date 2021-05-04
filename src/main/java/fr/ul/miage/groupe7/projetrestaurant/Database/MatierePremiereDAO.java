@@ -7,8 +7,8 @@ import org.bson.types.ObjectId;
 import java.util.HashSet;
 import java.util.Objects;
 
-import static com.mongodb.client.model.Filters.*;
-import static com.mongodb.client.model.Updates.*;
+import static com.mongodb.client.model.Filters.eq;
+import static com.mongodb.client.model.Updates.set;
 
 public class MatierePremiereDAO extends DAO<MatierePremiere> {
 

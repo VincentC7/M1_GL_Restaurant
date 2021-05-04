@@ -3,7 +3,6 @@ package fr.ul.miage.groupe7.projetrestaurant.DAO_Test;
 import fr.ul.miage.groupe7.projetrestaurant.Database.BDD_Connexion;
 import fr.ul.miage.groupe7.projetrestaurant.Database.Plats;
 import fr.ul.miage.groupe7.projetrestaurant.Database.PlatsDAO;
-import fr.ul.miage.groupe7.projetrestaurant.Database.Utilisateurs;
 import org.bson.types.ObjectId;
 import org.junit.jupiter.api.*;
 

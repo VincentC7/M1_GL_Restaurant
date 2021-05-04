@@ -1,7 +1,10 @@
 package fr.ul.miage.groupe7.projetrestaurant.database_model;
 
-import fr.ul.miage.groupe7.projetrestaurant.Database.*;
-import org.junit.jupiter.api.*;
+import fr.ul.miage.groupe7.projetrestaurant.Database.Table;
+import fr.ul.miage.groupe7.projetrestaurant.Database.Utilisateurs;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 

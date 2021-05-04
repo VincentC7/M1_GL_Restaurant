@@ -2,18 +2,9 @@ package fr.ul.miage.groupe7.projetrestaurant.DAO_Test;
 
 import fr.ul.miage.groupe7.projetrestaurant.Database.*;
 import org.junit.jupiter.api.*;
-import fr.ul.miage.groupe7.projetrestaurant.Database.Table;
-import fr.ul.miage.groupe7.projetrestaurant.Database.TableDAO;
-import fr.ul.miage.groupe7.projetrestaurant.Database.Utilisateurs;
-import fr.ul.miage.groupe7.projetrestaurant.Database.UtilisateursDAO;
 
-
-import java.util.List;
-
-import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.Date;
-
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
