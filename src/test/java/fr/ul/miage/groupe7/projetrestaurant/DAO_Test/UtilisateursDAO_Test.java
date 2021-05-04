@@ -1,4 +1,4 @@
-package fr.ul.miage.groupe7.projetrestaurant;
+package fr.ul.miage.groupe7.projetrestaurant.DAO_Test;
 
 import fr.ul.miage.groupe7.projetrestaurant.Database.BDD_Connexion;
 import fr.ul.miage.groupe7.projetrestaurant.Database.Utilisateurs;
