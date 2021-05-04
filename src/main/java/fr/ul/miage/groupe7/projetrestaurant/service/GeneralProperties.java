@@ -1,5 +1,6 @@
 package fr.ul.miage.groupe7.projetrestaurant.service;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -31,7 +32,6 @@ public class GeneralProperties {
      */
     private static void load(String fileName){
         try (InputStream input = new FileInputStream(fileName)) {
-
             prop = new Properties();
             prop.load(input);
 

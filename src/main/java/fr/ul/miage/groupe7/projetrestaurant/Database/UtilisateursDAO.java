@@ -36,7 +36,7 @@ public class UtilisateursDAO extends DAO<Utilisateurs> {
 
 
     public List<Utilisateurs> findAllServeur() {
-        var d = connect.find(eq("role", Utilisateurs.ROLE.SERVEUR.toString()))
+        var d = connect.find(eq("role", Utilisateurs.ROLE.SERVEUR.name()))
                 .into(new ArrayList<>())
                 ;
         return (d.isEmpty()) ? Collections.emptyList()
@@ -49,7 +49,7 @@ public class UtilisateursDAO extends DAO<Utilisateurs> {
         Document d;
         d = new Document("nom", obj.getNom())
                 .append("prenom", obj.getPrenom())
-                .append("role", obj.getRole())
+                .append("role", obj.getRole().name())
                 .append("identifiant",
                         (obj.getIdentifiant() != null) ? obj.getIdentifiant() : generateIdentifiant(obj.getNom(), obj.getPrenom()));
         do {

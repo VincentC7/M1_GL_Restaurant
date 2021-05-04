@@ -32,7 +32,7 @@ public class Restaurant {
 
         utilisateur = utilisateursDAO.find("Tluc", "azerty");
         if(utilisateur == null){
-            utilisateur = utilisateursDAO.create( new Utilisateurs("Luc","Tristan","Serveur","azerty",null));
+            utilisateur = utilisateursDAO.create( new Utilisateurs("Luc","Tristan", Utilisateurs.ROLE.SERVEUR,"azerty",null));
         }
     }
 

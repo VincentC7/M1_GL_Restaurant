@@ -8,15 +8,25 @@ import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class UtilisateursDAO_Test {
+class UtilisateursDAO_Test {
 
     static UtilisateursDAO userDAO;
+    static Utilisateurs utilisateurs1,utilisateurs2;
 
     @BeforeAll
     static void init(){
         BDD_Connexion.setTest();
         userDAO = new UtilisateursDAO();
+        utilisateurs1 = new Utilisateurs("Afritt","Barack", Utilisateurs.ROLE.SERVEUR,"123Soleil","Bafritt");
+        utilisateurs2 = new Utilisateurs("Sion","Eva", Utilisateurs.ROLE.DIRECTEUR,"FCSilmi","Esion");
+        utilisateurs1 = userDAO.create(utilisateurs1);
+        utilisateurs2 = userDAO.create(utilisateurs2);
+    }
 
+    @AfterAll
+    static void end(){
+        userDAO.delete(utilisateurs1);
+        userDAO.delete(utilisateurs2);
     }
 
 
@@ -26,7 +36,7 @@ public class UtilisateursDAO_Test {
         Utilisateurs u = userDAO.find("Esion","FCSilmi");
         assertEquals("Sion",u.getNom());
         assertEquals("Eva",u.getPrenom());
-        assertEquals("Directeur",u.getRole());
+        assertEquals("Directeur",u.getRole().toString());
         assertTrue(u.isMdp("FCSilmi"));
     }
 
@@ -63,16 +73,16 @@ public class UtilisateursDAO_Test {
     @Test
     @DisplayName("Supprime un utilisateur")
     void deleteUser(){
-        Utilisateurs user = userDAO.create(new Utilisateurs("Luc","Tristan","Serveur","tmgerp",null));
-        Boolean res = userDAO.delete(user);
+        Utilisateurs user = userDAO.create(new Utilisateurs("Luc","Tristan", Utilisateurs.ROLE.SERVEUR,"tmgerp",null));
+        boolean res = userDAO.delete(user);
         assertTrue(res);
     }
 
     @Test
     @DisplayName("Supprime un utilisateur echec")
     void deleteUserFailed(){
-        Utilisateurs user = new Utilisateurs("Luc","Tristan","Serveur","tmgerp",null);
-        Boolean res = userDAO.delete(user);
+        Utilisateurs user = new Utilisateurs("Luc","Tristan",Utilisateurs.ROLE.SERVEUR,"tmgerp",null);
+        boolean res = userDAO.delete(user);
         assertFalse(res);
     }
 
@@ -90,17 +100,17 @@ public class UtilisateursDAO_Test {
         @Test
         @DisplayName("Crée un utilisateur")
         void CreateUtilisateur(){
-            user = userDAO.create(new Utilisateurs("Noirot","Quentin","Serveur","azerty","Testing"));
+            user = userDAO.create(new Utilisateurs("Noirot","Quentin",Utilisateurs.ROLE.SERVEUR,"azerty","Testing"));
             assertNotNull(user);
             assertEquals("Noirot",user.getNom());
             assertEquals("Quentin",user.getPrenom());
-            assertEquals("Serveur",user.getRole());
+            assertEquals("Serveur",user.getRole().toString());
         }
 
         @Test
         @DisplayName("Crée un utilisateur sans mdp")
         void CreateUtilisateurWithoutMdp(){
-            user = userDAO.create(new Utilisateurs("Noirot","Quentin","Serveur",null,"QNoirot"));
+            user = userDAO.create(new Utilisateurs("Noirot","Quentin",Utilisateurs.ROLE.SERVEUR,null,"QNoirot"));
             assertNotNull(user);
             assertNotNull(user.getMdp());
             assertTrue(user.getMdp().matches("^[a-zA-Z0-9]*$"));
@@ -109,7 +119,7 @@ public class UtilisateursDAO_Test {
         @Test
         @DisplayName("Crée un utilisateur sans identifiant")
         void CreateUtilisateurWithoutIdentifiant(){
-            user = userDAO.create(new Utilisateurs("Noirot","Quentin","Serveur","azerty",null));
+            user = userDAO.create(new Utilisateurs("Noirot","Quentin",Utilisateurs.ROLE.SERVEUR,"azerty",null));
             assertNotNull(user);
             assertNotNull(user.getIdentifiant());
 

@@ -21,7 +21,7 @@ public class TableTest {
     @Test
     @DisplayName("Créer une table avec un serveur")
     void createwithServeur(){
-        Utilisateurs u =  new Utilisateurs("Noirot","Quentin","Serveur","azerty","QNoirot");
+        Utilisateurs u =  new Utilisateurs("Noirot","Quentin", Utilisateurs.ROLE.SERVEUR,"azerty","QNoirot");
         Table table = new Table(1, 1, null, u);
         assertEquals(u.getRole(), table.getServeur().getRole());
     }
@@ -53,7 +53,7 @@ public class TableTest {
     @DisplayName("Exception quand l'utilisateur qui n'est pas un serveur")
     void createTablewithoutServeur(){
         assertThrows(IllegalArgumentException.class,() -> {
-            Table table = new Table(1, 1, null, new Utilisateurs("Noirot","Quentin","Cuisinier","azerty","QNoirot"));
+            Table table = new Table(1, 1, null, new Utilisateurs("Noirot","Quentin", Utilisateurs.ROLE.CUISINIER,"azerty","QNoirot"));
         });
     }
 
