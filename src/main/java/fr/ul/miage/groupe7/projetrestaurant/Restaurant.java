@@ -19,6 +19,7 @@ public class Restaurant {
     private final TableDAO tablesDAO;
     private final UtilisateursDAO utilisateursDAO;
     private final MatierePremiereDAO matierePremiereDAO;
+    private final CommandesDAO commandesDAO;
     private final CustomScanner scanner;
     private Utilisateurs utilisateur;
 
@@ -26,6 +27,7 @@ public class Restaurant {
         scanner = new CustomScanner();
         platsDAO = new PlatsDAO();
         tablesDAO = new TableDAO();
+        commandesDAO = new CommandesDAO();
         utilisateursDAO = new UtilisateursDAO();
         matierePremiereDAO = new MatierePremiereDAO();
         creer_tables();
@@ -46,7 +48,9 @@ public class Restaurant {
                     "5 : Modifie le serveur de la table",
                     "6 : Ajouter un plat",
                     "7 : Réserver une table",
-                    "8 : Débarrasser une table"
+                    "8 : Débarrasser une table",
+                    "9 : Créer une commande",
+                    "10 : Ajouter un plat à une commande"
             };
 
 
@@ -84,6 +88,12 @@ public class Restaurant {
             case 8:
                 debarrasser_une_table();
                 break;
+            case 9:
+                creer_commandes();
+                break;
+            case 10:
+                ajouter_plat_commandes();
+                break;
             default:
                 break;
         }
@@ -109,6 +119,20 @@ public class Restaurant {
     }
 
     /**
+     * Affiche l'état de toutes les tables par étages
+     *
+     * @param tables Tables dans le restaurant
+     * @return
+     */
+    public String afficher_numero_tables(List<Table> tables){
+        StringBuilder res = new StringBuilder();
+        Collections.sort(tables);
+        tables.forEach(t -> res.append("La table "
+        ).append(t.getNumero()).append(" est disponible pour cela"));
+        return res.toString();
+    }
+
+    /**
      * Affiche les tables ne possédant pas de serveur
      * @param tablesVide liste de table vide
      * @return
@@ -126,8 +150,8 @@ public class Restaurant {
      * renvoie true si la table existe
      * @return
      */
-    public boolean table_existe(int numero){
-        return tablesDAO.findAll().stream().anyMatch(t -> t.getNumero() == numero );
+    public boolean table_existe(int numero,List<Table> tables){
+        return tables.stream().anyMatch(t -> t.getNumero() == numero);
     }
 
     /**
@@ -141,7 +165,7 @@ public class Restaurant {
             System.out.println(afficher_table_sans_serveur(tablesVide));
             System.out.println("Sélectionner une table");
             user_action = scanner.get_int();
-        } while (!table_existe(user_action));
+        } while (!table_existe(user_action,tablesVide));
         var t = tablesDAO.findByNum(user_action);
         List<Utilisateurs> serveurs = utilisateursDAO.findAllServeur();
         do {
@@ -360,7 +384,7 @@ public class Restaurant {
             tablesVide.forEach(t -> System.out.println("\t" + t.getNumero()));
             System.out.println("Sélectionner une table");
             user_action = scanner.get_int();
-        } while (!table_existe(user_action));
+        } while (!table_existe(user_action,tablesVide));
         Table t = tablesDAO.findByNum(user_action);
         t.addReservation(new Reservation(creneau,nom,date));
         tablesDAO.update(t);
@@ -424,6 +448,44 @@ public class Restaurant {
         tablesDAO.update(t1);
         t2.setEtat(null);
         tablesDAO.update(t2);
+    }
+
+
+
+    //Créer une commande et ajouter des plats
+
+    public void ajouter_plat_commandes(){
+
+        List<Table> tables = tablesDAO.findByServeur(utilisateur);
+        List<Commandes> cmds = commandesDAO.findCommandByTableList(tables.stream().map(Table::getNumero).collect(Collectors.toList()));
+        int action;
+        do {
+            AtomicInteger ai = new AtomicInteger(0);
+            cmds.forEach(cm -> System.out.println(ai.getAndIncrement() + cm.toString()) );
+            System.out.println("Selectionner une commande");
+            action = scanner.get_int();
+        }while (action >= cmds.size());
+        Commandes cmd = cmds.get(action);
+        List<Plats> plats = platsDAO.findByMenu();
+        do {
+            AtomicInteger ai = new AtomicInteger(0);
+            plats.forEach(p -> System.out.println(ai.getAndIncrement() + p.toString()) );
+            System.out.println("Selectionner un plat");
+            action = scanner.get_int();
+        }while (action >= plats.size());
+        cmd.addCommandes(new CommandesPlats(plats.get(action).get_id()));
+        commandesDAO.update(cmd);
+    }
+
+    public void creer_commandes(){
+        List<Table> tables = tablesDAO.findByServeur(utilisateur);
+        int action;
+        do {
+            System.out.println(afficher_numero_tables(tables));
+            System.out.println("Selectionner une table");
+            action = scanner.get_int();
+        }while (!table_existe(action,tables));
+        commandesDAO.create(new Commandes(action));
     }
 
 
