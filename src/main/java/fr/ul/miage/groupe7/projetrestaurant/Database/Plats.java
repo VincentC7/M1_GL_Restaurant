@@ -18,8 +18,10 @@ public class Plats {
     private Map<ObjectId,Integer> matieres_premieres;
     private List<String> categories;
 
+
     private BigDecimal prix;
     private boolean enfant;
+    private boolean menu;
 
     public Plats(@NonNull String nom,@NonNull Map<ObjectId,Integer> matieres_premieres,@NonNull BigDecimal prix,List<String> categories, boolean enfant) {
         if( nom.length() < 2 || matieres_premieres.keySet().isEmpty() || prix.compareTo(BigDecimal.ZERO) <= 0)
@@ -30,6 +32,7 @@ public class Plats {
         this.categories = (categories != null)? categories : Collections.emptyList();
         this.enfant = enfant;
         this.prix = prix;
+        this.menu = true;
     }
 
     public Plats(@NonNull String nom,@NonNull Map<ObjectId,Integer> matieres_premieres,@NonNull BigDecimal prix,List<String> categories){
@@ -51,6 +54,7 @@ public class Plats {
         this.prix = new BigDecimal(d.getString("prix"));
         this.categories = d.getList("catégories",String.class);
         this.enfant = d.getBoolean("enfant");
+        this.menu = d.getBoolean("menu");
     }
 
     public String getNom() {
@@ -81,6 +85,8 @@ public class Plats {
         this.matieres_premieres = matieres_premieres;
     }
 
+
+
     public List<String> getCategories() {
         return categories;
     }
@@ -91,6 +97,15 @@ public class Plats {
 
     public boolean isEnfant() {
         return enfant;
+    }
+
+
+    public boolean isMenu() {
+        return menu;
+    }
+
+    public void setMenu(boolean menu) {
+        this.menu = menu;
     }
 
     public void setEnfant(boolean enfant) {
