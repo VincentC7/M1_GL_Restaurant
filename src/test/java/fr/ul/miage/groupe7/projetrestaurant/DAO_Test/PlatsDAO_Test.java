@@ -90,6 +90,14 @@ public class PlatsDAO_Test {
             assertNull(plat);
 
         }
+
+        @Test
+        @DisplayName("Ne pas Trouver de plat par _id")
+        void TrouverPlatSuccesByMenu(){
+            var plats = dao.findByMenu();
+            assertEquals(1,plats.size());
+
+        }
     }
 
     @Nested
