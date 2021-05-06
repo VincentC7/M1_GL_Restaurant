@@ -1,5 +1,6 @@
 package fr.ul.miage.groupe7.projetrestaurant.Database;
 
+import fr.ul.miage.groupe7.projetrestaurant.Main;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 
@@ -154,9 +155,8 @@ public class CommandesPlats {
     @Override
     public String toString() {
         PlatsDAO pdao = new PlatsDAO();
-        return "CommandesPlats{" +
-                "idPlat=" + pdao.find(idPlat) +
-                ", etat=" + etat +
-                '}';
+        return
+                "Plats : " + Main.RETOUR_LIGNE + pdao.find(idPlat) +
+                "Etat : " + etat + Main.RETOUR_LIGNE;
     }
 }
