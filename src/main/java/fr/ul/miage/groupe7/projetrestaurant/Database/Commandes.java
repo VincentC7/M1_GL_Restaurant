@@ -123,6 +123,11 @@ public class Commandes {
 
     }
 
+    public CommandesPlats getCommandePlat(ObjectId id){
+        return getCommandesPlats().stream().filter(commandesPlats ->
+           commandesPlats.get_id().equals(id)).findFirst().get();
+    }
+
     public int getNumeroTable() {
         return numeroTable;
     }

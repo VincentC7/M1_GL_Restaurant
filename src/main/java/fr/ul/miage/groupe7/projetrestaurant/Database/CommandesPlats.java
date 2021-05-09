@@ -144,12 +144,18 @@ public class CommandesPlats {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         CommandesPlats that = (CommandesPlats) o;
-        return Objects.equals(idPlat, that.idPlat) && Objects.equals(_id, that._id) && etat == that.etat;
+        return preparationTime == that.preparationTime &&
+                Objects.equals(idPlat, that.idPlat) &&
+                Objects.equals(_id, that._id) &&
+                etat == that.etat &&
+                Objects.equals(commande, that.commande) &&
+                Objects.equals(en_preparation, that.en_preparation) &&
+                Objects.equals(servi, that.servi);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(idPlat, _id, etat);
+        return Objects.hash(idPlat, _id, preparationTime, etat, commande, en_preparation, servi);
     }
 
     @Override
