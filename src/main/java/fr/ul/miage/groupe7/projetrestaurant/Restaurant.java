@@ -49,7 +49,8 @@ public class Restaurant {
                     "6 : Ajouter un plat",
                     "7 : Réserver une table",
                     "8 : Débarrasser une table",
-                    "9 : Sélectionner une table"
+                    "9 : Sélectionner une table",
+                    "10 : Visualiser les commandes",
             };
 
     //0 = Pas de commande 1 = Commandes
@@ -118,6 +119,9 @@ public class Restaurant {
                 break;
             case 9:
                 action_tables();
+                break;
+            case 10:
+                visualiser_commandes();
                 break;
             default:
                 break;
@@ -605,6 +609,28 @@ public class Restaurant {
         cmd.finir();
         String facture = cmd.genererFacture();
         System.out.println(facture);
+    }
+
+    public void visualiser_commandes(){
+        FileAttente fileAttente = new FileAttente();
+        LinkedList<CommandesPlats> file = fileAttente.getCommandes();
+
+        if(file.isEmpty()){
+            System.out.println("Vous n'avez pas de plat à préparer");
+        }else{
+            do {
+                System.out.println(fileAttente.afficherCommandes());
+                System.out.println("Voulez-vous préparer le plat suivant ? (y/n)");
+
+                String act = scanner.get_simple();
+                if(act.equals("y")){
+                    fileAttente.traiterCommande();
+                    System.out.println("Plat en préparation ...");
+                }else{
+                    break;
+                }
+            }while (!fileAttente.getCommandes().isEmpty());
+        }
     }
 
 }
