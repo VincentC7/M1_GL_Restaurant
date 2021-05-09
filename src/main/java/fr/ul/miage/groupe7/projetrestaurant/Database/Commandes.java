@@ -1,6 +1,7 @@
 package fr.ul.miage.groupe7.projetrestaurant.Database;
 
 
+import fr.ul.miage.groupe7.projetrestaurant.Main;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 
@@ -159,7 +160,28 @@ public class Commandes {
     }
 
     public String genererFacture() {
-        StringBuilder stringBuilder = new StringBuilder();
-        return stringBuilder.toString();
+        if (etat){
+            PlatsDAO platsDAO = new PlatsDAO();
+            StringBuilder stringBuilder = new StringBuilder("================================").append(Main.RETOUR_LIGNE);
+            for (CommandesPlats plat : plats) {
+                Plats current_plat = platsDAO.find(plat.getIdPlat());
+                String nom = current_plat.getNom();
+                if (nom.length() > 21) {
+                    nom = nom.substring(0,18)+"...";
+                }
+                stringBuilder
+                        .append("= ")
+                        .append(nom)
+                        .append(" ".repeat(22 - nom.length()))
+                        .append(current_plat.getPrix())
+                        .append("€ =").append(Main.RETOUR_LIGNE);
+            }
+            String prix = this.prix+"€";
+            stringBuilder.append("=                              =").append(Main.RETOUR_LIGNE);
+            stringBuilder.append("= Total à payer ").append(" ".repeat(14-prix.length())).append(prix).append(" =").append(Main.RETOUR_LIGNE);
+            stringBuilder.append("================================").append(Main.RETOUR_LIGNE);
+            return stringBuilder.toString();
+        }
+        return "La commande n'est pas terminée, la facture ne peut pas être éditer";
     }
 }
