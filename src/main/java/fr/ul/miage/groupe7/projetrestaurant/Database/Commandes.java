@@ -157,4 +157,9 @@ public class Commandes {
                 ", plats=" + plats +
                 '}';
     }
+
+    public String genererFacture() {
+        StringBuilder stringBuilder = new StringBuilder();
+        return stringBuilder.toString();
+    }
 }

@@ -116,6 +116,37 @@ public class CommandesTest {
         c.change_etat_commande(1);
         c.finir();
         assertFalse(c.isEtat());
+    }
 
+    @Test
+    @DisplayName("Editer la facture")
+    void edit_facture(){
+        c.addCommandes(cp);
+        c.addCommandes(cp2);
+
+        c.change_etat_commande(0);
+        c.change_etat_commande(0);
+        c.change_etat_commande(1);
+        c.change_etat_commande(1);
+        c.finir();
+        String facture = c.genererFacture();
+        String line_separator = System.lineSeparator();
+        String expected =
+                "================================" + line_separator +
+                "= PlatTest              15.50€ =" + line_separator +
+                "= PlatTest              15.50€ =" + line_separator +
+                "=                              =" + line_separator +
+                "= Total à payer         31.00€ =" + line_separator +
+                "================================" + line_separator;
+        assertEquals(expected, facture);
+    }
+
+    @Test
+    @DisplayName("Editer la facture avant que la commande soit terminée")
+    void edit_facture_avant_la_fin(){
+        c.addCommandes(cp);
+        String facture = c.genererFacture();
+        String expected = "La commande n'est pas terminée, la facture ne peut pas être éditer";
+        assertEquals(expected, facture);
     }
 }
