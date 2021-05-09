@@ -602,10 +602,6 @@ public class Restaurant {
      */
     public void genere_facture(Table t){
         Commandes cmd = commandesDAO.findByTable(t.getNumero());
-        cmd.change_etat_commande(0);
-        cmd.change_etat_commande(0);
-        cmd.change_etat_commande(1);
-        cmd.change_etat_commande(1);
         cmd.finir();
         String facture = cmd.genererFacture();
         System.out.println(facture);
