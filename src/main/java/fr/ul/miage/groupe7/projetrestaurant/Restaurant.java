@@ -63,7 +63,8 @@ public class Restaurant {
                     {
                             "0 : Revenir au menu superieur",
                             "1 : Ajouter un plat à une commande",
-                            "2 : Affichage informations"
+                            "2 : Affichage informations",
+                            "3 : Editer la facture"
                     }
             };
 
@@ -143,6 +144,9 @@ public class Restaurant {
                 break;
             case 2:
                 affiche_infos_table(t);
+                break;
+            case 3:
+                genere_facture(t);
                 break;
             default:
                 break;
@@ -588,5 +592,19 @@ public class Restaurant {
         commandesDAO.create(new Commandes(t.getNumero()));
     }
 
+    /**
+     * Génere la facture d'une table
+     * @param t table de la commande
+     */
+    public void genere_facture(Table t){
+        Commandes cmd = commandesDAO.findByTable(t.getNumero());
+        cmd.change_etat_commande(0);
+        cmd.change_etat_commande(0);
+        cmd.change_etat_commande(1);
+        cmd.change_etat_commande(1);
+        cmd.finir();
+        String facture = cmd.genererFacture();
+        System.out.println(facture);
+    }
 
 }
