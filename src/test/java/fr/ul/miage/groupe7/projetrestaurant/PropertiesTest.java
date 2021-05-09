@@ -18,7 +18,7 @@ public class PropertiesTest {
     @Test
     @DisplayName("Exception quand le fichier n'existe pas")
     public void loadFailed(){
-        assertThrows(Exception.class, () -> {
+        assertThrows(NullPointerException.class, () -> {
             GeneralProperties.getPropertie("DATABASE_NAME", "config");
         });
     }

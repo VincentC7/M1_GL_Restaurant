@@ -23,7 +23,7 @@ public class Plats {
     private boolean enfant;
     private boolean menu;
 
-    public Plats(@NonNull String nom,@NonNull Map<ObjectId,Integer> matieres_premieres,@NonNull BigDecimal prix,List<String> categories, boolean enfant) {
+    public Plats(@NonNull String nom,@NonNull Map<ObjectId,Integer> matieres_premieres,@NonNull BigDecimal prix, List<String> categories, boolean enfant) {
         if( nom.length() < 2 || matieres_premieres.keySet().isEmpty() || prix.compareTo(BigDecimal.ZERO) <= 0)
             throw new IllegalArgumentException();
 
@@ -128,6 +128,19 @@ public class Plats {
         if (enfant)
             sb.append(String.format("%s %n","Plat pour enfant"));
         sb.append("=".repeat(35)).append("\r\n");
+        return sb.toString();
+    }
+
+    public String toStringCommande(){
+        var sb = new StringBuilder();
+        var format = "%-21s: %s%n";
+        sb.append("=".repeat(30)).append("\r\n");
+        if (enfant){
+            sb.append(String.format(format,"Plat pour enfant", nom));
+        }else{
+            sb.append(String.format(format,"Plat ", nom));
+        }
+
         return sb.toString();
     }
 }
