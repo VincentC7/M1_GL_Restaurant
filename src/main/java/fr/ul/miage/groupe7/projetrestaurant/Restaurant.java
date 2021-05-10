@@ -608,24 +608,33 @@ public class Restaurant {
     }
 
     public void visualiser_commandes(){
-        FileAttente fileAttente = new FileAttente();
-        LinkedList<CommandesPlats> file = fileAttente.getCommandes();
+        FileAttente fileAttente_cuisine = new FileAttente();
+        LinkedList<CommandesPlats> file = fileAttente_cuisine.getCommandes();
 
         if(file.isEmpty()){
             System.out.println("Vous n'avez pas de plat à préparer");
         }else{
             do {
-                System.out.println(fileAttente.afficherCommandes());
+                System.out.println(fileAttente_cuisine.afficherCommandes());
                 System.out.println("Voulez-vous préparer le plat suivant ? (y/n)");
 
                 String act = scanner.get_simple();
                 if(act.equals("y")){
-                    fileAttente.traiterCommande();
-                    System.out.println("Plat en préparation ...");
+                    CommandesPlats plat = fileAttente_cuisine.traiterCommande();
+                    String res;
+                    do {
+                        System.out.println("Tapez fini lorsque vous avez réalisé votre plat");
+                        res = scanner.get_simple();
+                    }while (!res.equals("fini"));
+                    Commandes commandes = commandesDAO.findCommandsFromCommand(plat.get_id());
+                    commandes.change_etat_commande(plat.get_id());
+                    commandesDAO.update(commandes);
+                    System.out.println("Le plat est pret à etre servi");
                 }else{
                     break;
                 }
-            }while (!fileAttente.getCommandes().isEmpty());
+
+            }while (!fileAttente_cuisine.getCommandes().isEmpty());
         }
     }
 

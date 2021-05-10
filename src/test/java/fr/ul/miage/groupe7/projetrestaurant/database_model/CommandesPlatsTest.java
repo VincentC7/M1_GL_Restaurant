@@ -1,10 +1,8 @@
 package fr.ul.miage.groupe7.projetrestaurant.database_model;
 
 
-import fr.ul.miage.groupe7.projetrestaurant.Database.BDD_Connexion;
 import fr.ul.miage.groupe7.projetrestaurant.Database.CommandesPlats;
 import org.bson.types.ObjectId;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -31,15 +29,34 @@ public class CommandesPlatsTest {
     }
 
     @Test
-    @DisplayName("Méthode next_etat")
-    void methode_next_etat(){
+    @DisplayName("Méthode next_etat => EN_PREPARATION")
+    void methode_next_etat_1(){
         assertNull(cp.getEn_preparation());
         cp.next_etat();
         assertEquals(CommandesPlats.ETAT_PLAT.EN_PREPARATION,cp.getEtat());
         assertNotNull(cp.getEn_preparation());
+    }
+
+    @Test
+    @DisplayName("Méthode next_etat => PRET")
+    void methode_next_etat_2() throws InterruptedException {
         cp.next_etat();
-        assertEquals(CommandesPlats.ETAT_PLAT.SERVI,cp.getEtat());
-        assertTrue(cp.getEn_preparation().isBefore(cp.getServi()));
+        Thread.sleep(10);
+        cp.next_etat();
+        assertEquals(CommandesPlats.ETAT_PLAT.PRET,cp.getEtat());
+        assertTrue(cp.getEn_preparation().isBefore(cp.getTermine()));
         assertTrue(cp.getPreparationTime() > 0);
     }
+
+    @Test
+    @DisplayName("Méthode next_etat => SERVI")
+    void methode_next_etat_3() throws InterruptedException {
+        cp.next_etat();
+        Thread.sleep(10);
+        cp.next_etat();
+        Thread.sleep(10);
+        cp.next_etat();
+        assertEquals(CommandesPlats.ETAT_PLAT.SERVI,cp.getEtat());
+    }
+
 }

@@ -120,7 +120,7 @@ class CommandesPlatsDAO_Test {
         assertEquals(LocalDateTime.of(2021,05,05,12,12,15)
                 ,cmds.getCommandesPlats().get(2).getEn_preparation());
         assertEquals(LocalDateTime.of(2021,05,05,12,12,20)
-                ,cmds.getCommandesPlats().get(2).getServi());
+                ,cmds.getCommandesPlats().get(2).getTermine());
     }
 
     @Test
@@ -129,6 +129,8 @@ class CommandesPlatsDAO_Test {
         c = cdao.create(c);
         c.change_etat_commande(0);
         c.change_etat_commande(0);
+        c.change_etat_commande(0);
+        c.change_etat_commande(1);
         c.change_etat_commande(1);
         c.change_etat_commande(1);
         c = cdao.update(c);

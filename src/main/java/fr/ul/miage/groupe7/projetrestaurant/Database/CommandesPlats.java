@@ -17,7 +17,8 @@ public class CommandesPlats {
     public enum ETAT_PLAT{
         COMMANDE("Commandé"),
         EN_PREPARATION("En cours de préparation"),
-        SERVI("Est servi"),
+        PRET("Pret à être termine"),
+        SERVI("Est termine"),
         ANNULE("Annulé");
 
         private final String text;
@@ -41,7 +42,7 @@ public class CommandesPlats {
     private ObjectId idPlat,_id;
     private long preparationTime;
     private ETAT_PLAT etat;
-    private LocalDateTime commande,en_preparation,servi;
+    private LocalDateTime commande,en_preparation, termine;
 
 
     public CommandesPlats(ObjectId id){
@@ -52,21 +53,21 @@ public class CommandesPlats {
         commande = LocalDateTime.now();
     }
 
-    public CommandesPlats(ObjectId _id,ObjectId id,long preparationTime,ETAT_PLAT etat, LocalDateTime commande,LocalDateTime en_preparation, LocalDateTime servi){
+    public CommandesPlats(ObjectId _id,ObjectId id,long preparationTime,ETAT_PLAT etat, LocalDateTime commande,LocalDateTime en_preparation, LocalDateTime termine){
         this._id =_id;
         this.idPlat =id;
         this.preparationTime = preparationTime;
         this.etat = etat;
         this.commande =commande;
         this.en_preparation = en_preparation;
-        this.servi = servi;
+        this.termine = termine;
     }
 
     public CommandesPlats(Document d){
         Date commande,prepa,servi;
         commande = d.getDate("commandé");
         prepa = d.getDate("en_preparation");
-        servi = d.getDate("servi");
+        servi = d.getDate("termine");
         this._id = d.getObjectId("_id");
         this.idPlat = d.getObjectId("idPlat");
         this.preparationTime = d.getLong("temps_preparation");
@@ -81,7 +82,7 @@ public class CommandesPlats {
                                 .atZone(ZoneId.of("GMT"))
                                 .toLocalDateTime()
                         : null ;
-        this.servi = (servi != null) ?
+        this.termine = (servi != null) ?
                         Instant.ofEpochMilli(servi.getTime())
                                 .atZone(ZoneId.of("GMT"))
                                 .toLocalDateTime()
@@ -95,9 +96,12 @@ public class CommandesPlats {
                 en_preparation = LocalDateTime.now();
                 break;
             case EN_PREPARATION:
+                etat = ETAT_PLAT.PRET;
+                termine = LocalDateTime.now();
+                preparationTime = Duration.between(en_preparation, termine).toMillis();
+                break;
+            case PRET:
                 etat = ETAT_PLAT.SERVI;
-                servi = LocalDateTime.now();
-                preparationTime = Duration.between(en_preparation,servi).toMillis();
                 break;
             case SERVI:
                 annulation();
@@ -131,8 +135,8 @@ public class CommandesPlats {
         return en_preparation;
     }
 
-    public LocalDateTime getServi() {
-        return servi;
+    public LocalDateTime getTermine() {
+        return termine;
     }
 
     public ObjectId get_id() {
@@ -150,12 +154,12 @@ public class CommandesPlats {
                 etat == that.etat &&
                 Objects.equals(commande, that.commande) &&
                 Objects.equals(en_preparation, that.en_preparation) &&
-                Objects.equals(servi, that.servi);
+                Objects.equals(termine, that.termine);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(idPlat, _id, preparationTime, etat, commande, en_preparation, servi);
+        return Objects.hash(idPlat, _id, preparationTime, etat, commande, en_preparation, termine);
     }
 
     @Override

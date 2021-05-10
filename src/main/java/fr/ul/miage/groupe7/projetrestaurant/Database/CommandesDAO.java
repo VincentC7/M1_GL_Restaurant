@@ -67,7 +67,7 @@ public class CommandesDAO extends DAO<Commandes>{
                             .append("temps_preparation",cp.getPreparationTime())
                             .append("commandé",cp.getCommande())
                             .append("en_preparation",cp.getEn_preparation())
-                            .append("servi",cp.getServi())
+                            .append("servi",cp.getTermine())
             );
         }
 
@@ -101,7 +101,7 @@ public class CommandesDAO extends DAO<Commandes>{
                             .append("temps_preparation",cp.getPreparationTime())
                             .append("commandé",cp.getCommande())
                             .append("en_preparation",cp.getEn_preparation())
-                            .append("servi",cp.getServi());
+                            .append("servi",cp.getTermine());
                     Document d = connect.findOneAndUpdate(and(eq(obj.get_id()),eq("plats._id",cp.get_id())),
                             set("plats.$",subdoc));
                     if(d == null){

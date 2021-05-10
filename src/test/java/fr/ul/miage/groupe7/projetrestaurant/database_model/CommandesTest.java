@@ -98,6 +98,8 @@ public class CommandesTest {
         c.addCommandes(cp2);
         c.change_etat_commande(0);
         c.change_etat_commande(0);
+        c.change_etat_commande(0);
+        c.change_etat_commande(1);
         c.change_etat_commande(1);
         c.change_etat_commande(1);
         c.finir();
@@ -126,6 +128,8 @@ public class CommandesTest {
 
         c.change_etat_commande(0);
         c.change_etat_commande(0);
+        c.change_etat_commande(0);
+        c.change_etat_commande(1);
         c.change_etat_commande(1);
         c.change_etat_commande(1);
         c.finir();

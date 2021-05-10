@@ -84,7 +84,7 @@ public class Commandes {
 
     public ArrayList<CommandesPlats> getCommandesPlats(){
         return this.plats.stream()
-                .map(c -> new CommandesPlats(c.get_id(),c.getIdPlat(),c.getPreparationTime(),c.getEtat(),c.getCommande(),c.getEn_preparation(),c.getServi()))
+                .map(c -> new CommandesPlats(c.get_id(),c.getIdPlat(),c.getPreparationTime(),c.getEtat(),c.getCommande(),c.getEn_preparation(),c.getTermine()))
                 .collect(toCollection(ArrayList::new));
 
     }
