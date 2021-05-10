@@ -31,7 +31,6 @@ public class GeneralProperties {
      */
     private static void load(String fileName){
         try (InputStream input = new FileInputStream(fileName)) {
-
             prop = new Properties();
             prop.load(input);
 

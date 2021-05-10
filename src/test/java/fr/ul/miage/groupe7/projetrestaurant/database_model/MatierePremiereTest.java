@@ -1,4 +1,4 @@
-package fr.ul.miage.groupe7.projetrestaurant;
+package fr.ul.miage.groupe7.projetrestaurant.database_model;
 
 import fr.ul.miage.groupe7.projetrestaurant.Database.MatierePremiere;
 import org.junit.jupiter.api.DisplayName;
@@ -6,7 +6,8 @@ import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class MatierePremiereTest {
 

@@ -4,13 +4,13 @@ import com.mongodb.lang.NonNull;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 
-import java.util.Arrays;
 import java.util.Objects;
 
 public class Utilisateurs {
 
     ObjectId _id;
-    String nom,prenom,role,identifiant,mdp;
+    String nom,prenom,identifiant,mdp;
+    ROLE role;
 
     public enum ROLE{
         DIRECTEUR("Directeur"),
@@ -37,23 +37,19 @@ public class Utilisateurs {
         }
     }
 
-    public Utilisateurs(@NonNull String nom,@NonNull String prenom,@NonNull String role, String mdp,String identifiant) throws IllegalArgumentException {
-        if( (nom.length() < 2)  || prenom.length() < 2 || Arrays.stream(ROLE.values()).noneMatch(role1 -> role1.toString().equals(role))
-                || (mdp != null && mdp.length() < 6) || (identifiant != null && identifiant.length() < 4)){
-            throw new IllegalArgumentException ();
-        }
-        this.nom = nom;
-        this.prenom = prenom;
-        this.role = role;
-        this.identifiant = identifiant;
-        this.mdp = mdp;
+    public Utilisateurs(@NonNull String nom,@NonNull String prenom,@NonNull ROLE role, String mdp,String identifiant) throws IllegalArgumentException {
+        setNom(nom);
+        setPrenom(prenom);
+        setRole(role);
+        setIdentifiant(identifiant);
+        setMdp(mdp);
     }
 
     public Utilisateurs(Document d){
         _id = (ObjectId) d.get("_id");
         nom = d.getString("nom");
         prenom = d.getString("prenom");
-        role =  d.getString("role");
+        role =  ROLE.valueOf(d.getString("role"));
         identifiant = d.getString("identifiant");
         mdp = d.getString("mdp");
         
@@ -64,6 +60,8 @@ public class Utilisateurs {
     }
 
     public void setNom(String nom) {
+        if(nom.length() < 2)
+            throw new IllegalArgumentException ();
         this.nom = nom;
     }
 
@@ -72,14 +70,16 @@ public class Utilisateurs {
     }
 
     public void setPrenom(String prenom) {
+        if(prenom.length() < 2)
+            throw new IllegalArgumentException();
         this.prenom = prenom;
     }
 
-    public String getRole() {
+    public ROLE getRole() {
         return role;
     }
 
-    public void setRole(String role) {
+    public void setRole(ROLE role) {
         this.role = role;
     }
 
@@ -88,6 +88,8 @@ public class Utilisateurs {
     }
 
     public void setIdentifiant(String identifiant) {
+        if(identifiant != null && identifiant.length() < 4)
+            throw new IllegalArgumentException();
         this.identifiant = identifiant;
     }
 
@@ -96,6 +98,10 @@ public class Utilisateurs {
     }
 
     public void setMdp(String mdp) {
+        if((mdp != null && mdp.length() < 6)) {
+            System.out.println(mdp.length());
+            throw new IllegalArgumentException();
+        }
         this.mdp = mdp;
     }
 
@@ -119,7 +125,7 @@ public class Utilisateurs {
         sb.append("=".repeat(35)).append("\r\n");
         sb.append(String.format(format,"nom", nom));
         sb.append(String.format(format,"prénom", prenom));
-        sb.append(String.format(format,"role", role));
+        sb.append(String.format(format,"role", role.toString()));
         sb.append(String.format(format,"identifiant", identifiant));
         sb.append("=".repeat(35)).append("\r\n");
         return sb.toString();

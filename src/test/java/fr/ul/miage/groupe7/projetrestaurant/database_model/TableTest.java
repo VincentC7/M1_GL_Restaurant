@@ -1,7 +1,10 @@
-package fr.ul.miage.groupe7.projetrestaurant;
+package fr.ul.miage.groupe7.projetrestaurant.database_model;
 
-import fr.ul.miage.groupe7.projetrestaurant.Database.*;
-import org.junit.jupiter.api.*;
+import fr.ul.miage.groupe7.projetrestaurant.Database.Table;
+import fr.ul.miage.groupe7.projetrestaurant.Database.Utilisateurs;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -21,7 +24,7 @@ public class TableTest {
     @Test
     @DisplayName("Créer une table avec un serveur")
     void createwithServeur(){
-        Utilisateurs u =  new Utilisateurs("Noirot","Quentin","Serveur","azerty","QNoirot");
+        Utilisateurs u =  new Utilisateurs("Noirot","Quentin", Utilisateurs.ROLE.SERVEUR,"azerty","QNoirot");
         Table table = new Table(1, 1, null, u);
         assertEquals(u.getRole(), table.getServeur().getRole());
     }
@@ -53,7 +56,7 @@ public class TableTest {
     @DisplayName("Exception quand l'utilisateur qui n'est pas un serveur")
     void createTablewithoutServeur(){
         assertThrows(IllegalArgumentException.class,() -> {
-            Table table = new Table(1, 1, null, new Utilisateurs("Noirot","Quentin","Cuisinier","azerty","QNoirot"));
+            Table table = new Table(1, 1, null, new Utilisateurs("Noirot","Quentin", Utilisateurs.ROLE.CUISINIER,"azerty","QNoirot"));
         });
     }
 

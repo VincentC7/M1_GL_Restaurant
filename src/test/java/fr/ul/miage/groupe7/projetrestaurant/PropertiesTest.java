@@ -4,7 +4,6 @@ import fr.ul.miage.groupe7.projetrestaurant.service.GeneralProperties;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-
 import static org.junit.jupiter.api.Assertions.*;
 
 public class PropertiesTest {
@@ -19,7 +18,7 @@ public class PropertiesTest {
     @Test
     @DisplayName("Exception quand le fichier n'existe pas")
     public void loadFailed(){
-        assertThrows(Exception.class, () -> {
+        assertThrows(NullPointerException.class, () -> {
             GeneralProperties.getPropertie("DATABASE_NAME", "config");
         });
     }

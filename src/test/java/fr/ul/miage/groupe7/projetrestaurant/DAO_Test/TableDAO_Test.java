@@ -1,19 +1,10 @@
-package fr.ul.miage.groupe7.projetrestaurant;
+package fr.ul.miage.groupe7.projetrestaurant.DAO_Test;
 
 import fr.ul.miage.groupe7.projetrestaurant.Database.*;
 import org.junit.jupiter.api.*;
-import fr.ul.miage.groupe7.projetrestaurant.Database.Table;
-import fr.ul.miage.groupe7.projetrestaurant.Database.TableDAO;
-import fr.ul.miage.groupe7.projetrestaurant.Database.Utilisateurs;
-import fr.ul.miage.groupe7.projetrestaurant.Database.UtilisateursDAO;
 
-
-import java.util.List;
-
-import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.Date;
-
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -31,7 +22,7 @@ public class TableDAO_Test {
         tableDAO = new TableDAO();
         utilisateursDAO = new UtilisateursDAO();
 
-        utilisateur = utilisateursDAO.create(new Utilisateurs("Luc","Tristan","Serveur","tmgerp",null));
+        utilisateur = utilisateursDAO.create(new Utilisateurs("Luc","Tristan", Utilisateurs.ROLE.SERVEUR,"tmgerp",null));
         table = tableDAO.create(new Table(1, 1, Table.ETAT.PROPRE, utilisateur));
     }
 
@@ -119,7 +110,7 @@ public class TableDAO_Test {
     @Test
     @DisplayName("Exception quand un utilisateur qui n'est pas un serveur essaye de voir ses tables")
     void findTableException(){
-        Utilisateurs u = new Utilisateurs("Luc","Tristan","Directeur","tmgerp",null);
+        Utilisateurs u = new Utilisateurs("Luc","Tristan",Utilisateurs.ROLE.DIRECTEUR,"tmgerp",null);
 
         assertThrows(IllegalArgumentException.class,() -> {
             tableDAO.findByServeur(u);
@@ -180,7 +171,7 @@ public class TableDAO_Test {
     class UPDATE {
 
 
-        private Utilisateurs utilisateur2 = new Utilisateurs("Noirot", "Quentin", "Serveur", "azerty", "QNoirot");
+        private Utilisateurs utilisateur2 = new Utilisateurs("Noirot", "Quentin", Utilisateurs.ROLE.SERVEUR, "azerty", "QNoirot");
 
         
         @AfterEach
@@ -223,7 +214,7 @@ public class TableDAO_Test {
         @DisplayName("Ajoute d'une reservation sur table existante")
         void ajoutTableReservationBDD(){
             table.addReservation( new Reservation(Reservation.CRENEAU.MATIN,"Luc", LocalDate.of(2021,6,17)));
-            tableDAO.update(table);
+            table = tableDAO.update(table);
             assertEquals(1,table.getReservations().size());
             assertTrue(table.getReservations().stream().anyMatch(reservation -> reservation.getNom().equals("Luc")));
             assertTrue(table.getReservations().stream().anyMatch(reservation -> reservation.getCreneau().equals("Matin")));

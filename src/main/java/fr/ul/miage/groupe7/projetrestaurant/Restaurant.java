@@ -10,29 +10,31 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 
 
 public class Restaurant {
 
-    private PlatsDAO platsDAO;
-    private TableDAO tablesDAO;
-    private UtilisateursDAO utilisateursDAO;
-    private MatierePremiereDAO matierePremiereDAO;
-    private CustomScanner scanner;
+    private final PlatsDAO platsDAO;
+    private final TableDAO tablesDAO;
+    private final UtilisateursDAO utilisateursDAO;
+    private final MatierePremiereDAO matierePremiereDAO;
+    private final CommandesDAO commandesDAO;
+    private final CustomScanner scanner;
     private Utilisateurs utilisateur;
 
     public Restaurant(){
         scanner = new CustomScanner();
         platsDAO = new PlatsDAO();
         tablesDAO = new TableDAO();
+        commandesDAO = new CommandesDAO();
         utilisateursDAO = new UtilisateursDAO();
         matierePremiereDAO = new MatierePremiereDAO();
         creer_tables();
 
         utilisateur = utilisateursDAO.find("Tluc", "azerty");
         if(utilisateur == null){
-            utilisateur = utilisateursDAO.create( new Utilisateurs("Luc","Tristan","Serveur","azerty",null));
+            utilisateur = utilisateursDAO.create( new Utilisateurs("Luc","Tristan", Utilisateurs.ROLE.SERVEUR,"azerty",null));
         }
     }
 
@@ -46,13 +48,44 @@ public class Restaurant {
                     "5 : Modifie le serveur de la table",
                     "6 : Ajouter un plat",
                     "7 : Réserver une table",
-                    "8 : Débarrasser une table"
+                    "8 : Débarrasser une table",
+                    "9 : Sélectionner une table",
+                    "10 : Visualiser les commandes",
+            };
+
+    //0 = Pas de commande 1 = Commandes
+    private static String[][] actionsTables =
+            {
+                    {
+                            "0 : Revenir au menu superieur",
+                            "1 : Créer une commande",
+                            "2 : Affichage informations"
+                    },
+                    {
+                            "0 : Revenir au menu superieur",
+                            "1 : Ajouter un plat à une commande",
+                            "2 : Affichage informations",
+                            "3 : Editer la facture"
+                    }
             };
 
 
     public void afficher_actions(){
         System.out.println("Que voulez vous faire ? (tapez le numero de l'action)");
         for (String action : actions){
+            System.out.println("\t"+action);
+        }
+    }
+
+    /**
+     * Affiche les actions sur une table
+     * @param arrayLevel correspond à la profondeur du tableau actionsTable
+     */
+    public void afficher_actions_table(int arrayLevel){
+        if(arrayLevel >= actionsTables[arrayLevel].length)
+            return;
+        System.out.println("Que voulez vous faire ? (tapez le numero de l'action)");
+        for (String action : actionsTables[arrayLevel]){
             System.out.println("\t"+action);
         }
     }
@@ -73,7 +106,7 @@ public class Restaurant {
                 afficher_stock();
                 break;
             case 5:
-                display_Modification_Serveur_Table();
+                modification_Serveur_Table();
                 break;
             case 6:
                 ajouter_plat();
@@ -84,9 +117,102 @@ public class Restaurant {
             case 8:
                 debarrasser_une_table();
                 break;
+            case 9:
+                action_tables();
+                break;
+            case 10:
+                visualiser_commandes();
+                break;
             default:
                 break;
         }
+    }
+
+    public void effectuer_action_table_creation_commandes(int user_action,Table t) {
+        switch (user_action){
+            case 1:
+                creer_commandes(t);
+                break;
+            case 2:
+                affiche_infos_table(t);
+                break;
+            default:
+                break;
+        }
+    }
+
+    public void effectuer_action_table_ajout_commande(int user_action,Table t) {
+        switch (user_action){
+            case 1:
+                ajouter_plat_commandes(t);
+                break;
+            case 2:
+                affiche_infos_table(t);
+                break;
+            case 3:
+                genere_facture(t);
+                break;
+            default:
+                break;
+        }
+    }
+
+    /**
+     * Permet de sélectionner la table et de lancer des actions dessus
+     */
+    public void action_tables(){
+        List<Table> tables = tablesDAO.findByServeur(utilisateur);
+        if(tables.isEmpty()){
+            System.out.println("Vous n'avez pas de tables");
+            return;
+        }
+        int action;
+        while (true) {
+            do {
+                System.out.println(afficher_numero_tables(tables));
+                System.out.println("Selectionner une table (0 por revenir en arriere)");
+                action = scanner.get_int();
+                if(action == 0)
+                    return;
+            } while (!table_existe(action, tables));
+            Table t = tablesDAO.findByNum(action);
+            action_commandes(t);
+        }
+
+    }
+
+    /**
+     * selection des actions sur une table
+     * @param t table sur laquelle on réalise nos actions
+     */
+    public void action_commandes(Table t){
+        Commandes c = commandesDAO.findByTable(t.getNumero());
+        // si il y a une commande a cette table
+        int action;
+        if(c != null){
+            do {
+                afficher_actions_table(1);
+                action = scanner.get_int();
+                if (action != 0) effectuer_action_table_ajout_commande(action,t);
+            } while (action !=0);
+        }
+        else{
+            do {
+                afficher_actions_table(0);
+                action = scanner.get_int();
+                if (action == 0)
+                    return;
+
+                effectuer_action_table_creation_commandes(action,t);
+            } while (action !=1);
+            action_commandes(t);
+        }
+    }
+
+    public void affiche_infos_table(Table t){
+        Commandes cmd = commandesDAO.findByTable(t.getNumero());
+        System.out.println(t.toStringServeur());
+        cmd.getCommandesPlats().forEach(System.out::println);
     }
 
     /**
@@ -98,9 +224,9 @@ public class Restaurant {
     public String afficher_tables(List<Table> tables){
         StringBuilder res = new StringBuilder();
         Collections.sort(tables);
-        AtomicInteger etage = new AtomicInteger(1);
-        String format = "%nEtage %d : %s ";
-        String format2 = "%s ";
+        var etage = new AtomicInteger(1);
+        var format = "%nEtage %d : %s ";
+        var format2 = "%s ";
         tables.forEach(t -> res.append(
                 (t.getEtage() == etage.get()) ? String.format(format ,etage.getAndIncrement(), t)
                         : String.format(format2,t)
@@ -109,11 +235,26 @@ public class Restaurant {
     }
 
     /**
-     * Affiche les tables sans serveur
+     * Affiche l'état de toutes les tables par étages
+     *
+     * @param tables Tables dans le restaurant
+     * @return
+     */
+    public String afficher_numero_tables(List<Table> tables){
+        StringBuilder res = new StringBuilder();
+        Collections.sort(tables);
+        tables.forEach(t -> res.append("La table "
+        ).append(t.getNumero()).append(" est disponible pour cela").append(Main.RETOUR_LIGNE));
+        return res.toString();
+    }
+
+    /**
+     * Affiche les tables ne possédant pas de serveur
+     * @param tablesVide liste de table vide
      * @return
      */
     public String afficher_table_sans_serveur(List<Table> tablesVide){
-        StringBuilder sb = new StringBuilder();
+        var sb = new StringBuilder();
 
         tablesVide.forEach(t -> sb.append("La table ")
                 .append(t.getNumero())
@@ -125,23 +266,23 @@ public class Restaurant {
      * renvoie true si la table existe
      * @return
      */
-    public boolean table_existe(int numero){
-        return tablesDAO.findAll().stream().anyMatch(t -> t.getNumero() == numero );
+    public boolean table_existe(int numero,List<Table> tables){
+        return tables.stream().anyMatch(t -> t.getNumero() == numero);
     }
 
     /**
      * Methode qui effectue toutes las actions correspondantes à l'ajout d'un serveur à une table
      * @return
      */
-    public void display_Modification_Serveur_Table(){
+    public void modification_Serveur_Table(){
         int user_action;
         List<Table> tablesVide = tablesDAO.findByServeurNull();
         do {
             System.out.println(afficher_table_sans_serveur(tablesVide));
             System.out.println("Sélectionner une table");
             user_action = scanner.get_int();
-        } while (!table_existe(user_action));
-        Table t = tablesDAO.findByNum(user_action);
+        } while (!table_existe(user_action,tablesVide));
+        var t = tablesDAO.findByNum(user_action);
         List<Utilisateurs> serveurs = utilisateursDAO.findAllServeur();
         do {
             System.out.println(affiche_des_utilisateurs(serveurs));
@@ -321,19 +462,12 @@ public class Restaurant {
         hm.put(mp.get_id(),unite);
         return hm;
     }
-
     //Ajouter un PLAT
+
 
     //Réserver une table
     private void reserver_une_table(){
-        List<Table> tablesVide =tablesDAO.findAll();
-        int user_action;
-        do {
-            System.out.println(afficher_table_sans_serveur(tablesVide));
-            System.out.println("Sélectionner une table");
-            user_action = scanner.get_int();
-        } while (!table_existe(user_action));
-        Table t = tablesDAO.findByNum(user_action);
+
         String nom,creneau;
         int year,month,day;
         LocalDate date;
@@ -358,8 +492,32 @@ public class Restaurant {
             ldt = (creneau.equals("Matin")) ? date.atTime(12,0) : date.atTime(19,0);
             System.out.println(LocalDateTime.now().isBefore(ldt));
         }while (LocalDateTime.now().isAfter(ldt)) ;
+        int user_action;
+        List<Table> tablesVide =tablesDAO.findAll();
+        tablesVide = tables_sans_reservation(tablesVide,date,creneau);
+        do {
+            System.out.println("Les tables disponibles pour la date");
+            tablesVide.forEach(t -> System.out.println("\t" + t.getNumero()));
+            System.out.println("Sélectionner une table");
+            user_action = scanner.get_int();
+        } while (!table_existe(user_action,tablesVide));
+        Table t = tablesDAO.findByNum(user_action);
         t.addReservation(new Reservation(creneau,nom,date));
         tablesDAO.update(t);
+    }
+
+    /**
+     * Renvoie une liste de table qui n'ont pas de résevration
+     * pour une date précise
+     * @param tables liste de table
+     * @param ld date de la réservation
+     * @param creneau créneau de la réservation (Matin/Soir)
+     * @return une liste filtré
+     */
+    private List<Table> tables_sans_reservation(List<Table> tables,LocalDate ld,String creneau){
+        return tables.stream()
+                .filter(t -> !(t.getReservations().contains(new Reservation(creneau,"nom", ld))))
+                .collect(Collectors.toList());
     }
 
     /**
@@ -408,5 +566,76 @@ public class Restaurant {
         tablesDAO.update(t2);
     }
 
+
+
+    /**
+     * Ajoute un plat à une commande
+     * @param t table de la commande
+     */
+    public void ajouter_plat_commandes(Table t){
+        int action;
+        Commandes cmd = commandesDAO.findByTable(t.getNumero());
+        List<Plats> plats = platsDAO.findByMenu();
+        do {
+            AtomicInteger ai = new AtomicInteger(1);
+            plats.forEach(p -> System.out.println(ai.getAndIncrement() + Main.RETOUR_LIGNE + p.toString()) );
+            System.out.println("Selectionner un plat ou 0 pour revenir en arriere");
+            action = scanner.get_int();
+            if(action == 0)
+                return;
+        }while (action > plats.size() || action <= 0);
+        cmd.addCommandes(new CommandesPlats(plats.get(action-1).get_id()));
+        commandesDAO.update(cmd);
+    }
+
+    /**
+     * Crée une nouvelle commande
+     * @param t table de la commande
+     */
+    public void creer_commandes(Table t){
+        commandesDAO.create(new Commandes(t.getNumero()));
+    }
+
+    /**
+     * Génere la facture d'une table
+     * @param t table de la commande
+     */
+    public void genere_facture(Table t){
+        Commandes cmd = commandesDAO.findByTable(t.getNumero());
+        cmd.finir();
+        String facture = cmd.genererFacture();
+        System.out.println(facture);
+    }
+
+    public void visualiser_commandes(){
+        FileAttente fileAttente_cuisine = new FileAttente();
+        LinkedList<CommandesPlats> file = fileAttente_cuisine.getCommandes();
+
+        if(file.isEmpty()){
+            System.out.println("Vous n'avez pas de plat à préparer");
+        }else{
+            do {
+                System.out.println(fileAttente_cuisine.afficherCommandes());
+                System.out.println("Voulez-vous préparer le plat suivant ? (y/n)");
+
+                String act = scanner.get_simple();
+                if(act.equals("y")){
+                    CommandesPlats plat = fileAttente_cuisine.traiterCommande();
+                    String res;
+                    do {
+                        System.out.println("Tapez fini lorsque vous avez réalisé votre plat");
+                        res = scanner.get_simple();
+                    }while (!res.equals("fini"));
+                    Commandes commandes = commandesDAO.findCommandsFromCommand(plat.get_id());
+                    commandes.change_etat_commande(plat.get_id());
+                    commandesDAO.update(commandes);
+                    System.out.println("Le plat est pret à etre servi");
+                }else{
+                    break;
+                }
+
+            }while (!fileAttente_cuisine.getCommandes().isEmpty());
+        }
+    }
 
 }

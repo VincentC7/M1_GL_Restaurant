@@ -5,7 +5,10 @@ import org.bson.Document;
 import org.bson.types.ObjectId;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class Plats {
 
@@ -15,10 +18,12 @@ public class Plats {
     private Map<ObjectId,Integer> matieres_premieres;
     private List<String> categories;
 
+
     private BigDecimal prix;
     private boolean enfant;
+    private boolean menu;
 
-    public Plats(@NonNull String nom,@NonNull Map<ObjectId,Integer> matieres_premieres,@NonNull BigDecimal prix,List<String> categories, boolean enfant) {
+    public Plats(@NonNull String nom,@NonNull Map<ObjectId,Integer> matieres_premieres,@NonNull BigDecimal prix, List<String> categories, boolean enfant) {
         if( nom.length() < 2 || matieres_premieres.keySet().isEmpty() || prix.compareTo(BigDecimal.ZERO) <= 0)
             throw new IllegalArgumentException();
 
@@ -27,6 +32,7 @@ public class Plats {
         this.categories = (categories != null)? categories : Collections.emptyList();
         this.enfant = enfant;
         this.prix = prix;
+        this.menu = true;
     }
 
     public Plats(@NonNull String nom,@NonNull Map<ObjectId,Integer> matieres_premieres,@NonNull BigDecimal prix,List<String> categories){
@@ -48,6 +54,7 @@ public class Plats {
         this.prix = new BigDecimal(d.getString("prix"));
         this.categories = d.getList("catégories",String.class);
         this.enfant = d.getBoolean("enfant");
+        this.menu = d.getBoolean("menu");
     }
 
     public String getNom() {
@@ -78,6 +85,8 @@ public class Plats {
         this.matieres_premieres = matieres_premieres;
     }
 
+
+
     public List<String> getCategories() {
         return categories;
     }
@@ -88,6 +97,15 @@ public class Plats {
 
     public boolean isEnfant() {
         return enfant;
+    }
+
+
+    public boolean isMenu() {
+        return menu;
+    }
+
+    public void setMenu(boolean menu) {
+        this.menu = menu;
     }
 
     public void setEnfant(boolean enfant) {
@@ -110,6 +128,19 @@ public class Plats {
         if (enfant)
             sb.append(String.format("%s %n","Plat pour enfant"));
         sb.append("=".repeat(35)).append("\r\n");
+        return sb.toString();
+    }
+
+    public String toStringCommande(){
+        var sb = new StringBuilder();
+        var format = "%-21s: %s%n";
+        sb.append("=".repeat(30)).append("\r\n");
+        if (enfant){
+            sb.append(String.format(format,"Plat pour enfant", nom));
+        }else{
+            sb.append(String.format(format,"Plat ", nom));
+        }
+
         return sb.toString();
     }
 }

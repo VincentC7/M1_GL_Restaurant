@@ -1,14 +1,10 @@
 package fr.ul.miage.groupe7.projetrestaurant.Database;
 
-import com.mongodb.lang.NonNull;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 
 import java.time.Instant;
-import java.time.LocalDate;
 import java.time.ZoneId;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
 
 public class Table implements Comparable<Table>{
@@ -99,7 +95,7 @@ public class Table implements Comparable<Table>{
     }
 
     public void setServeur(Utilisateurs serveur) {
-        if( serveur != null && !serveur.getRole().equals(Utilisateurs.ROLE.SERVEUR.toString()))
+        if( serveur != null && !serveur.getRole().equals(Utilisateurs.ROLE.SERVEUR))
             throw new IllegalArgumentException();
         this.serveur = serveur;
     }

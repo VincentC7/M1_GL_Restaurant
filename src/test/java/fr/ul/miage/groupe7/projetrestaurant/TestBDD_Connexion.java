@@ -3,7 +3,7 @@ package fr.ul.miage.groupe7.projetrestaurant;
 import com.mongodb.client.MongoDatabase;
 import fr.ul.miage.groupe7.projetrestaurant.Database.BDD_Connexion;
 import fr.ul.miage.groupe7.projetrestaurant.service.GeneralProperties;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -44,6 +44,14 @@ public class TestBDD_Connexion {
     void verifySingleton(){
         MongoDatabase db = BDD_Connexion.getInstance();
         assertSame(db,bdd_connexion);
+    }
+
+    @AfterAll
+    static void end() throws NoSuchFieldException, IllegalAccessException{
+        Field instance = BDD_Connexion.class.getDeclaredField("bdd_connexion");
+        instance.setAccessible(true);
+        instance.set(null,null);
+        BDD_Connexion.setTest();
     }
 
 }

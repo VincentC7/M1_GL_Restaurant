@@ -5,7 +5,6 @@ import org.bson.Document;
 import org.bson.types.ObjectId;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -32,6 +31,13 @@ public class PlatsDAO extends DAO<Plats>{
                 : d.stream().map(Plats::new).collect(Collectors.toList());
     }
 
+    public List<Plats> findByMenu() {
+        var d = connect.find(eq("menu",true)).into(new ArrayList<>());
+
+        return (d.isEmpty()) ? Collections.emptyList()
+                : d.stream().map(Plats::new).collect(Collectors.toList());
+    }
+
     @Override
     public Plats create(Plats obj) {
         Document d;
@@ -47,7 +53,8 @@ public class PlatsDAO extends DAO<Plats>{
                 .append("catégories",obj.getCategories())
                 .append("matières_premières", l)
                 .append("enfant",obj.isEnfant())
-                .append("prix",obj.getPrix().toString());
+                .append("prix",obj.getPrix().toString())
+                .append("menu",obj.isMenu());
 
         var insert =  connect.insertOne(d);
         ObjectId id = insert.getInsertedId().asObjectId().getValue();
