@@ -18,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class PlatsTest {
 
-    static Map<ObjectId,Integer> hm;
+    static Map<ObjectId,BigDecimal> hm;
     static List<String> categories;
     static String hex1,hex2,hex3;
 
@@ -29,9 +29,9 @@ public class PlatsTest {
         hex1 = "a".repeat(24);
         hex2 = "b".repeat(24);
         hex3 ="c".repeat(24);
-        hm.put(new ObjectId(hex1),50);
-        hm.put(new ObjectId(hex2),100);
-        hm.put(new ObjectId(hex3),150);
+        hm.put(new ObjectId(hex1),new BigDecimal(50));
+        hm.put(new ObjectId(hex2),new BigDecimal(100));
+        hm.put(new ObjectId(hex3),new BigDecimal(150));
         categories = new ArrayList<>();
         categories.add("categories1");
         categories.add("categories2");
@@ -48,7 +48,7 @@ public class PlatsTest {
             Plats p = new Plats("PlatTest",hm,new BigDecimal("15.50"),categories,true);
             assertEquals("PlatTest",p.getNom());
             assertEquals(3, p.getMatieres_premieres().keySet().size());
-            assertEquals(150,p.getMatieres_premieres().get(new ObjectId(hex3)));
+            assertEquals(new BigDecimal(150),p.getMatieres_premieres().get(new ObjectId(hex3)));
             assertEquals(0,p.getPrix().compareTo(new BigDecimal("15.50")));
             assertEquals(2,p.getCategories().size());
             assertTrue(p.getCategories().contains("categories1"));
@@ -98,8 +98,8 @@ public class PlatsTest {
         @Test
         @DisplayName("Assez de matieres premiere")
         void CreerPlatSuccesAssezMatierePremiere() throws IllegalArgumentException  {
-            Map<ObjectId,Integer> hm2 = new HashMap<>();
-            hm2.put(new ObjectId(hex1),50);
+            Map<ObjectId,BigDecimal> hm2 = new HashMap<>();
+            hm2.put(new ObjectId(hex1),new BigDecimal(50));
             assertDoesNotThrow(() -> {
                 Plats p = new Plats("PlatTest",hm2,new BigDecimal("15.50"),categories,false);
             });

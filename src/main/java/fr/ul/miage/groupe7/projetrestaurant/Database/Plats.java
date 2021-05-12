@@ -15,7 +15,7 @@ public class Plats {
 
     private String nom;
     private ObjectId _id;
-    private Map<ObjectId,Integer> matieres_premieres;
+    private Map<ObjectId,BigDecimal> matieres_premieres;
     private List<String> categories;
 
 
@@ -23,7 +23,7 @@ public class Plats {
     private boolean enfant;
     private boolean menu;
 
-    public Plats(@NonNull String nom,@NonNull Map<ObjectId,Integer> matieres_premieres,@NonNull BigDecimal prix, List<String> categories, boolean enfant) {
+    public Plats(@NonNull String nom,@NonNull Map<ObjectId,BigDecimal> matieres_premieres,@NonNull BigDecimal prix, List<String> categories, boolean enfant) {
         if( nom.length() < 2 || matieres_premieres.keySet().isEmpty() || prix.compareTo(BigDecimal.ZERO) <= 0)
             throw new IllegalArgumentException();
 
@@ -35,11 +35,11 @@ public class Plats {
         this.menu = true;
     }
 
-    public Plats(@NonNull String nom,@NonNull Map<ObjectId,Integer> matieres_premieres,@NonNull BigDecimal prix,List<String> categories){
+    public Plats(@NonNull String nom,@NonNull Map<ObjectId,BigDecimal> matieres_premieres,@NonNull BigDecimal prix,List<String> categories){
         this(nom,matieres_premieres,prix,categories,false);
     }
 
-    public Plats(@NonNull String nom,@NonNull Map<ObjectId,Integer> matieres_premieres,@NonNull BigDecimal prix){
+    public Plats(@NonNull String nom,@NonNull Map<ObjectId,BigDecimal> matieres_premieres,@NonNull BigDecimal prix){
         this(nom,matieres_premieres,prix,null);
     }
 
@@ -49,7 +49,7 @@ public class Plats {
         this.nom = d.getString("nom");
         var ingredients = d.getList("matières_premières",Document.class);
         for(Document ingredient : ingredients){
-            matieres_premieres.put(ingredient.getObjectId("_id"),ingredient.getInteger("quantité"));
+            matieres_premieres.put(ingredient.getObjectId("_id"),new BigDecimal(ingredient.getString("quantité")));
         }
         this.prix = new BigDecimal(d.getString("prix"));
         this.categories = d.getList("catégories",String.class);
@@ -77,11 +77,11 @@ public class Plats {
         this.nom = nom;
     }
 
-    public Map<ObjectId,Integer> getMatieres_premieres() {
+    public Map<ObjectId,BigDecimal> getMatieres_premieres() {
         return matieres_premieres;
     }
 
-    public void setMatieres_premieres(Map<ObjectId,Integer> matieres_premieres) {
+    public void setMatieres_premieres(Map<ObjectId,BigDecimal> matieres_premieres) {
         this.matieres_premieres = matieres_premieres;
     }
 

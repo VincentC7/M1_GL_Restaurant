@@ -413,7 +413,7 @@ public class Restaurant {
         Plats plats;
         do {
             String nom,enfant;
-            HashMap<ObjectId,Integer> hm = new HashMap<>();
+            HashMap<ObjectId,BigDecimal> hm = new HashMap<>();
             BigDecimal prix;
             do{
                 System.out.println("\tQuel nom voulez vous donner à votre plats ?");
@@ -426,7 +426,7 @@ public class Restaurant {
                 System.out.println("\tQuel ingrédients avez vous besoins ? Appuyez sur T pour terminer cette étape");
                 ingredients = scanner.get_simple();
                 if(!ingredients.equals("T"))
-                    hm = (HashMap<ObjectId, Integer>) select_matiere_premiere(hm,ingredients);
+                    hm = (HashMap<ObjectId, BigDecimal>) select_matiere_premiere(hm,ingredients);
             }while (!ingredients.equals("T"));
             do{
                 System.out.println("\tQuel est le prix");
@@ -448,17 +448,17 @@ public class Restaurant {
         }while (plats == null);
     }
 
-    public Map<ObjectId,Integer> select_matiere_premiere(Map<ObjectId,Integer> hm, String nom){
+    public Map<ObjectId,BigDecimal> select_matiere_premiere(Map<ObjectId,BigDecimal> hm, String nom){
         MatierePremiere mp = matierePremiereDAO.findByName(nom);
         if(mp == null){
             System.out.println("Ce n'est pas une matière première");
             return hm;
         }
-        int unite;
+        BigDecimal unite;
         do {
             System.out.println("Combien en avez vous besoin pour la recette");
-            unite = scanner.get_int();
-        }while (unite < 0);
+            unite = scanner.get_float();
+        }while (unite.doubleValue() < 0);
         hm.put(mp.get_id(),unite);
         return hm;
     }

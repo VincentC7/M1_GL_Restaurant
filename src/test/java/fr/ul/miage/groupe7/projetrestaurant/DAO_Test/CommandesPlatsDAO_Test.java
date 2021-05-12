@@ -19,16 +19,19 @@ class CommandesPlatsDAO_Test {
     private static Plats p;
     private static PlatsDAO pdao;
     private static CommandesDAO cdao;
+    private static MatierePremiereDAO mdao;
     private static ObjectId id;
+    private static MatierePremiere mp;
 
     @BeforeAll
     static void beforeAll(){
         BDD_Connexion.setTest();
         pdao = new PlatsDAO();
         cdao = new CommandesDAO();
-        Map<ObjectId,Integer> hm = new HashMap<>();
-        String hex3 ="c".repeat(24);
-        hm.put(new ObjectId(hex3),150);
+        mdao = new MatierePremiereDAO();
+        mp = mdao.create(new MatierePremiere("mp",new BigDecimal(500), MatierePremiere.UNITE.GRAMME));
+        Map<ObjectId,BigDecimal> hm = new HashMap<>();
+        hm.put(mp.get_id(),new BigDecimal(150));
         p = new Plats("PlatTest",hm,new BigDecimal("15.50"));
         p = pdao.create(p);
         id = p.get_id();
@@ -36,18 +39,22 @@ class CommandesPlatsDAO_Test {
 
     @AfterAll
     static void afterAll(){
+        mdao.delete(mp);
         pdao.delete(p);
     }
 
     @BeforeEach
     void init(){
+        mp.setQuantitee(new BigDecimal(500));
+        mdao.update(mp);
         cp = new CommandesPlats(id);
         cp2 = new CommandesPlats(id);
-        cp3 = new CommandesPlats(id,new ObjectId(),10000L, CommandesPlats.ETAT_PLAT.SERVI
+        cp3 = new CommandesPlats(new ObjectId(),id,10000L, CommandesPlats.ETAT_PLAT.SERVI
                 , LocalDateTime.of(2021,05,05,12,12,10)
                 , LocalDateTime.of(2021,05,05,12,12,15)
                 , LocalDateTime.of(2021,05,05,12,12,20));
         c =new Commandes(10);
+        c = cdao.create(c);
         c.addCommandes(cp);
         c.addCommandes(cp2);
 
@@ -56,7 +63,6 @@ class CommandesPlatsDAO_Test {
     @Test
     @DisplayName("test find id")
     void testFindById(){
-        c = cdao.create(c);
         Commandes commandes = cdao.find(c.get_id());
         assertEquals(c.getNumeroTable(),commandes.getNumeroTable());
         assertFalse(commandes.isEtat());
@@ -65,7 +71,6 @@ class CommandesPlatsDAO_Test {
     @Test
     @DisplayName("test find by table")
     void testFindByTable(){
-        c = cdao.create(c);
         Commandes commandes = cdao.findByTable(10);
         assertEquals(c.getNumeroTable(),commandes.getNumeroTable());
         assertFalse(commandes.isEtat());
@@ -74,7 +79,7 @@ class CommandesPlatsDAO_Test {
     @Test
     @DisplayName("Test trouve une commandes grâce à une commande interne ")
     void testfindCommandsFromCommand(){
-        c = cdao.create(c);
+        c = cdao.update(c);
         Commandes commandes = cdao.findCommandsFromCommand(cp.get_id());
         assertEquals(c.getNumeroTable(),commandes.getNumeroTable());
         assertFalse(commandes.isEtat());
@@ -85,15 +90,24 @@ class CommandesPlatsDAO_Test {
     void testfindCommandesPlatsById(){
         c.change_etat_commande(0);
         c.change_etat_commande(1);
-        c = cdao.create(c);
+        c = cdao.update(c);
         List<CommandesPlats> commandes = cdao.findCommandesPlatsById(CommandesPlats.ETAT_PLAT.EN_PREPARATION);
         assertEquals(2,commandes.size());
     }
 
     @Test
+    @DisplayName("Test update de matieres premieres")
+    void testUpdateMatierePremiere(){
+        assertEquals(0,new BigDecimal(500).compareTo(mdao.find(mp.get_id()).getQuantitee()));
+        c.change_etat_commande(0);
+        c.change_etat_commande(1);
+        c = cdao.update(c);
+        assertEquals(0,new BigDecimal(200).compareTo(mdao.find(mp.get_id()).getQuantitee()));
+    }
+
+    @Test
     @DisplayName("Test trouve une CommandesPlats par rapport à son _id et son Etat Fail")
     void testfindCommandesPlatsByIdFail(){
-        c = cdao.create(c);
         List<CommandesPlats> commandes = cdao.findCommandesPlatsById(CommandesPlats.ETAT_PLAT.EN_PREPARATION);
         assertEquals(0,commandes.size());
     }
@@ -101,7 +115,6 @@ class CommandesPlatsDAO_Test {
     @Test
     @DisplayName("Test update")
     void testUpdateSucces(){
-        c = cdao.create(c);
         c.change_etat_commande(0);
         cdao.update(c);
         Commandes cmds = cdao.find(c.get_id());
@@ -112,8 +125,7 @@ class CommandesPlatsDAO_Test {
     @DisplayName("Test update date")
     void testUpdateSuccesTimeCheck(){
         c.addCommandes(cp3);
-        c = cdao.create(c);
-        cdao.update(c);
+        c = cdao.update(c);
         Commandes cmds = cdao.find(c.get_id());
         assertEquals(LocalDateTime.of(2021,05,05,12,12,10)
                 ,cmds.getCommandesPlats().get(2).getCommande());
@@ -126,7 +138,6 @@ class CommandesPlatsDAO_Test {
     @Test
     @DisplayName("Test update finir")
     void testUpdateSuccesFinir(){
-        c = cdao.create(c);
         c.change_etat_commande(0);
         c.change_etat_commande(0);
         c.change_etat_commande(0);
