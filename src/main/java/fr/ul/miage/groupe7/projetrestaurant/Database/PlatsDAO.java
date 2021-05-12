@@ -45,7 +45,7 @@ public class PlatsDAO extends DAO<Plats>{
         for(var mp : obj.getMatieres_premieres().entrySet()){
             l.add(
                     new Document("_id",mp.getKey())
-                            .append("quantité",mp.getValue().toString())
+                            .append("quantité",mp.getValue())
             );
         }
 

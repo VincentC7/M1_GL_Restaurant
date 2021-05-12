@@ -49,7 +49,7 @@ public class Plats {
         this.nom = d.getString("nom");
         var ingredients = d.getList("matières_premières",Document.class);
         for(Document ingredient : ingredients){
-            matieres_premieres.put(ingredient.getObjectId("_id"),new BigDecimal(ingredient.getString("quantité")));
+            matieres_premieres.put(ingredient.getObjectId("_id"),new BigDecimal(""+ingredient.get("quantité")));
         }
         this.prix = new BigDecimal(d.getString("prix"));
         this.categories = d.getList("catégories",String.class);

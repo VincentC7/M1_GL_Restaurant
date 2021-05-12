@@ -106,6 +106,9 @@ public class CommandesDAO extends DAO<Commandes>{
                             set("plats.$",subdoc));
                     if(d == null){
                         connect.updateOne(eq(obj.get_id()), push("plats", subdoc));
+                        PlatsDAO platsDAO = new PlatsDAO();
+                        MatierePremiereDAO matierePremiereDAO = new MatierePremiereDAO();
+                        matierePremiereDAO.updateWithPlat(platsDAO.find(cp.getIdPlat()));
                     }
                 }
             }
