@@ -16,23 +16,22 @@ public class PlatsDAO_Test {
 
     static Map<ObjectId,BigDecimal> hm;
     static List<String> categories;
-    static String hex1,hex2,hex3;
     static Plats p,ps;
     static PlatsDAO dao;
     static MatierePremiereDAO matierePremiereDAO;
-    static MatierePremiere mp;
+    static MatierePremiere mp,mp1,mp2,mp3;
 
     @BeforeAll
     static void init(){
         BDD_Connexion.setTest();
         matierePremiereDAO = new MatierePremiereDAO();
+        mp1 = matierePremiereDAO.create(new MatierePremiere("mp1",new BigDecimal(500), MatierePremiere.UNITE.GRAMME));
+        mp2 = matierePremiereDAO.create(new MatierePremiere("mp2",new BigDecimal(500), MatierePremiere.UNITE.GRAMME));
+        mp3 = matierePremiereDAO.create(new MatierePremiere("mp3",new BigDecimal(500), MatierePremiere.UNITE.GRAMME));
         hm = new HashMap<>();
-        hex1 = "a".repeat(24);
-        hex2 = "b".repeat(24);
-        hex3 ="c".repeat(24);
-        hm.put(new ObjectId(hex1),new BigDecimal(50));
-        hm.put(new ObjectId(hex2),new BigDecimal(100));
-        hm.put(new ObjectId(hex3),new BigDecimal(150));
+        hm.put(mp1.get_id(),new BigDecimal(50));
+        hm.put(mp2.get_id(),new BigDecimal(100));
+        hm.put(mp3.get_id(),new BigDecimal(150));
         categories = new ArrayList<>();
         categories.add("categories1");
         categories.add("categories2");
@@ -54,7 +53,7 @@ public class PlatsDAO_Test {
             Plats plat = plats.get(0);
             assertEquals("PlatTest",plat.getNom());
             assertEquals(3, plat.getMatieres_premieres().keySet().size());
-            assertEquals(new BigDecimal(150),plat.getMatieres_premieres().get(new ObjectId(hex3)));
+            assertEquals(new BigDecimal(150),plat.getMatieres_premieres().get(mp3.get_id()));
             assertEquals(0,plat.getPrix().compareTo(new BigDecimal("15.50")));
             assertEquals(2,plat.getCategories().size());
             assertTrue(plat.getCategories().contains("categories1"));
@@ -68,7 +67,7 @@ public class PlatsDAO_Test {
             var plat = dao.find(p.get_id());
             assertEquals("PlatTest",plat.getNom());
             assertEquals(3, plat.getMatieres_premieres().keySet().size());
-            assertEquals(new BigDecimal(150),plat.getMatieres_premieres().get(new ObjectId(hex3)));
+            assertEquals(new BigDecimal(150),plat.getMatieres_premieres().get(mp3.get_id()));
             assertEquals(0,plat.getPrix().compareTo(new BigDecimal("15.50")));
             assertEquals(2,plat.getCategories().size());
             assertTrue(plat.getCategories().contains("categories1"));
@@ -101,14 +100,73 @@ public class PlatsDAO_Test {
         }
 
         @Test
+        @DisplayName("Trouver les plats par disponibilité avec un plat pas disponible")
+        void TrouverPlatSuccesByMenuAndDisponibilityFalse(){
+            var plats = dao.findByMenuAndDisponibility();
+            mp = matierePremiereDAO.create(new MatierePremiere("mp",new BigDecimal(500), MatierePremiere.UNITE.GRAMME));
+            HashMap<ObjectId,BigDecimal> hm2 = new HashMap<>();
+            hm2.put(mp.get_id(),new BigDecimal(1000));
+            ps =  dao.create(new Plats("PlatTest",hm2,new BigDecimal("15.50"),null,false));
+
+            assertEquals(1,plats.size());
+
+        }
+
+        @Test
+        @DisplayName("Trouver les plats par disponibilité avec tous les plats disponible")
+        void TrouverPlatSuccesByMenuAndDisponibilityTrue(){
+            mp = matierePremiereDAO.create(new MatierePremiere("mp",new BigDecimal(500), MatierePremiere.UNITE.GRAMME));
+            HashMap<ObjectId,BigDecimal> hm2 = new HashMap<>();
+            hm2.put(mp.get_id(),new BigDecimal(50));
+            ps =  dao.create(new Plats("PlatTest",hm2,new BigDecimal("15.50"),null,false));
+            var plats = dao.findByMenuAndDisponibility();
+            assertEquals(2,plats.size());
+
+        }
+
+        @Test
         @DisplayName("Baisser la quantité de matiere premiere")
         void MatierePremiereDiminue(){
             mp = matierePremiereDAO.create(new MatierePremiere("mp",new BigDecimal(500), MatierePremiere.UNITE.GRAMME));
             HashMap<ObjectId,BigDecimal> hm2 = new HashMap<>();
             hm2.put(mp.get_id(),new BigDecimal(50));
             ps =  dao.create(new Plats("PlatTest",hm2,new BigDecimal("15.50"),null,false));
-            matierePremiereDAO.updateWithPlat(ps);
+            assertTrue(matierePremiereDAO.updateWithPlat(ps));
             assertEquals(0,matierePremiereDAO.find(mp.get_id()).getQuantitee().compareTo(new BigDecimal(450)));
+
+        }
+
+        @Test
+        @DisplayName("Baisser la quantité de matiere premiere jusqu'a indisponibilité")
+        void MatierePremiereDiminueSousZero(){
+            mp = matierePremiereDAO.create(new MatierePremiere("mp",new BigDecimal(500), MatierePremiere.UNITE.GRAMME));
+            HashMap<ObjectId,BigDecimal> hm2 = new HashMap<>();
+            hm2.put(mp.get_id(),new BigDecimal(1000));
+            ps =  dao.create(new Plats("PlatTest",hm2,new BigDecimal("15.50"),null,false));
+            assertFalse(matierePremiereDAO.updateWithPlat(ps));
+            assertEquals(0,matierePremiereDAO.find(mp.get_id()).getQuantitee().compareTo(new BigDecimal(500)));
+
+        }
+
+        @Test
+        @DisplayName("Test la dispnobilité d'un plat disponible")
+        void MatierePremiereIsDisponibleTrue(){
+            mp = matierePremiereDAO.create(new MatierePremiere("mp",new BigDecimal(500), MatierePremiere.UNITE.GRAMME));
+            HashMap<ObjectId,BigDecimal> hm2 = new HashMap<>();
+            hm2.put(mp.get_id(),new BigDecimal(50));
+            ps =  dao.create(new Plats("PlatTest",hm2,new BigDecimal("15.50"),null,false));
+            assertTrue(matierePremiereDAO.isDisponible(ps));
+
+        }
+
+        @Test
+        @DisplayName("Test la dispnobilité d'un plat indsiponible")
+        void MatierePremiereIsDisponibleFalse(){
+            mp = matierePremiereDAO.create(new MatierePremiere("mp",new BigDecimal(500), MatierePremiere.UNITE.GRAMME));
+            HashMap<ObjectId,BigDecimal> hm2 = new HashMap<>();
+            hm2.put(mp.get_id(),new BigDecimal(1000));
+            ps =  dao.create(new Plats("PlatTest",hm2,new BigDecimal("15.50"),null,false));
+            assertFalse(matierePremiereDAO.isDisponible(ps));
 
         }
     }
@@ -133,7 +191,7 @@ public class PlatsDAO_Test {
         }
 
         @Test
-        @DisplayName("Creer un Plats avec 3 arguments")
+        @DisplayName("Creer un Plats avec 4 arguments")
         void CreerUnPlat4Arguments(){
             plat = dao.create(new Plats("PlatTest",hm,new BigDecimal("15.50"),categories));
             assertFalse(plat.getCategories().isEmpty());
@@ -145,6 +203,10 @@ public class PlatsDAO_Test {
     @AfterAll
     static void delete(){
         dao.delete(p);
+
+        matierePremiereDAO.delete(mp1);
+        matierePremiereDAO.delete(mp2);
+        matierePremiereDAO.delete(mp3);
     }
 
     @AfterEach
