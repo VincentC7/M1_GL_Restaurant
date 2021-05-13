@@ -575,7 +575,7 @@ public class Restaurant {
     public void ajouter_plat_commandes(Table t){
         int action;
         Commandes cmd = commandesDAO.findByTable(t.getNumero());
-        List<Plats> plats = platsDAO.findByMenu();
+        List<Plats> plats = platsDAO.findByMenuAndDisponibility();
         do {
             AtomicInteger ai = new AtomicInteger(1);
             plats.forEach(p -> System.out.println(ai.getAndIncrement() + Main.RETOUR_LIGNE + p.toString()) );

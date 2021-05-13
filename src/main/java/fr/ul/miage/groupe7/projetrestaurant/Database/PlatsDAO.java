@@ -5,11 +5,13 @@ import org.bson.Document;
 import org.bson.types.ObjectId;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.mongodb.client.model.Filters.eq;
+import static com.mongodb.client.model.Aggregates.*;
 
 public class PlatsDAO extends DAO<Plats>{
 
@@ -36,6 +38,14 @@ public class PlatsDAO extends DAO<Plats>{
 
         return (d.isEmpty()) ? Collections.emptyList()
                 : d.stream().map(Plats::new).collect(Collectors.toList());
+    }
+
+    public List<Plats> findByMenuAndDisponibility() {
+        var matierePremiereDAO = new MatierePremiereDAO();
+        var d = connect.find(eq("menu",true)).into(new ArrayList<>());
+        List<Plats> plats = (d.isEmpty()) ? Collections.emptyList()
+                : d.stream().map(Plats::new).collect(Collectors.toList());
+        return plats.stream().filter(matierePremiereDAO::isDisponible).collect(Collectors.toList());
     }
 
     @Override
