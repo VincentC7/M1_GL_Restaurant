@@ -606,6 +606,22 @@ public class Restaurant {
     }
 
     /**
+     * Afficher la carte du jour
+     */
+    public void afficher_carte(){
+        HashMap<String, ArrayList<Plats>> plats = Plats.trierPlatsByCat((ArrayList<Plats>) platsDAO.findByMenuAndDisponibility());
+        if(plats.isEmpty()){
+            Set<String> cat = plats.keySet();
+            for (String c: cat){
+                System.out.println(c);
+                plats.get(c).forEach((e) -> System.out.println(e.toString()) );
+            }
+        }else{
+            System.out.println("Il n'y a pas de plats dans la carte du jour");
+        }
+    }
+
+    /**
      * Crée une nouvelle commande
      * @param t table de la commande
      */
