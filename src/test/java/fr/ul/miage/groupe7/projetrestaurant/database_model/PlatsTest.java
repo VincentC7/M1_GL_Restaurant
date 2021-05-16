@@ -123,5 +123,42 @@ public class PlatsTest {
         }
     }
 
+    @Nested
+    @DisplayName("Test sur le trie en catégories")
+    class CAT {
+
+        @Test
+        @DisplayName("Trier les plats par catégories")
+        void trierCatSucces() throws IllegalArgumentException  {
+            ArrayList<String> cat1 = new ArrayList<>(List.of("Viande", "Végétarien"));
+            ArrayList<String> cat2 = new ArrayList<>(List.of("Viande", "Poisson"));
+            Plats p1 = new Plats("Plat1",hm,new BigDecimal("15.50"),cat1,true);
+            Plats p2 = new Plats("Plat2",hm,new BigDecimal("15.50"),cat2,true);
+            ArrayList<Plats> tmp = new ArrayList<>(List.of(p1,p2));
+
+            HashMap<String, ArrayList<Plats>> cats = Plats.trierPlatsByCat(tmp);
+
+            assertEquals(cats.size(), 3);
+            assertEquals(cats.get("Viande").size(), 2);
+            assertEquals(cats.get("Poisson").size(), 1);
+            assertEquals(cats.get("Végétarien").size(), 1);
+        }
+
+        @Test
+        @DisplayName("Trier les plats avec une seule catégorie")
+        void trierCatFail() throws IllegalArgumentException  {
+            ArrayList<String> cat1 = new ArrayList<>(List.of(""));
+            Plats p1 = new Plats("Plat1",hm,new BigDecimal("15.50"),cat1,true);
+            Plats p2 = new Plats("Plat2",hm,new BigDecimal("15.50"),cat1,true);
+            ArrayList<Plats> tmp = new ArrayList<>(List.of(p1,p2));
+
+            HashMap<String, ArrayList<Plats>> cats = Plats.trierPlatsByCat(tmp);
+
+            assertEquals(cats.size(), 1);
+            assertEquals(cats.get("").size(), 2);
+        }
+
+    }
+
 
 }

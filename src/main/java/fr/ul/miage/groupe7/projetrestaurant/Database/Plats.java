@@ -5,10 +5,7 @@ import org.bson.Document;
 import org.bson.types.ObjectId;
 
 import java.math.BigDecimal;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class Plats {
 
@@ -17,7 +14,6 @@ public class Plats {
     private ObjectId _id;
     private Map<ObjectId,BigDecimal> matieres_premieres;
     private List<String> categories;
-
 
     private BigDecimal prix;
     private boolean enfant;
@@ -55,6 +51,21 @@ public class Plats {
         this.categories = d.getList("catégories",String.class);
         this.enfant = d.getBoolean("enfant");
         this.menu = d.getBoolean("menu");
+    }
+
+    public static HashMap<String, ArrayList<Plats>> trierPlatsByCat(ArrayList<Plats> plats){
+        HashMap<String, ArrayList<Plats>> res = new HashMap<>();
+        for(Plats plat : plats){
+            for(String cat : plat.getCategories()){
+                if(!res.containsKey(cat)){
+                    res.put(cat, new ArrayList<>(Arrays.asList(plat)));
+                }else{
+                    res.get(cat).add(plat);
+                }
+            }
+        }
+
+        return res;
     }
 
     public String getNom() {

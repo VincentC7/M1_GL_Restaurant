@@ -10,6 +10,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 
@@ -573,18 +574,33 @@ public class Restaurant {
      * @param t table de la commande
      */
     public void ajouter_plat_commandes(Table t){
-        int action;
+        int action, action2;
         Commandes cmd = commandesDAO.findByTable(t.getNumero());
-        List<Plats> plats = platsDAO.findByMenuAndDisponibility();
+        HashMap<String, ArrayList<Plats>> plats = Plats.trierPlatsByCat((ArrayList<Plats>) platsDAO.findByMenuAndDisponibility());
+        Set<String> set = plats.keySet();
+        AtomicReference<String> cat = null;
         do {
             AtomicInteger ai = new AtomicInteger(1);
-            plats.forEach(p -> System.out.println(ai.getAndIncrement() + Main.RETOUR_LIGNE + p.toString()) );
-            System.out.println("Selectionner un plat ou 0 pour revenir en arriere");
+            set.forEach((k) -> {
+                cat.set(k);
+                System.out.println(ai.getAndIncrement() + Main.RETOUR_LIGNE + k);
+            } );
+            System.out.println("Selectionner une catégorie ou 0 pour revenir en arriere");
             action = scanner.get_int();
             if(action == 0)
                 return;
-        }while (action > plats.size() || action <= 0);
-        cmd.addCommandes(new CommandesPlats(plats.get(action-1).get_id()));
+        }while (action > set.size() || action <= 0);
+
+        do {
+            AtomicInteger ai2 = new AtomicInteger(1);
+            plats.get(cat.get()).forEach((e) -> System.out.println(ai2.getAndIncrement() + Main.RETOUR_LIGNE + e.toString()) );
+            System.out.println("Selectionner un plat ou 0 pour revenir en arriere");
+            action2 = scanner.get_int();
+            if(action2 == 0)
+                return;
+        }while (action2 > plats.size() || action2 <= 0);
+
+        cmd.addCommandes(new CommandesPlats(plats.get(cat.get()).get(action2-1).get_id()));
         commandesDAO.update(cmd);
     }
 
