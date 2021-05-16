@@ -158,6 +158,23 @@ public class PlatsTest {
             assertEquals(cats.get("").size(), 2);
         }
 
+        @Test
+        @DisplayName("Trier les plats par odre alphabétique")
+        void trierAlpha() throws IllegalArgumentException  {
+            ArrayList<String> cat1 = new ArrayList<>(List.of("Viande", "Végétarien"));
+            ArrayList<String> cat2 = new ArrayList<>(List.of("Viande", "Poisson"));
+            Plats p1 = new Plats("Viande",hm,new BigDecimal("15.50"),cat1,true);
+            Plats p2 = new Plats("Poisson",hm,new BigDecimal("15.50"),cat2,true);
+            ArrayList<Plats> tmp = new ArrayList<>(List.of(p1,p2));
+
+            HashMap<String, ArrayList<Plats>> cats = Plats.trierPlatsByCat(tmp);
+
+            ArrayList<Plats> plats = cats.get("Viande");
+            assertEquals(plats.get(0).getNom(), "Viande");
+            Plats.trierAlpha(plats);
+            assertEquals(plats.get(0).getNom(), "Poisson");
+        }
+
     }
 
 

@@ -64,8 +64,16 @@ public class Plats {
                 }
             }
         }
-
         return res;
+    }
+
+    public static void trierAlpha(ArrayList<Plats> plats){
+        plats.sort(new Comparator<Plats>() {
+            @Override
+            public int compare(Plats o1, Plats o2) {
+                return o1.getNom().compareTo(o2.getNom());
+            }
+        });
     }
 
     public String getNom() {
@@ -121,6 +129,20 @@ public class Plats {
 
     public void setEnfant(boolean enfant) {
         this.enfant = enfant;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Plats plats = (Plats) o;
+        return Objects.equals(nom, plats.nom) &&
+                Objects.equals(_id, plats._id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(nom, _id);
     }
 
     @Override

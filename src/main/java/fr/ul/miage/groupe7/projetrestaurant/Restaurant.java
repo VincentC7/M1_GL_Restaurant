@@ -593,6 +593,7 @@ public class Restaurant {
 
         do {
             AtomicInteger ai2 = new AtomicInteger(1);
+            Plats.trierAlpha(plats.get(cat.get()));
             plats.get(cat.get()).forEach((e) -> System.out.println(ai2.getAndIncrement() + Main.RETOUR_LIGNE + e.toString()) );
             System.out.println("Selectionner un plat ou 0 pour revenir en arriere");
             action2 = scanner.get_int();
