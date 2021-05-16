@@ -5,25 +5,21 @@ import org.bson.Document;
 import org.bson.types.ObjectId;
 
 import java.math.BigDecimal;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class Plats {
 
 
     private String nom;
     private ObjectId _id;
-    private Map<ObjectId,Integer> matieres_premieres;
+    private Map<ObjectId,BigDecimal> matieres_premieres;
     private List<String> categories;
-
 
     private BigDecimal prix;
     private boolean enfant;
     private boolean menu;
 
-    public Plats(@NonNull String nom,@NonNull Map<ObjectId,Integer> matieres_premieres,@NonNull BigDecimal prix, List<String> categories, boolean enfant) {
+    public Plats(@NonNull String nom,@NonNull Map<ObjectId,BigDecimal> matieres_premieres,@NonNull BigDecimal prix, List<String> categories, boolean enfant) {
         if( nom.length() < 2 || matieres_premieres.keySet().isEmpty() || prix.compareTo(BigDecimal.ZERO) <= 0)
             throw new IllegalArgumentException();
 
@@ -35,11 +31,11 @@ public class Plats {
         this.menu = true;
     }
 
-    public Plats(@NonNull String nom,@NonNull Map<ObjectId,Integer> matieres_premieres,@NonNull BigDecimal prix,List<String> categories){
+    public Plats(@NonNull String nom,@NonNull Map<ObjectId,BigDecimal> matieres_premieres,@NonNull BigDecimal prix,List<String> categories){
         this(nom,matieres_premieres,prix,categories,false);
     }
 
-    public Plats(@NonNull String nom,@NonNull Map<ObjectId,Integer> matieres_premieres,@NonNull BigDecimal prix){
+    public Plats(@NonNull String nom,@NonNull Map<ObjectId,BigDecimal> matieres_premieres,@NonNull BigDecimal prix){
         this(nom,matieres_premieres,prix,null);
     }
 
@@ -49,12 +45,35 @@ public class Plats {
         this.nom = d.getString("nom");
         var ingredients = d.getList("matières_premières",Document.class);
         for(Document ingredient : ingredients){
-            matieres_premieres.put(ingredient.getObjectId("_id"),ingredient.getInteger("quantité"));
+            matieres_premieres.put(ingredient.getObjectId("_id"),new BigDecimal(""+ingredient.get("quantité")));
         }
         this.prix = new BigDecimal(d.getString("prix"));
         this.categories = d.getList("catégories",String.class);
         this.enfant = d.getBoolean("enfant");
         this.menu = d.getBoolean("menu");
+    }
+
+    public static HashMap<String, ArrayList<Plats>> trierPlatsByCat(ArrayList<Plats> plats){
+        HashMap<String, ArrayList<Plats>> res = new HashMap<>();
+        for(Plats plat : plats){
+            for(String cat : plat.getCategories()){
+                if(!res.containsKey(cat)){
+                    res.put(cat, new ArrayList<>(Arrays.asList(plat)));
+                }else{
+                    res.get(cat).add(plat);
+                }
+            }
+        }
+        return res;
+    }
+
+    public static void trierAlpha(ArrayList<Plats> plats){
+        plats.sort(new Comparator<Plats>() {
+            @Override
+            public int compare(Plats o1, Plats o2) {
+                return o1.getNom().compareTo(o2.getNom());
+            }
+        });
     }
 
     public String getNom() {
@@ -77,11 +96,11 @@ public class Plats {
         this.nom = nom;
     }
 
-    public Map<ObjectId,Integer> getMatieres_premieres() {
+    public Map<ObjectId,BigDecimal> getMatieres_premieres() {
         return matieres_premieres;
     }
 
-    public void setMatieres_premieres(Map<ObjectId,Integer> matieres_premieres) {
+    public void setMatieres_premieres(Map<ObjectId,BigDecimal> matieres_premieres) {
         this.matieres_premieres = matieres_premieres;
     }
 
@@ -113,6 +132,20 @@ public class Plats {
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Plats plats = (Plats) o;
+        return Objects.equals(nom, plats.nom) &&
+                Objects.equals(_id, plats._id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(nom, _id);
+    }
+
+    @Override
     public String toString() {
         var sb = new StringBuilder();
         var format = "%-12s: %s%n";
@@ -121,7 +154,7 @@ public class Plats {
         MatierePremiereDAO dao = new MatierePremiereDAO();
         for(var entrySet : matieres_premieres.entrySet()){
             MatierePremiere mp = dao.find(entrySet.getKey());
-            sb.append(String.format("\t %-12s : %d%n",mp.getNom(), entrySet.getValue()));
+            sb.append(String.format("\t %-12s : %.2f%n",mp.getNom(), entrySet.getValue()));
         }
 
         sb.append(String.format(format,"Catégories", categories));

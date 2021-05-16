@@ -10,6 +10,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 
@@ -413,7 +414,7 @@ public class Restaurant {
         Plats plats;
         do {
             String nom,enfant;
-            HashMap<ObjectId,Integer> hm = new HashMap<>();
+            HashMap<ObjectId,BigDecimal> hm = new HashMap<>();
             BigDecimal prix;
             do{
                 System.out.println("\tQuel nom voulez vous donner à votre plats ?");
@@ -426,7 +427,7 @@ public class Restaurant {
                 System.out.println("\tQuel ingrédients avez vous besoins ? Appuyez sur T pour terminer cette étape");
                 ingredients = scanner.get_simple();
                 if(!ingredients.equals("T"))
-                    hm = (HashMap<ObjectId, Integer>) select_matiere_premiere(hm,ingredients);
+                    hm = (HashMap<ObjectId, BigDecimal>) select_matiere_premiere(hm,ingredients);
             }while (!ingredients.equals("T"));
             do{
                 System.out.println("\tQuel est le prix");
@@ -448,17 +449,17 @@ public class Restaurant {
         }while (plats == null);
     }
 
-    public Map<ObjectId,Integer> select_matiere_premiere(Map<ObjectId,Integer> hm, String nom){
+    public Map<ObjectId,BigDecimal> select_matiere_premiere(Map<ObjectId,BigDecimal> hm, String nom){
         MatierePremiere mp = matierePremiereDAO.findByName(nom);
         if(mp == null){
             System.out.println("Ce n'est pas une matière première");
             return hm;
         }
-        int unite;
+        BigDecimal unite;
         do {
             System.out.println("Combien en avez vous besoin pour la recette");
-            unite = scanner.get_int();
-        }while (unite < 0);
+            unite = scanner.get_float();
+        }while (unite.doubleValue() < 0);
         hm.put(mp.get_id(),unite);
         return hm;
     }
@@ -573,18 +574,34 @@ public class Restaurant {
      * @param t table de la commande
      */
     public void ajouter_plat_commandes(Table t){
-        int action;
+        int action, action2;
         Commandes cmd = commandesDAO.findByTable(t.getNumero());
-        List<Plats> plats = platsDAO.findByMenu();
+        HashMap<String, ArrayList<Plats>> plats = Plats.trierPlatsByCat((ArrayList<Plats>) platsDAO.findByMenuAndDisponibility());
+        Set<String> set = plats.keySet();
+        AtomicReference<String> cat = null;
         do {
             AtomicInteger ai = new AtomicInteger(1);
-            plats.forEach(p -> System.out.println(ai.getAndIncrement() + Main.RETOUR_LIGNE + p.toString()) );
-            System.out.println("Selectionner un plat ou 0 pour revenir en arriere");
+            set.forEach((k) -> {
+                cat.set(k);
+                System.out.println(ai.getAndIncrement() + Main.RETOUR_LIGNE + k);
+            } );
+            System.out.println("Selectionner une catégorie ou 0 pour revenir en arriere");
             action = scanner.get_int();
             if(action == 0)
                 return;
-        }while (action > plats.size() || action <= 0);
-        cmd.addCommandes(new CommandesPlats(plats.get(action-1).get_id()));
+        }while (action > set.size() || action <= 0);
+
+        do {
+            AtomicInteger ai2 = new AtomicInteger(1);
+            Plats.trierAlpha(plats.get(cat.get()));
+            plats.get(cat.get()).forEach((e) -> System.out.println(ai2.getAndIncrement() + Main.RETOUR_LIGNE + e.toString()) );
+            System.out.println("Selectionner un plat ou 0 pour revenir en arriere");
+            action2 = scanner.get_int();
+            if(action2 == 0)
+                return;
+        }while (action2 > plats.size() || action2 <= 0);
+
+        cmd.addCommandes(new CommandesPlats(plats.get(cat.get()).get(action2-1).get_id()));
         commandesDAO.update(cmd);
     }
 

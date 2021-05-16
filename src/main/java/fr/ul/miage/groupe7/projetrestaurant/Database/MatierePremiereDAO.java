@@ -8,6 +8,7 @@ import java.util.HashSet;
 import java.util.Objects;
 
 import static com.mongodb.client.model.Filters.eq;
+import static com.mongodb.client.model.Updates.inc;
 import static com.mongodb.client.model.Updates.set;
 
 public class MatierePremiereDAO extends DAO<MatierePremiere> {
@@ -56,6 +57,25 @@ public class MatierePremiereDAO extends DAO<MatierePremiere> {
             return obj;
         }
         return null;
+    }
+
+    public boolean updateWithPlat(Plats p){
+        if(isDisponible(p)) {
+            for (var mp : p.getMatieres_premieres().entrySet()) {
+                connect.updateOne(eq("_id", mp.getKey()), inc("quantitee", -mp.getValue().doubleValue()));
+            }
+            return true;
+        }
+        return false;
+
+    }
+
+    public boolean isDisponible(Plats p){
+        for(var mp : p.getMatieres_premieres().entrySet()){
+            if( find(mp.getKey()).getQuantitee().doubleValue() < mp.getValue().doubleValue())
+                return false;
+        }
+        return true;
     }
 
     @Override

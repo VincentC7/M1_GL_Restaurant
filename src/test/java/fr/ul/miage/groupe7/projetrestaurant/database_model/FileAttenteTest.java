@@ -24,9 +24,9 @@ public class FileAttenteTest {
         BDD_Connexion.setTest();
         pdao = new PlatsDAO();
         cdao = new CommandesDAO();
-        Map<ObjectId,Integer> hm = new HashMap<>();
+        Map<ObjectId,BigDecimal> hm = new HashMap<>();
         String hex3 ="c".repeat(24);
-        hm.put(new ObjectId(hex3),150);
+        hm.put(new ObjectId(hex3),new BigDecimal(150));
         p = new Plats("Plat 1",hm,new BigDecimal("15.50"), null, false);
         p = pdao.create(p);
         p2 = new Plats("Plat 2",hm,new BigDecimal("16.50"), null, false);
@@ -67,9 +67,9 @@ public class FileAttenteTest {
     @DisplayName("Ajout d'une nouvelle commande avec un plat classique")
     void testAddNewCommand(){
         c2 = new Commandes(2);
-        Map<ObjectId, Integer> hm = new HashMap<>();
+        Map<ObjectId, BigDecimal> hm = new HashMap<>();
         String hex3 ="c".repeat(24);
-        hm.put(new ObjectId(hex3),150);
+        hm.put(new ObjectId(hex3),new BigDecimal(150));
         p4 = new Plats("Plat 4",hm,new BigDecimal("15.50"), null, false);
         p4 = pdao.create(p4);
         CommandesPlats cp4 = new CommandesPlats(p4.get_id());
@@ -88,9 +88,9 @@ public class FileAttenteTest {
     @DisplayName("Ajout d'une nouvelle commande avec un plat Enfant")
     void testAddNewCommandEnfant(){
         c2 = new Commandes(2);
-        Map<ObjectId, Integer> hm = new HashMap<>();
+        Map<ObjectId, BigDecimal> hm = new HashMap<>();
         String hex3 ="c".repeat(24);
-        hm.put(new ObjectId(hex3),150);
+        hm.put(new ObjectId(hex3),new BigDecimal(150));
         p4 = new Plats("Plat 4",hm,new BigDecimal("15.50"), null, true);
         p4 = pdao.create(p4);
         CommandesPlats cp4 = new CommandesPlats(p4.get_id());

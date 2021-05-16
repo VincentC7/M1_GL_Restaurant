@@ -24,9 +24,9 @@ public class CommandesTest {
     static void beforeAll(){
         BDD_Connexion.setTest();
         pdao = new PlatsDAO();
-        Map<ObjectId,Integer> hm = new HashMap<>();
+        Map<ObjectId,BigDecimal> hm = new HashMap<>();
         String hex3 ="c".repeat(24);
-        hm.put(new ObjectId(hex3),150);
+        hm.put(new ObjectId(hex3),new BigDecimal(150));
         p = new Plats("PlatTest",hm,new BigDecimal("15.50"));
         p = pdao.create(p);
         id = p.get_id();

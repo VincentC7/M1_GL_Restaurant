@@ -18,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class PlatsTest {
 
-    static Map<ObjectId,Integer> hm;
+    static Map<ObjectId,BigDecimal> hm;
     static List<String> categories;
     static String hex1,hex2,hex3;
 
@@ -29,9 +29,9 @@ public class PlatsTest {
         hex1 = "a".repeat(24);
         hex2 = "b".repeat(24);
         hex3 ="c".repeat(24);
-        hm.put(new ObjectId(hex1),50);
-        hm.put(new ObjectId(hex2),100);
-        hm.put(new ObjectId(hex3),150);
+        hm.put(new ObjectId(hex1),new BigDecimal(50));
+        hm.put(new ObjectId(hex2),new BigDecimal(100));
+        hm.put(new ObjectId(hex3),new BigDecimal(150));
         categories = new ArrayList<>();
         categories.add("categories1");
         categories.add("categories2");
@@ -48,7 +48,7 @@ public class PlatsTest {
             Plats p = new Plats("PlatTest",hm,new BigDecimal("15.50"),categories,true);
             assertEquals("PlatTest",p.getNom());
             assertEquals(3, p.getMatieres_premieres().keySet().size());
-            assertEquals(150,p.getMatieres_premieres().get(new ObjectId(hex3)));
+            assertEquals(new BigDecimal(150),p.getMatieres_premieres().get(new ObjectId(hex3)));
             assertEquals(0,p.getPrix().compareTo(new BigDecimal("15.50")));
             assertEquals(2,p.getCategories().size());
             assertTrue(p.getCategories().contains("categories1"));
@@ -98,8 +98,8 @@ public class PlatsTest {
         @Test
         @DisplayName("Assez de matieres premiere")
         void CreerPlatSuccesAssezMatierePremiere() throws IllegalArgumentException  {
-            Map<ObjectId,Integer> hm2 = new HashMap<>();
-            hm2.put(new ObjectId(hex1),50);
+            Map<ObjectId,BigDecimal> hm2 = new HashMap<>();
+            hm2.put(new ObjectId(hex1),new BigDecimal(50));
             assertDoesNotThrow(() -> {
                 Plats p = new Plats("PlatTest",hm2,new BigDecimal("15.50"),categories,false);
             });
@@ -121,6 +121,60 @@ public class PlatsTest {
                 Plats p = new Plats("PlatTest",hm,new BigDecimal("0.01"),categories,false);
             });
         }
+    }
+
+    @Nested
+    @DisplayName("Test sur le trie en catégories")
+    class CAT {
+
+        @Test
+        @DisplayName("Trier les plats par catégories")
+        void trierCatSucces() throws IllegalArgumentException  {
+            ArrayList<String> cat1 = new ArrayList<>(List.of("Viande", "Végétarien"));
+            ArrayList<String> cat2 = new ArrayList<>(List.of("Viande", "Poisson"));
+            Plats p1 = new Plats("Plat1",hm,new BigDecimal("15.50"),cat1,true);
+            Plats p2 = new Plats("Plat2",hm,new BigDecimal("15.50"),cat2,true);
+            ArrayList<Plats> tmp = new ArrayList<>(List.of(p1,p2));
+
+            HashMap<String, ArrayList<Plats>> cats = Plats.trierPlatsByCat(tmp);
+
+            assertEquals(cats.size(), 3);
+            assertEquals(cats.get("Viande").size(), 2);
+            assertEquals(cats.get("Poisson").size(), 1);
+            assertEquals(cats.get("Végétarien").size(), 1);
+        }
+
+        @Test
+        @DisplayName("Trier les plats avec une seule catégorie")
+        void trierCatFail() throws IllegalArgumentException  {
+            ArrayList<String> cat1 = new ArrayList<>(List.of(""));
+            Plats p1 = new Plats("Plat1",hm,new BigDecimal("15.50"),cat1,true);
+            Plats p2 = new Plats("Plat2",hm,new BigDecimal("15.50"),cat1,true);
+            ArrayList<Plats> tmp = new ArrayList<>(List.of(p1,p2));
+
+            HashMap<String, ArrayList<Plats>> cats = Plats.trierPlatsByCat(tmp);
+
+            assertEquals(cats.size(), 1);
+            assertEquals(cats.get("").size(), 2);
+        }
+
+        @Test
+        @DisplayName("Trier les plats par odre alphabétique")
+        void trierAlpha() throws IllegalArgumentException  {
+            ArrayList<String> cat1 = new ArrayList<>(List.of("Viande", "Végétarien"));
+            ArrayList<String> cat2 = new ArrayList<>(List.of("Viande", "Poisson"));
+            Plats p1 = new Plats("Viande",hm,new BigDecimal("15.50"),cat1,true);
+            Plats p2 = new Plats("Poisson",hm,new BigDecimal("15.50"),cat2,true);
+            ArrayList<Plats> tmp = new ArrayList<>(List.of(p1,p2));
+
+            HashMap<String, ArrayList<Plats>> cats = Plats.trierPlatsByCat(tmp);
+
+            ArrayList<Plats> plats = cats.get("Viande");
+            assertEquals(plats.get(0).getNom(), "Viande");
+            Plats.trierAlpha(plats);
+            assertEquals(plats.get(0).getNom(), "Poisson");
+        }
+
     }
 
 
