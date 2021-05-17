@@ -17,6 +17,10 @@ public class Action {
     }
 
     public boolean peutFaire(Utilisateurs.ROLE role){
+        if (droits.length == 0 || role == Utilisateurs.ROLE.DIRECTEUR) return true;
+        for (Utilisateurs.ROLE droit : droits) {
+            if (droit == role) return true;
+        }
         return false;
     }
 
