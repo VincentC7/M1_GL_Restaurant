@@ -10,6 +10,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 
@@ -31,49 +32,48 @@ public class Restaurant {
         utilisateursDAO = new UtilisateursDAO();
         matierePremiereDAO = new MatierePremiereDAO();
         creer_tables();
-
-        utilisateur = utilisateursDAO.find("Tluc", "azerty");
-        if(utilisateur == null){
-            utilisateur = utilisateursDAO.create( new Utilisateurs("Luc","Tristan", Utilisateurs.ROLE.SERVEUR,"azerty",null));
-        }
     }
 
-    private static String[] actions =
+    private static Action[] actions =
             {
-                    "0 : Quitter l'application",
-                    "1 : Afficher l'état des tables",
-                    "2 : Ajouter une matiere premiere au stock",
-                    "3 : Modifier une matiere premiere du stock",
-                    "4 : Visualiser le stock",
-                    "5 : Modifie le serveur de la table",
-                    "6 : Ajouter un plat",
-                    "7 : Réserver une table",
-                    "8 : Débarrasser une table",
-                    "9 : Sélectionner une table",
-                    "10 : Visualiser les commandes",
+                    new Action(0, "Se déconnecter"                          , new Utilisateurs.ROLE[0]),
+                    new Action(1, "Afficher l'état des tables"              , new Utilisateurs.ROLE[]{Utilisateurs.ROLE.SERVEUR, Utilisateurs.ROLE.ASSISTANT_SERVICE, Utilisateurs.ROLE.MAITRE_HOTEL}),
+                    new Action(2, "Ajouter une matiere premiere au stock"   , new Utilisateurs.ROLE[]{Utilisateurs.ROLE.DIRECTEUR}),
+                    new Action(3, "Modifier une matiere premiere du stock"  , new Utilisateurs.ROLE[]{Utilisateurs.ROLE.DIRECTEUR}),
+                    new Action(4, "Visualiser le stock"                     , new Utilisateurs.ROLE[]{Utilisateurs.ROLE.CUISINIER}),
+                    new Action(5, "Modifie le serveur de la table"          , new Utilisateurs.ROLE[]{Utilisateurs.ROLE.MAITRE_HOTEL}),
+                    new Action(6, "Ajouter un plat"                         , new Utilisateurs.ROLE[]{Utilisateurs.ROLE.CUISINIER}),
+                    new Action(7, "Réserver une table"                      , new Utilisateurs.ROLE[]{Utilisateurs.ROLE.MAITRE_HOTEL}),
+                    new Action(8, "Débarrasser une table"                   , new Utilisateurs.ROLE[]{Utilisateurs.ROLE.ASSISTANT_SERVICE}),
+                    new Action(9, "Sélectionner une table"                  , new Utilisateurs.ROLE[]{Utilisateurs.ROLE.SERVEUR, Utilisateurs.ROLE.ASSISTANT_SERVICE, Utilisateurs.ROLE.MAITRE_HOTEL}),
+                    new Action(10, "Visualiser les commandes à cuisiner"    , new Utilisateurs.ROLE[]{Utilisateurs.ROLE.CUISINIER}),
+                    new Action(11, "Visualiser les commandes à servir"      , new Utilisateurs.ROLE[]{Utilisateurs.ROLE.SERVEUR}),
             };
 
     //0 = Pas de commande 1 = Commandes
-    private static String[][] actionsTables =
+    private static Action[][] actionsTables =
             {
                     {
-                            "0 : Revenir au menu superieur",
-                            "1 : Créer une commande",
-                            "2 : Affichage informations"
+                            new Action(0, "Revenir au menu superieur"       , new Utilisateurs.ROLE[0]),
+                            new Action(1, "Créer une commande"              , new Utilisateurs.ROLE[]{Utilisateurs.ROLE.SERVEUR}),
+                            new Action(2, "Affichage informations"          , new Utilisateurs.ROLE[]{Utilisateurs.ROLE.SERVEUR}),
                     },
                     {
-                            "0 : Revenir au menu superieur",
-                            "1 : Ajouter un plat à une commande",
-                            "2 : Affichage informations",
-                            "3 : Editer la facture"
+                            new Action(0, "Revenir au menu superieur"       , new Utilisateurs.ROLE[0]),
+                            new Action(1, "Ajouter un plat à une commande"  , new Utilisateurs.ROLE[]{Utilisateurs.ROLE.SERVEUR}),
+                            new Action(2, "Affichage informations"          , new Utilisateurs.ROLE[]{Utilisateurs.ROLE.SERVEUR}),
+                            new Action(3, "Editer la facture"               , new Utilisateurs.ROLE[]{Utilisateurs.ROLE.MAITRE_HOTEL}),
                     }
             };
 
 
     public void afficher_actions(){
         System.out.println("Que voulez vous faire ? (tapez le numero de l'action)");
-        for (String action : actions){
-            System.out.println("\t"+action);
+        int i=0;
+        for(Action action : actions){
+            if (action.peutFaire(utilisateur.getRole())){
+                System.out.println("\t"+(i++)+" : "+action.getAction());
+            }
         }
     }
 
@@ -85,13 +85,29 @@ public class Restaurant {
         if(arrayLevel >= actionsTables[arrayLevel].length)
             return;
         System.out.println("Que voulez vous faire ? (tapez le numero de l'action)");
-        for (String action : actionsTables[arrayLevel]){
-            System.out.println("\t"+action);
+        int i=0;
+        for(Action action : actionsTables[arrayLevel]){
+            if (action.peutFaire(utilisateur.getRole())){
+                System.out.println("\t"+(i++)+" : "+action.getAction());
+            }
         }
     }
 
+    private int get_id_action(int user_action){
+        int id_action = -1;
+        for (Action action : actions) {
+            if (action.peutFaire(utilisateur.getRole())) {
+                id_action++;
+                if (id_action == user_action) {
+                    return action.getNumAction();
+                }
+            }
+        }
+        return -1;
+    }
+
     public void effectuer_action(int user_action) {
-        switch (user_action){
+        switch (get_id_action(user_action)){
             case 1:
                 List<Table> tables = tablesDAO.findAll();
                 System.out.println(afficher_tables(tables));
@@ -121,15 +137,17 @@ public class Restaurant {
                 action_tables();
                 break;
             case 10:
-                visualiser_commandes();
+                visualiser_commandes_cuisinier();
                 break;
+            case 11:
+                visualiser_commandes_serveur();
             default:
                 break;
         }
     }
 
     public void effectuer_action_table_creation_commandes(int user_action,Table t) {
-        switch (user_action){
+        switch (get_id_action(user_action)){
             case 1:
                 creer_commandes(t);
                 break;
@@ -142,7 +160,7 @@ public class Restaurant {
     }
 
     public void effectuer_action_table_ajout_commande(int user_action,Table t) {
-        switch (user_action){
+        switch (get_id_action(user_action)){
             case 1:
                 ajouter_plat_commandes(t);
                 break;
@@ -413,7 +431,7 @@ public class Restaurant {
         Plats plats;
         do {
             String nom,enfant;
-            HashMap<ObjectId,Integer> hm = new HashMap<>();
+            HashMap<ObjectId,BigDecimal> hm = new HashMap<>();
             BigDecimal prix;
             do{
                 System.out.println("\tQuel nom voulez vous donner à votre plats ?");
@@ -426,7 +444,7 @@ public class Restaurant {
                 System.out.println("\tQuel ingrédients avez vous besoins ? Appuyez sur T pour terminer cette étape");
                 ingredients = scanner.get_simple();
                 if(!ingredients.equals("T"))
-                    hm = (HashMap<ObjectId, Integer>) select_matiere_premiere(hm,ingredients);
+                    hm = (HashMap<ObjectId, BigDecimal>) select_matiere_premiere(hm,ingredients);
             }while (!ingredients.equals("T"));
             do{
                 System.out.println("\tQuel est le prix");
@@ -448,17 +466,17 @@ public class Restaurant {
         }while (plats == null);
     }
 
-    public Map<ObjectId,Integer> select_matiere_premiere(Map<ObjectId,Integer> hm, String nom){
+    public Map<ObjectId,BigDecimal> select_matiere_premiere(Map<ObjectId,BigDecimal> hm, String nom){
         MatierePremiere mp = matierePremiereDAO.findByName(nom);
         if(mp == null){
             System.out.println("Ce n'est pas une matière première");
             return hm;
         }
-        int unite;
+        BigDecimal unite;
         do {
             System.out.println("Combien en avez vous besoin pour la recette");
-            unite = scanner.get_int();
-        }while (unite < 0);
+            unite = scanner.get_float();
+        }while (unite.doubleValue() < 0);
         hm.put(mp.get_id(),unite);
         return hm;
     }
@@ -573,19 +591,51 @@ public class Restaurant {
      * @param t table de la commande
      */
     public void ajouter_plat_commandes(Table t){
-        int action;
+        int action, action2;
         Commandes cmd = commandesDAO.findByTable(t.getNumero());
-        List<Plats> plats = platsDAO.findByMenu();
+        HashMap<String, ArrayList<Plats>> plats = Plats.trierPlatsByCat((ArrayList<Plats>) platsDAO.findByMenuAndDisponibility());
+        Set<String> set = plats.keySet();
+        AtomicReference<String> cat = null;
         do {
             AtomicInteger ai = new AtomicInteger(1);
-            plats.forEach(p -> System.out.println(ai.getAndIncrement() + Main.RETOUR_LIGNE + p.toString()) );
-            System.out.println("Selectionner un plat ou 0 pour revenir en arriere");
+            set.forEach((k) -> {
+                cat.set(k);
+                System.out.println(ai.getAndIncrement() + Main.RETOUR_LIGNE + k);
+            } );
+            System.out.println("Selectionner une catégorie ou 0 pour revenir en arriere");
             action = scanner.get_int();
             if(action == 0)
                 return;
-        }while (action > plats.size() || action <= 0);
-        cmd.addCommandes(new CommandesPlats(plats.get(action-1).get_id()));
+        }while (action > set.size() || action <= 0);
+
+        do {
+            AtomicInteger ai2 = new AtomicInteger(1);
+            Plats.trierAlpha(plats.get(cat.get()));
+            plats.get(cat.get()).forEach((e) -> System.out.println(ai2.getAndIncrement() + Main.RETOUR_LIGNE + e.toString()) );
+            System.out.println("Selectionner un plat ou 0 pour revenir en arriere");
+            action2 = scanner.get_int();
+            if(action2 == 0)
+                return;
+        }while (action2 > plats.size() || action2 <= 0);
+
+        cmd.addCommandes(new CommandesPlats(plats.get(cat.get()).get(action2-1).get_id()));
         commandesDAO.update(cmd);
+    }
+
+    /**
+     * Afficher la carte du jour
+     */
+    public void afficher_carte(){
+        HashMap<String, ArrayList<Plats>> plats = Plats.trierPlatsByCat((ArrayList<Plats>) platsDAO.findByMenuAndDisponibility());
+        if(plats.isEmpty()){
+            Set<String> cat = plats.keySet();
+            for (String c: cat){
+                System.out.println(c);
+                plats.get(c).forEach((e) -> System.out.println(e.toString()) );
+            }
+        }else{
+            System.out.println("Il n'y a pas de plats dans la carte du jour");
+        }
     }
 
     /**
@@ -607,7 +657,7 @@ public class Restaurant {
         System.out.println(facture);
     }
 
-    public void visualiser_commandes(){
+    public void visualiser_commandes_cuisinier(){
         FileAttente fileAttente_cuisine = new FileAttente();
         LinkedList<CommandesPlats> file = fileAttente_cuisine.getCommandes();
 
@@ -635,6 +685,29 @@ public class Restaurant {
                 }
 
             }while (!fileAttente_cuisine.getCommandes().isEmpty());
+        }
+    }
+
+    public void setUtilisateur(Utilisateurs utilisateur) {
+        this.utilisateur = utilisateur;
+    }
+
+    public void visualiser_commandes_serveur(){
+        FileAttente fileAttente_serveur = new FileAttente();
+        LinkedList<CommandesPlats> file = fileAttente_serveur.getCommandes();
+        if(file.isEmpty()){
+            System.out.println("Vous n'avez pas de plat à servir");
+        }else{
+            do {
+                System.out.println(fileAttente_serveur.afficherCommandes());
+                System.out.println("Voulez-vous servir le plat suivant ? (y/n)");
+
+                String act = scanner.get_simple();
+                if(act.equals("y")){
+                    CommandesPlats plat = fileAttente_serveur.traiterCommande();
+                    System.out.println("Le plat est pret à etre servi");
+                }else{ break; }
+            }while (!fileAttente_serveur.getCommandes().isEmpty());
         }
     }
 
