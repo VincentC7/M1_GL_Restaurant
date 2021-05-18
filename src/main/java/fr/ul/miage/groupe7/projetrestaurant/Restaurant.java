@@ -46,7 +46,8 @@ public class Restaurant {
                     new Action(7, "Réserver une table"                      , new Utilisateurs.ROLE[]{Utilisateurs.ROLE.MAITRE_HOTEL}),
                     new Action(8, "Débarrasser une table"                   , new Utilisateurs.ROLE[]{Utilisateurs.ROLE.ASSISTANT_SERVICE}),
                     new Action(9, "Sélectionner une table"                  , new Utilisateurs.ROLE[]{Utilisateurs.ROLE.SERVEUR, Utilisateurs.ROLE.ASSISTANT_SERVICE, Utilisateurs.ROLE.MAITRE_HOTEL}),
-                    new Action(10, "Visualiser les commandes"               , new Utilisateurs.ROLE[]{Utilisateurs.ROLE.CUISINIER}),
+                    new Action(10, "Visualiser les commandes à cuisiner"    , new Utilisateurs.ROLE[]{Utilisateurs.ROLE.CUISINIER}),
+                    new Action(11, "Visualiser les commandes à servir"      , new Utilisateurs.ROLE[]{Utilisateurs.ROLE.SERVEUR}),
             };
 
     //0 = Pas de commande 1 = Commandes
@@ -136,8 +137,10 @@ public class Restaurant {
                 action_tables();
                 break;
             case 10:
-                visualiser_commandes();
+                visualiser_commandes_cuisinier();
                 break;
+            case 11:
+                visualiser_commandes_serveur();
             default:
                 break;
         }
@@ -654,7 +657,7 @@ public class Restaurant {
         System.out.println(facture);
     }
 
-    public void visualiser_commandes(){
+    public void visualiser_commandes_cuisinier(){
         FileAttente fileAttente_cuisine = new FileAttente();
         LinkedList<CommandesPlats> file = fileAttente_cuisine.getCommandes();
 
@@ -688,4 +691,24 @@ public class Restaurant {
     public void setUtilisateur(Utilisateurs utilisateur) {
         this.utilisateur = utilisateur;
     }
+
+    public void visualiser_commandes_serveur(){
+        FileAttente fileAttente_serveur = new FileAttente();
+        LinkedList<CommandesPlats> file = fileAttente_serveur.getCommandes();
+        if(file.isEmpty()){
+            System.out.println("Vous n'avez pas de plat à servir");
+        }else{
+            do {
+                System.out.println(fileAttente_serveur.afficherCommandes());
+                System.out.println("Voulez-vous servir le plat suivant ? (y/n)");
+
+                String act = scanner.get_simple();
+                if(act.equals("y")){
+                    CommandesPlats plat = fileAttente_serveur.traiterCommande();
+                    System.out.println("Le plat est pret à etre servi");
+                }else{ break; }
+            }while (!fileAttente_serveur.getCommandes().isEmpty());
+        }
+    }
+
 }
