@@ -61,7 +61,7 @@ class CommandesPlatsDAO_Test {
                 , LocalDateTime.of(2021,05,05,12,12,10)
                 , LocalDateTime.of(2021,05,05,12,12,15)
                 , LocalDateTime.of(2021,05,05,12,14,10));
-        cp5 = new CommandesPlats(new ObjectId(),id,60000L, CommandesPlats.ETAT_PLAT.SERVI
+        cp5 = new CommandesPlats(new ObjectId(),id2,60000L, CommandesPlats.ETAT_PLAT.SERVI
                 , LocalDateTime.of(2021,05,05,12,12,10)
                 , LocalDateTime.of(2021,05,05,12,12,15)
                 , LocalDateTime.of(2021,05,05,12,13,15));
@@ -133,12 +133,11 @@ class CommandesPlatsDAO_Test {
         c.addCommandes(cp4);
         c = cdao.update(c);
         var map = cdao.getPreparationTimeByPlats();
-        System.out.println(map);
         assertEquals(0,map.get("PlatTest").compareTo(new BigDecimal(1)));
     }
 
     @Test
-    @DisplayName("Test statistiques temps de preparation pour tous les plats")
+    @DisplayName("Test statistiques plats prix par plats")
     void testStatTempsPreparationTotal(){
         mp.setQuantitee(new BigDecimal(1500));
         mdao.update(mp);
@@ -148,6 +147,20 @@ class CommandesPlatsDAO_Test {
         c = cdao.update(c);
         var decimal = cdao.getPreparationTime();
         assertEquals(0,decimal.compareTo(new BigDecimal(1)));
+    }
+
+    @Test
+    @DisplayName("Test statistiques benefices des plats")
+    void testStatPartBenef(){
+        mp.setQuantitee(new BigDecimal(1500));
+        mdao.update(mp);
+        c.addCommandes(cp3);
+        c.addCommandes(cp4);
+        c.addCommandes(cp5);
+        c = cdao.update(c);
+        var map = cdao.getPlatsBenef();
+        assertEquals(0,map.get("PlatTest").compareTo(new BigDecimal(31)));
+        assertEquals(0,map.get("PlatTest2").compareTo(new BigDecimal(15.50)));
     }
 
     @Test
