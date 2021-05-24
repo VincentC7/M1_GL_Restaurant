@@ -9,6 +9,7 @@ import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 
+import javax.print.Doc;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.*;
@@ -80,20 +81,38 @@ public class CommandesDAO extends DAO<Commandes>{
         )).into(new ArrayList<>()).stream()
                 .forEach(d -> preparationTime.put(
                         d.getList("plats",Document.class).get(0).getString("nom"),
-                        BigDecimal.valueOf(d.getDouble("time") / 60000).setScale(2, RoundingMode.HALF_UP)));
+                        BigDecimal.valueOf(d.getDouble("time") / 60000).setScale(2, RoundingMode.HALF_EVEN)));
         return preparationTime;
+    }
+
+    public HashMap<String, BigDecimal> getPlatsBenef(){
+        HashMap<String, BigDecimal> platsBenef = new HashMap<>();
+        connect.aggregate(Arrays.asList(
+                unwind("$plats"),
+                match(eq("plats.état","SERVI")),
+                group("$plats.idPlat",
+                        Accumulators.sum("count",1)),
+                lookup("Plats","_id","_id","plats")
+
+        )).into(new ArrayList<>()).stream()
+                .forEach(d -> platsBenef.put(
+                        d.getList("plats",Document.class).get(0).getString("nom"),
+                        BigDecimal.valueOf(d.getInteger("count"))
+                                .multiply(new BigDecimal(d.getList("plats",Document.class).get(0).getString("prix")))
+                                .setScale(2, RoundingMode.HALF_EVEN)));
+        return platsBenef;
     }
 
     public BigDecimal getPreparationTime() {
         Document d = connect.aggregate(Arrays.asList(
                 unwind("$plats"),
                 match(eq("plats.état", "SERVI")),
-                group("$plats.idPlat",
+                group(null,
                         Accumulators.avg("time", "$plats.temps_preparation")),
                 lookup("Plats", "_id", "_id", "plats")
 
         )).first();
-        return BigDecimal.valueOf(d.getDouble("time") / 60000).setScale(2, RoundingMode.HALF_UP);
+        return BigDecimal.valueOf(d.getDouble("time") / 60000).setScale(2, RoundingMode.HALF_EVEN);
     }
 
     @Override
