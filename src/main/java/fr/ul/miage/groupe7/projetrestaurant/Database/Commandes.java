@@ -6,11 +6,13 @@ import org.bson.Document;
 import org.bson.types.ObjectId;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toCollection;
 
@@ -128,6 +130,38 @@ public class Commandes {
            commandesPlats.get_id().equals(id)).findFirst().get();
     }
 
+    public static ArrayList<Commandes> filterRepas(ArrayList<Commandes> commandes, boolean midi){
+        if(midi){
+            return commandes.stream().filter(c -> c.getDebut().getHour() < 16).collect(toCollection(ArrayList::new));
+        }else {
+            return commandes.stream().filter(c -> c.getDebut().getHour() > 16).collect(toCollection(ArrayList::new));
+        }
+    }
+
+    /**
+     * Retourne la recette moyenne du déjeuner ou du diner
+     *
+     * @param commandes
+     * @param midi, true pour la recette du midi, false pour la recette du soir
+     * @return
+     */
+    public static BigDecimal recetteRepas(ArrayList<Commandes> commandes, boolean midi){
+        BigDecimal prix = new BigDecimal("0");
+        BigDecimal count = new BigDecimal("0");
+
+        for (Commandes c : filterRepas(commandes, midi)){
+            prix = prix.add(c.getPrix());
+            count = count.add(new BigDecimal("1"));
+        }
+
+        if(count.equals(new BigDecimal("0"))){
+            return new BigDecimal("0.0");
+        }else {
+            return prix.divide(count, 2, BigDecimal.ROUND_HALF_UP);
+        }
+    }
+
+
     public int getNumeroTable() {
         return numeroTable;
     }
@@ -154,6 +188,14 @@ public class Commandes {
 
     public ObjectId get_id() {
         return _id;
+    }
+
+    public void setDebut(LocalDateTime debut) {
+        this.debut = debut;
+    }
+
+    public void setPrix(BigDecimal prix) {
+        this.prix = prix;
     }
 
     @Override

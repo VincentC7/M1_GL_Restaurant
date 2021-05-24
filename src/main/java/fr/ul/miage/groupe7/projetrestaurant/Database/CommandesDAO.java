@@ -38,6 +38,12 @@ public class CommandesDAO extends DAO<Commandes>{
                 : new Commandes(d);
     }
 
+    public List<Commandes> findAllCommand() {
+        ArrayList<Document> documents = connect.find().into(new ArrayList<>());
+        return (documents.isEmpty()) ? Collections.emptyList()
+                : documents.stream().map(Commandes::new).collect(Collectors.toList());
+    }
+
     public List<Commandes> findCommandByTableList(List<Integer> tables) {
         ArrayList<Document> documents = connect.find(and(in("numeroTable",tables),eq("état",false)))
                 .into(new ArrayList<>());

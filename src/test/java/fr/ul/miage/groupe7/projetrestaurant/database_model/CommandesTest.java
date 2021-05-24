@@ -6,6 +6,7 @@ import org.bson.types.ObjectId;
 import org.junit.jupiter.api.*;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -153,4 +154,71 @@ public class CommandesTest {
         String expected = "La commande n'est pas terminée, la facture ne peut pas être éditer";
         assertEquals(expected, facture);
     }
+
+    @Test
+    @DisplayName("Statistique sur le profit du déjeuner")
+    void stat_dejeuner(){
+        Commandes commandes1 = new Commandes(1);
+        Commandes commandes2 = new Commandes(2);
+
+        commandes1.setDebut(LocalDateTime.parse("2021-05-24T12:06:08.629742800"));
+        commandes1.setPrix(new BigDecimal(29.5));
+
+        commandes2.setDebut(LocalDateTime.parse("2021-05-24T14:06:08.629742800"));
+        commandes2.setPrix(new BigDecimal(50.9));
+
+        ArrayList<Commandes> commandes = new ArrayList<>();
+        commandes.add(commandes1);commandes.add(commandes2);
+
+        assertEquals(Commandes.recetteRepas(commandes, true), new BigDecimal("40.20"));
+    }
+
+    @Test
+    @DisplayName("Statistique sur le profit du diner")
+    void stat_diner(){
+        Commandes commandes1 = new Commandes(1);
+        Commandes commandes2 = new Commandes(2);
+
+        commandes1.setDebut(LocalDateTime.parse("2021-05-24T20:06:08.629742800"));
+        commandes1.setPrix(new BigDecimal(76.2));
+
+        commandes2.setDebut(LocalDateTime.parse("2021-05-24T19:06:08.629742800"));
+        commandes2.setPrix(new BigDecimal(45.9));
+
+        ArrayList<Commandes> commandes = new ArrayList<>();
+        commandes.add(commandes1);commandes.add(commandes2);
+
+        assertEquals(Commandes.recetteRepas(commandes, false), new BigDecimal("61.05"));
+    }
+
+    @Test
+    @DisplayName("Erreur quand il n'y a pas de stat")
+    void stat_error(){
+        Commandes commandes1 = new Commandes(1);
+        Commandes commandes2 = new Commandes(2);
+
+        ArrayList<Commandes> commandes = new ArrayList<>();
+        commandes.add(commandes1);commandes.add(commandes2);
+
+        assertEquals(0, Commandes.recetteRepas(commandes, true).compareTo(new BigDecimal("0.0")));
+    }
+
+    @Test
+    @DisplayName("Erreur division par 0")
+    void stat_divide_0(){
+        Commandes commandes1 = new Commandes(1);
+        Commandes commandes2 = new Commandes(2);
+
+        commandes1.setDebut(LocalDateTime.parse("2021-05-24T20:06:08.629742800"));
+        commandes1.setPrix(new BigDecimal(76.2));
+
+        commandes2.setDebut(LocalDateTime.parse("2021-05-24T19:06:08.629742800"));
+        commandes2.setPrix(new BigDecimal(45.9));
+
+        ArrayList<Commandes> commandes = new ArrayList<>();
+        commandes.add(commandes1);commandes.add(commandes2);
+
+        assertEquals(Commandes.recetteRepas(commandes, true), new BigDecimal("0.0"));
+    }
+
 }
