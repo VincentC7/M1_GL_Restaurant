@@ -146,8 +146,8 @@ class CommandesPlatsDAO_Test {
         c.addCommandes(cp4);
         c.addCommandes(cp5);
         c = cdao.update(c);
-        var map = cdao.getPreparationTimeByPlats();
-        assertEquals(0,map.get("PlatTest").compareTo(new BigDecimal(1)));
+        var decimal = cdao.getPreparationTime();
+        assertEquals(0,decimal.compareTo(new BigDecimal(1)));
     }
 
     @Test

@@ -1,9 +1,16 @@
 package fr.ul.miage.groupe7.projetrestaurant.Database;
 
+import com.mongodb.BasicDBObject;
+import com.mongodb.client.model.Accumulators;
+import com.mongodb.client.model.BsonField;
+import org.bson.BsonArray;
+import org.bson.BsonDocument;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -53,6 +60,34 @@ public class CommandesDAO extends DAO<Commandes>{
         )).into(new ArrayList<>());
         return (documents.isEmpty()) ? Collections.emptyList()
                 : documents.stream().map(CommandesPlats::new).collect(Collectors.toList());
+    }
+
+    public HashMap<String, BigDecimal> getPreparationTimeByPlats(){
+        HashMap<String, BigDecimal> preparationTime = new HashMap<>();
+        connect.aggregate(Arrays.asList(
+                unwind("$plats"),
+                match(eq("plats.état","SERVI")),
+                group("$plats.idPlat",
+                        Accumulators.avg("time","$plats.temps_preparation")),
+                lookup("Plats","_id","_id","plats")
+
+        )).into(new ArrayList<>()).stream()
+                .forEach(d -> preparationTime.put(
+                        d.getList("plats",Document.class).get(0).getString("nom"),
+                        BigDecimal.valueOf(d.getDouble("time") / 60000).setScale(2, RoundingMode.HALF_UP)));
+        return preparationTime;
+    }
+
+    public BigDecimal getPreparationTime() {
+        Document d = connect.aggregate(Arrays.asList(
+                unwind("$plats"),
+                match(eq("plats.état", "SERVI")),
+                group("$plats.idPlat",
+                        Accumulators.avg("time", "$plats.temps_preparation")),
+                lookup("Plats", "_id", "_id", "plats")
+
+        )).first();
+        return BigDecimal.valueOf(d.getDouble("time") / 60000).setScale(2, RoundingMode.HALF_UP);
     }
 
     @Override
@@ -138,5 +173,11 @@ public class CommandesDAO extends DAO<Commandes>{
     @Override
     public boolean delete(Commandes obj) {
         return connect.findOneAndDelete(eq(obj.get_id())) != null;
+    }
+
+    public static void main(String[] args) {
+        CommandesDAO dao = new CommandesDAO();
+
+        System.out.println(dao.getPreparationTimeByPlats());
     }
 }
