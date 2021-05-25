@@ -120,11 +120,11 @@ public class TableDAO_Test {
     @Test
     @DisplayName("Changer l'état d'une table")
     void changeEtat(){
-        table.setEtat(Table.ETAT.OCUPEE);
+        table.setEtat(Table.ETAT.OCCUPEE);
         tableDAO.update(table);
         Table t2 = tableDAO.find(table.get_id());
 
-        assertEquals(Table.ETAT.OCUPEE, t2.getEtat());
+        assertEquals(Table.ETAT.OCCUPEE, t2.getEtat());
     }
 
     @Test
@@ -158,7 +158,7 @@ public class TableDAO_Test {
     }
 
     @Test
-    @DisplayName("Ajoute une reservation à la même date qu'une autre")
+    @DisplayName("Ajoute une reservation à la même date qu'une autre mais pas au même creneau")
     void ajoutTableRéservationMemeDatePasMemeCreneau(){
         table2 = new Table(1, 2, Table.ETAT.PROPRE);
         table2.addReservation( new Reservation(Reservation.CRENEAU.MATIN,"Luc", LocalDate.of(2021,6,17)));
