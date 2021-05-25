@@ -48,6 +48,9 @@ public class Restaurant {
                     new Action(9, "Sélectionner une table"                  , new Utilisateurs.ROLE[]{Utilisateurs.ROLE.SERVEUR, Utilisateurs.ROLE.ASSISTANT_SERVICE, Utilisateurs.ROLE.MAITRE_HOTEL}),
                     new Action(10, "Visualiser les commandes à cuisiner"    , new Utilisateurs.ROLE[]{Utilisateurs.ROLE.CUISINIER}),
                     new Action(11, "Placer un client qui a réservé "        , new Utilisateurs.ROLE[]{Utilisateurs.ROLE.MAITRE_HOTEL}),
+                    new Action(12, "Statistique sur le benefice de chaque plat"  , new Utilisateurs.ROLE[]{Utilisateurs.ROLE.DIRECTEUR}),
+                    new Action(13, "Statistique sur le temps de preparation de chaque plat"  , new Utilisateurs.ROLE[]{Utilisateurs.ROLE.DIRECTEUR}),
+                    new Action(14, "Statistique sur le temps de preparation total"  , new Utilisateurs.ROLE[]{Utilisateurs.ROLE.DIRECTEUR}),
             };
 
     //0 = Pas de commande 1 = Commandes
@@ -142,6 +145,15 @@ public class Restaurant {
                 break;
             case 11:
                 placer_reservation();
+                break;
+            case 12:
+                stat_benef_par_plats();
+                break;
+            case 13:
+                stat_temps_de_preparation_par_plats();
+                break;
+            case 14:
+                stat_temps_de_preparation();
                 break;
             default:
                 break;
@@ -746,6 +758,22 @@ public class Restaurant {
         t.deleteReservation(ldt.toLocalDate(),c);
         System.out.println("La table est " + t.getNumero());
         tablesDAO.update(t);
+    }
+
+    public void stat_temps_de_preparation(){
+        System.out.println("Le temps de preapration moyen est " + commandesDAO.getPreparationTime() +" min");
+    }
+
+    public void stat_temps_de_preparation_par_plats(){
+        for(var c : commandesDAO.getPreparationTimeByPlats().entrySet()){
+            System.out.println("Le temps de preapration de "+ c.getKey() + " est de " + c.getValue() +" min");
+        }
+    }
+
+    public void stat_benef_par_plats(){
+        for(var c : commandesDAO.getPlatsBenef().entrySet()){
+            System.out.println("Le bneefice de "+ c.getKey() + " est de " + c.getValue() +" €");
+        }
     }
 
 }
