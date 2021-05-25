@@ -47,7 +47,6 @@ public class Restaurant {
                     new Action(8, "Débarrasser une table"                   , new Utilisateurs.ROLE[]{Utilisateurs.ROLE.ASSISTANT_SERVICE}),
                     new Action(9, "Sélectionner une table"                  , new Utilisateurs.ROLE[]{Utilisateurs.ROLE.SERVEUR, Utilisateurs.ROLE.ASSISTANT_SERVICE, Utilisateurs.ROLE.MAITRE_HOTEL}),
                     new Action(10, "Visualiser les commandes à cuisiner"    , new Utilisateurs.ROLE[]{Utilisateurs.ROLE.CUISINIER}),
-                    new Action(11, "Visualiser les commandes à servir"      , new Utilisateurs.ROLE[]{Utilisateurs.ROLE.SERVEUR}),
             };
 
     //0 = Pas de commande 1 = Commandes
@@ -62,7 +61,8 @@ public class Restaurant {
                             new Action(0, "Revenir au menu superieur"       , new Utilisateurs.ROLE[0]),
                             new Action(1, "Ajouter un plat à une commande"  , new Utilisateurs.ROLE[]{Utilisateurs.ROLE.SERVEUR}),
                             new Action(2, "Affichage informations"          , new Utilisateurs.ROLE[]{Utilisateurs.ROLE.SERVEUR}),
-                            new Action(3, "Editer la facture"               , new Utilisateurs.ROLE[]{Utilisateurs.ROLE.MAITRE_HOTEL}),
+                            new Action(3, "Affichage des commandes à servir", new Utilisateurs.ROLE[]{Utilisateurs.ROLE.SERVEUR}),
+                            new Action(4, "Editer la facture"               , new Utilisateurs.ROLE[]{Utilisateurs.ROLE.MAITRE_HOTEL}),
                     }
             };
 
@@ -139,8 +139,6 @@ public class Restaurant {
             case 10:
                 visualiser_commandes_cuisinier();
                 break;
-            case 11:
-                visualiser_commandes_serveur();
             default:
                 break;
         }
@@ -168,6 +166,9 @@ public class Restaurant {
                 affiche_infos_table(t);
                 break;
             case 3:
+                visualiser_commandes_serveur(t);
+                break;
+            case 4:
                 genere_facture(t);
                 break;
             default:
@@ -692,22 +693,26 @@ public class Restaurant {
         this.utilisateur = utilisateur;
     }
 
-    public void visualiser_commandes_serveur(){
-        FileAttente fileAttente_serveur = new FileAttente();
-        LinkedList<CommandesPlats> file = fileAttente_serveur.getCommandes();
+    public void visualiser_commandes_serveur(Table t){
+        int num = t.getNumero();
+        Commandes c = commandesDAO.findByTable(num);
+        ArrayList<CommandesPlats> file = c.getCommandesPlats().stream()
+                .filter(p -> p.getEtat().equals(CommandesPlats.ETAT_PLAT.PRET)).collect(Collectors
+                        .toCollection(ArrayList::new));
         if(file.isEmpty()){
             System.out.println("Vous n'avez pas de plat à servir");
         }else{
             do {
-                System.out.println(fileAttente_serveur.afficherCommandes());
+                System.out.println(file.get(0));
                 System.out.println("Voulez-vous servir le plat suivant ? (y/n)");
 
                 String act = scanner.get_simple();
                 if(act.equals("y")){
-                    CommandesPlats plat = fileAttente_serveur.traiterCommande();
+                    c.change_etat_commande(file.get(0).get_id());
+                    commandesDAO.update(c);
                     System.out.println("Le plat est pret à etre servi");
                 }else{ break; }
-            }while (!fileAttente_serveur.getCommandes().isEmpty());
+            }while (!file.isEmpty());
         }
     }
 
