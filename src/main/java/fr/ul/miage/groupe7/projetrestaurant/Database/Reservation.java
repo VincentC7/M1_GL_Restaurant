@@ -42,6 +42,10 @@ public class Reservation {
         return creneau.toString();
     }
 
+    public CRENEAU getCRENAU() {
+        return creneau;
+    }
+
     public String getNom() {
         return nom;
     }

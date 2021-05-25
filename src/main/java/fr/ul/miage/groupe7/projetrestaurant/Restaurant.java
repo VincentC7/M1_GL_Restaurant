@@ -47,6 +47,7 @@ public class Restaurant {
                     new Action(8, "Débarrasser une table"                   , new Utilisateurs.ROLE[]{Utilisateurs.ROLE.ASSISTANT_SERVICE}),
                     new Action(9, "Sélectionner une table"                  , new Utilisateurs.ROLE[]{Utilisateurs.ROLE.SERVEUR, Utilisateurs.ROLE.ASSISTANT_SERVICE, Utilisateurs.ROLE.MAITRE_HOTEL}),
                     new Action(10, "Visualiser les commandes à cuisiner"    , new Utilisateurs.ROLE[]{Utilisateurs.ROLE.CUISINIER}),
+                    new Action(11, "Placer un client qui a réservé "        , new Utilisateurs.ROLE[]{Utilisateurs.ROLE.MAITRE_HOTEL}),
             };
 
     //0 = Pas de commande 1 = Commandes
@@ -138,6 +139,9 @@ public class Restaurant {
                 break;
             case 10:
                 visualiser_commandes_cuisinier();
+                break;
+            case 11:
+                placer_reservation();
                 break;
             default:
                 break;
@@ -347,6 +351,13 @@ public class Restaurant {
                 Table t = tablesDAO.findByNum(numero_table);
                 if(t != null){
                     t.setEtage(i+1);
+                    if(t.getEtat().equals(Table.ETAT.PROPRE)) {
+                        LocalDateTime ldt = LocalDateTime.now();
+                        Reservation.CRENEAU c = (ldt.getHour() > 16) ? Reservation.CRENEAU.SOIR : Reservation.CRENEAU.MATIN;
+                        if (t.isReserved(ldt.toLocalDate(), c)) {
+                            t.setEtat(Table.ETAT.RESERVEE);
+                        }
+                    }
                     tablesDAO.update(t);
                 }
                 else{
@@ -545,11 +556,11 @@ public class Restaurant {
     private void debarrasser_une_table() {
         Table t1 = tablesDAO.findByNum(1);
         t1.setServeur(utilisateur);
-        t1.setEtat(Table.ETAT.OCUPEE);
+        t1.setEtat(Table.ETAT.OCCUPEE);
         t1.setEtat(Table.ETAT.SALE);
         tablesDAO.update(t1);
         Table t2 = tablesDAO.findByNum(2);
-        t2.setEtat(Table.ETAT.OCUPEE);
+        t2.setEtat(Table.ETAT.OCCUPEE);
         t2.setEtat(Table.ETAT.SALE);
         t2.setServeur(utilisateur);
         tablesDAO.update(t2);
@@ -714,6 +725,27 @@ public class Restaurant {
                 }else{ break; }
             }while (!file.isEmpty());
         }
+    }
+
+    public void placer_reservation(){
+        var tables = tablesDAO.findByEtat(Table.ETAT.RESERVEE);
+        if(tables.isEmpty())
+            return;
+        LocalDateTime ldt = LocalDateTime.now();
+        Reservation.CRENEAU c = (ldt.getHour() > 16) ? Reservation.CRENEAU.SOIR : Reservation.CRENEAU.MATIN;
+        int index;
+        do {
+            var i = new AtomicInteger(1);
+            tables.stream()
+                    .forEach(t -> System.out.println(i.getAndIncrement() + " " + t.getReservation(ldt.toLocalDate(), c).getNom()));
+            System.out.println("Selectionner le numéro de la réservation");
+            index = scanner.get_int();
+        }while ((index-1) < 0 || (index-1) >= tables.size());
+        Table t = tables.get((index-1));
+        t.setEtat(Table.ETAT.OCCUPEE);
+        t.deleteReservation(ldt.toLocalDate(),c);
+        System.out.println("La table est " + t.getNumero());
+        tablesDAO.update(t);
     }
 
 }

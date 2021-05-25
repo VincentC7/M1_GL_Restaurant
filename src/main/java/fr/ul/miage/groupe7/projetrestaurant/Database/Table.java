@@ -4,8 +4,10 @@ import org.bson.Document;
 import org.bson.types.ObjectId;
 
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.HashSet;
+import java.util.Optional;
 
 public class Table implements Comparable<Table>{
 
@@ -21,7 +23,7 @@ public class Table implements Comparable<Table>{
         PROPRE("Propre"),
         SALE("Sale"),
         SECOND_SERVICE("A dresser pour un second service"),
-        OCUPEE("Ocupée"),
+        OCCUPEE("Occupée"),
         RESERVEE("Réservée");
 
         private final String etat;
@@ -34,7 +36,7 @@ public class Table implements Comparable<Table>{
             switch (this){
                 case SALE:
                     return "S";
-                case OCUPEE:
+                case OCCUPEE:
                     return "O";
                 case PROPRE:
                     return "P";
@@ -108,6 +110,20 @@ public class Table implements Comparable<Table>{
         return reservations;
     }
 
+    public Reservation getReservation(LocalDate l, Reservation.CRENEAU c){
+        Optional<Reservation> res = reservations.stream().filter(r -> l.equals(r.getDate()) && c.equals(r.getCRENAU()) )
+                .findFirst();
+        return res.orElse(null);
+    }
+
+    public void deleteReservation(LocalDate l, Reservation.CRENEAU c){
+        reservations.remove(new Reservation(c,null,l));
+    }
+
+    public boolean isReserved(LocalDate l, Reservation.CRENEAU c){
+        return reservations.contains(new Reservation(c,null,l));
+    }
+
     public ObjectId get_id() {
         return _id;
     }
@@ -151,14 +167,14 @@ public class Table implements Comparable<Table>{
             this.etat = etat;
         } else{
             // l'état propre peut seulement passer à l'état occupée
-            if(this.etat == ETAT.PROPRE){
-                if(etat == ETAT.OCUPEE){
+            if(this.etat == ETAT.PROPRE || this.etat == ETAT.RESERVEE){
+                if(etat == ETAT.OCCUPEE){
                     this.etat = etat;
                 }else{
                     throw new IllegalArgumentException();
                 }
                 // l'état occupée peut seulement passer à l'état sale
-            }else if(this.etat == ETAT.OCUPEE){
+            }else if(this.etat == ETAT.OCCUPEE){
                 if(etat == ETAT.SALE){
                     this.etat = etat;
                 }else{
