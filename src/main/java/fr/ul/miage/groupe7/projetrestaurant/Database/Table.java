@@ -60,8 +60,6 @@ public class Table implements Comparable<Table>{
     }
 
 
-
-
     public Table(int etage, int numero, ETAT etat, Utilisateurs serveur) {
         setEtage(etage);
         setNumero(numero);
