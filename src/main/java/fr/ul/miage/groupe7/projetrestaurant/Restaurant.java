@@ -51,6 +51,7 @@ public class Restaurant {
                     new Action(12, "Statistique sur le benefice de chaque plat"  , new Utilisateurs.ROLE[]{Utilisateurs.ROLE.DIRECTEUR}),
                     new Action(13, "Statistique sur le temps de preparation de chaque plat"  , new Utilisateurs.ROLE[]{Utilisateurs.ROLE.DIRECTEUR}),
                     new Action(14, "Statistique sur le temps de preparation total"  , new Utilisateurs.ROLE[]{Utilisateurs.ROLE.DIRECTEUR}),
+                    new Action(15, "Statistiques sur la popularité des plats"  , new Utilisateurs.ROLE[]{Utilisateurs.ROLE.DIRECTEUR}),
             };
 
     //0 = Pas de commande 1 = Commandes
@@ -154,6 +155,9 @@ public class Restaurant {
                 break;
             case 14:
                 stat_temps_de_preparation();
+                break;
+            case 15:
+                stat_pop_plats();
                 break;
             default:
                 break;
@@ -774,6 +778,10 @@ public class Restaurant {
         for(var c : commandesDAO.getPlatsBenef().entrySet()){
             System.out.println("Le bneefice de "+ c.getKey() + " est de " + c.getValue() +" €");
         }
+    }
+
+    private void stat_pop_plats() {
+        System.out.println(Plats.statistiquesPlats());
     }
 
 }
