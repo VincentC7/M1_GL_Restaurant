@@ -60,6 +60,7 @@ public class Restaurant {
                     new Action(21, "Créer un utilisateur"  , new Utilisateurs.ROLE[]{Utilisateurs.ROLE.DIRECTEUR}),
                     new Action(22, "Afficher la carte"  , new Utilisateurs.ROLE[]{Utilisateurs.ROLE.DIRECTEUR}),
                     new Action(23, "Editer la facture"               , new Utilisateurs.ROLE[]{Utilisateurs.ROLE.MAITRE_HOTEL}),
+                    new Action(24, "Statistiques sur la popularité des plats"  , new Utilisateurs.ROLE[]{Utilisateurs.ROLE.DIRECTEUR}),
             };
 
     //0 = Pas de commande 1 = Commandes
@@ -202,6 +203,8 @@ public class Restaurant {
                 break;
             case 23:
                 genere_facture();
+            case 24:
+                stat_pop_plats();
                 break;
             default:
                 break;
@@ -908,4 +911,9 @@ public class Restaurant {
         cmds.addAll(commandesDAO.findAllCommand());
         System.out.println("La recette moyenne des mensuelle est de " + Commandes.recetteMensuelle(cmds)+" €");
     }
+
+    private void stat_pop_plats() {
+        System.out.println(Plats.statistiquesPlats());
+    }
+
 }
