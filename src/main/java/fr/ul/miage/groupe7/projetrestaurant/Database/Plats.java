@@ -5,6 +5,7 @@ import org.bson.Document;
 import org.bson.types.ObjectId;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.*;
 
 public class Plats {
@@ -175,5 +176,9 @@ public class Plats {
         }
 
         return sb.toString();
+    }
+
+    public static String statistiquesPlats() {
+        return "";
     }
 }
