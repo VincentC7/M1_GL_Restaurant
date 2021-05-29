@@ -22,7 +22,6 @@ public class Table implements Comparable<Table>{
 
         PROPRE("Propre"),
         SALE("Sale"),
-        SECOND_SERVICE("A dresser pour un second service"),
         OCCUPEE("Occupée"),
         RESERVEE("Réservée");
 
@@ -42,8 +41,6 @@ public class Table implements Comparable<Table>{
                     return "P";
                 case RESERVEE:
                     return "R";
-                case SECOND_SERVICE:
-                    return "SS";
                 default:
                     return "/";
             }
@@ -158,40 +155,31 @@ public class Table implements Comparable<Table>{
         return etat;
     }
 
-    public void setEtat(ETAT etat) {
-        if (etat == null) {
-            this.etat = ETAT.PROPRE;
-        } else if(etat == ETAT.RESERVEE || this.etat == null) {
-            this.etat = etat;
-        } else{
-            // l'état propre peut seulement passer à l'état occupée
-            if(this.etat == ETAT.PROPRE || this.etat == ETAT.RESERVEE){
-                if(etat == ETAT.OCCUPEE){
-                    this.etat = etat;
-                }else{
-                    throw new IllegalArgumentException();
-                }
-                // l'état occupée peut seulement passer à l'état sale
-            }else if(this.etat == ETAT.OCCUPEE){
-                if(etat == ETAT.SALE){
-                    this.etat = etat;
-                }else{
-                    throw new IllegalArgumentException();
-                }
-                // l'état sale peut seulement passer à l'état second service
-            }else if(this.etat == ETAT.SALE){
-                if(etat == ETAT.SECOND_SERVICE){
-                    this.etat = etat;
-                }else{
-                    throw new IllegalArgumentException();
-                }
-                // l'état seconde service peut seulement passer à l'état propre
-            } else if(this.etat == ETAT.SECOND_SERVICE){
-                if(etat == ETAT.PROPRE){
-                    this.etat = etat;
-                }else{
-                    throw new IllegalArgumentException();
-                }
+
+    public void setEtat(ETAT new_etat) {
+        if (this.etat != null) {
+            switch (new_etat) {
+                case RESERVEE:
+                    this.etat = new_etat;
+                    break;
+                case PROPRE:
+                    if (this.etat.equals(ETAT.SALE))
+                        this.etat = new_etat;
+                    break;
+                case OCCUPEE:
+                    if (this.etat.equals(ETAT.PROPRE) || this.etat.equals(ETAT.RESERVEE))
+                        this.etat = new_etat;
+                    break;
+                case SALE:
+                    if (this.etat.equals(ETAT.OCCUPEE))
+                        this.etat = new_etat;
+                    break;
+            }
+        }else{
+            if(new_etat != null){
+                this.etat = new_etat;
+            }else{
+                this.etat = ETAT.PROPRE;
             }
         }
     }

@@ -100,7 +100,6 @@ public class TableTest {
 
         private Table table;
 
-
         @Test
         @DisplayName("Changement d'état propre à occupée")
         void changeEtatPtoO(){
@@ -110,7 +109,7 @@ public class TableTest {
         }
 
         @Test
-        @DisplayName("Changement d'état ocupée à sale")
+        @DisplayName("Changement d'état occupée à sale")
         void changeEtatOtoS(){
             Table table = new Table(1, 1, Table.ETAT.OCCUPEE, null);
             table.setEtat(Table.ETAT.SALE);
@@ -118,17 +117,9 @@ public class TableTest {
         }
 
         @Test
-        @DisplayName("Changement d'état sale à second service")
+        @DisplayName("Changement d'état sale à propore")
         void changeEtatStoSS(){
             Table table = new Table(1, 1, Table.ETAT.SALE, null);
-            table.setEtat(Table.ETAT.SECOND_SERVICE);
-            assertEquals(Table.ETAT.SECOND_SERVICE, table.getEtat());
-        }
-
-        @Test
-        @DisplayName("Changement d'état seconde service à prore")
-        void changeEtatSStoP(){
-            Table table = new Table(1, 1, Table.ETAT.SECOND_SERVICE, null);
             table.setEtat(Table.ETAT.PROPRE);
             assertEquals(Table.ETAT.PROPRE, table.getEtat());
         }
@@ -136,37 +127,26 @@ public class TableTest {
         @Test
         @DisplayName("Réserver une table")
         void changeEtatR(){
-            Table table = new Table(1, 1, Table.ETAT.SECOND_SERVICE, null);
+            Table table = new Table(1, 1, Table.ETAT.PROPRE, null);
             table.setEtat(Table.ETAT.RESERVEE);
             assertEquals(Table.ETAT.RESERVEE, table.getEtat());
         }
 
 
         @Test
-        @DisplayName("Exception changement d'état non permit ocupée à propre")
+        @DisplayName("Occupée reste à occupée")
         void changeEtatOtoP(){
             Table table = new Table(1, 1, Table.ETAT.OCCUPEE, null);
-            assertThrows(IllegalArgumentException.class,() -> {
-                table.setEtat(Table.ETAT.PROPRE);
-            });
+            table.setEtat(Table.ETAT.PROPRE);
+            assertEquals(Table.ETAT.OCCUPEE, table.getEtat());
         }
 
         @Test
-        @DisplayName("Exception changement d'état non permit ocupée à ocupée")
+        @DisplayName("Changement d'état non permit occupée à prore")
         void changeEtatOto0(){
             Table table = new Table(1, 1, Table.ETAT.OCCUPEE, null);
-            assertThrows(IllegalArgumentException.class,() -> {
-                table.setEtat(Table.ETAT.OCCUPEE);
-            });
-        }
-
-        @Test
-        @DisplayName("Exception changement d'état non permit ocupée à second service")
-        void changeEtatOtoSS(){
-            Table table = new Table(1, 1, Table.ETAT.OCCUPEE, null);
-            assertThrows(IllegalArgumentException.class,() -> {
-                table.setEtat(Table.ETAT.SECOND_SERVICE);
-            });
+            table.setEtat(Table.ETAT.PROPRE);
+            assertEquals(Table.ETAT.OCCUPEE, table.getEtat());
         }
 
 

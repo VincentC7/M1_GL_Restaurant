@@ -108,16 +108,6 @@ public class TableDAO_Test {
     }
 
     @Test
-    @DisplayName("Exception quand un utilisateur qui n'est pas un serveur essaye de voir ses tables")
-    void findTableException(){
-        Utilisateurs u = new Utilisateurs("Luc","Tristan",Utilisateurs.ROLE.DIRECTEUR,"tmgerp",null);
-
-        assertThrows(IllegalArgumentException.class,() -> {
-            tableDAO.findByServeur(u);
-        });
-    }
-
-    @Test
     @DisplayName("Changer l'état d'une table")
     void changeEtat(){
         table.setEtat(Table.ETAT.OCCUPEE);
