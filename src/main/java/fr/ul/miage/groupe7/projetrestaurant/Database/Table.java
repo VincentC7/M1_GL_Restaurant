@@ -4,8 +4,10 @@ import org.bson.Document;
 import org.bson.types.ObjectId;
 
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.HashSet;
+import java.util.Optional;
 
 public class Table implements Comparable<Table>{
 
@@ -20,8 +22,7 @@ public class Table implements Comparable<Table>{
 
         PROPRE("Propre"),
         SALE("Sale"),
-        SECOND_SERVICE("A dresser pour un second service"),
-        OCUPEE("Ocupée"),
+        OCCUPEE("Occupée"),
         RESERVEE("Réservée");
 
         private final String etat;
@@ -34,14 +35,12 @@ public class Table implements Comparable<Table>{
             switch (this){
                 case SALE:
                     return "S";
-                case OCUPEE:
+                case OCCUPEE:
                     return "O";
                 case PROPRE:
                     return "P";
                 case RESERVEE:
                     return "R";
-                case SECOND_SERVICE:
-                    return "SS";
                 default:
                     return "/";
             }
@@ -56,8 +55,6 @@ public class Table implements Comparable<Table>{
     public Table(int etage, int numero, ETAT etat) {
         this(etage,numero,etat,null);
     }
-
-
 
 
     public Table(int etage, int numero, ETAT etat, Utilisateurs serveur) {
@@ -108,6 +105,20 @@ public class Table implements Comparable<Table>{
         return reservations;
     }
 
+    public Reservation getReservation(LocalDate l, Reservation.CRENEAU c){
+        Optional<Reservation> res = reservations.stream().filter(r -> l.equals(r.getDate()) && c.equals(r.getCRENAU()) )
+                .findFirst();
+        return res.orElse(null);
+    }
+
+    public void deleteReservation(LocalDate l, Reservation.CRENEAU c){
+        reservations.remove(new Reservation(c,null,l));
+    }
+
+    public boolean isReserved(LocalDate l, Reservation.CRENEAU c){
+        return reservations.contains(new Reservation(c,null,l));
+    }
+
     public ObjectId get_id() {
         return _id;
     }
@@ -144,40 +155,31 @@ public class Table implements Comparable<Table>{
         return etat;
     }
 
-    public void setEtat(ETAT etat) {
-        if (etat == null) {
-            this.etat = ETAT.PROPRE;
-        } else if(etat == ETAT.RESERVEE || this.etat == null) {
-            this.etat = etat;
-        } else{
-            // l'état propre peut seulement passer à l'état occupée
-            if(this.etat == ETAT.PROPRE){
-                if(etat == ETAT.OCUPEE){
-                    this.etat = etat;
-                }else{
-                    throw new IllegalArgumentException();
-                }
-                // l'état occupée peut seulement passer à l'état sale
-            }else if(this.etat == ETAT.OCUPEE){
-                if(etat == ETAT.SALE){
-                    this.etat = etat;
-                }else{
-                    throw new IllegalArgumentException();
-                }
-                // l'état sale peut seulement passer à l'état second service
-            }else if(this.etat == ETAT.SALE){
-                if(etat == ETAT.SECOND_SERVICE){
-                    this.etat = etat;
-                }else{
-                    throw new IllegalArgumentException();
-                }
-                // l'état seconde service peut seulement passer à l'état propre
-            } else if(this.etat == ETAT.SECOND_SERVICE){
-                if(etat == ETAT.PROPRE){
-                    this.etat = etat;
-                }else{
-                    throw new IllegalArgumentException();
-                }
+
+    public void setEtat(ETAT new_etat) {
+        if (this.etat != null) {
+            switch (new_etat) {
+                case RESERVEE:
+                    this.etat = new_etat;
+                    break;
+                case PROPRE:
+                    if (this.etat.equals(ETAT.SALE))
+                        this.etat = new_etat;
+                    break;
+                case OCCUPEE:
+                    if (this.etat.equals(ETAT.PROPRE) || this.etat.equals(ETAT.RESERVEE))
+                        this.etat = new_etat;
+                    break;
+                case SALE:
+                    if (this.etat.equals(ETAT.OCCUPEE))
+                        this.etat = new_etat;
+                    break;
+            }
+        }else{
+            if(new_etat != null){
+                this.etat = new_etat;
+            }else{
+                this.etat = ETAT.PROPRE;
             }
         }
     }

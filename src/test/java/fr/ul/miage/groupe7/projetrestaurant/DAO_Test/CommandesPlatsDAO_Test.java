@@ -14,13 +14,13 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class CommandesPlatsDAO_Test {
 
-    private CommandesPlats cp,cp2,cp3;
+    private CommandesPlats cp,cp2,cp3,cp4,cp5;
     private Commandes c;
-    private static Plats p;
+    private static Plats p,p2;
     private static PlatsDAO pdao;
     private static CommandesDAO cdao;
     private static MatierePremiereDAO mdao;
-    private static ObjectId id;
+    private static ObjectId id,id2;
     private static MatierePremiere mp;
 
     @BeforeAll
@@ -34,13 +34,17 @@ class CommandesPlatsDAO_Test {
         hm.put(mp.get_id(),new BigDecimal(150));
         p = new Plats("PlatTest",hm,new BigDecimal("15.50"));
         p = pdao.create(p);
+        p2 = new Plats("PlatTest2",hm,new BigDecimal("15.50"));
+        p2 = pdao.create(p2);
         id = p.get_id();
+        id2 = p2.get_id();
     }
 
     @AfterAll
     static void afterAll(){
         mdao.delete(mp);
         pdao.delete(p);
+        pdao.delete(p2);
     }
 
     @BeforeEach
@@ -49,10 +53,18 @@ class CommandesPlatsDAO_Test {
         mdao.update(mp);
         cp = new CommandesPlats(id);
         cp2 = new CommandesPlats(id);
-        cp3 = new CommandesPlats(new ObjectId(),id,10000L, CommandesPlats.ETAT_PLAT.SERVI
+        cp3 = new CommandesPlats(new ObjectId(),id,5000L, CommandesPlats.ETAT_PLAT.SERVI
                 , LocalDateTime.of(2021,05,05,12,12,10)
                 , LocalDateTime.of(2021,05,05,12,12,15)
                 , LocalDateTime.of(2021,05,05,12,12,20));
+        cp4 = new CommandesPlats(new ObjectId(),id,115000L, CommandesPlats.ETAT_PLAT.SERVI
+                , LocalDateTime.of(2021,05,05,12,12,10)
+                , LocalDateTime.of(2021,05,05,12,12,15)
+                , LocalDateTime.of(2021,05,05,12,14,10));
+        cp5 = new CommandesPlats(new ObjectId(),id2,60000L, CommandesPlats.ETAT_PLAT.SERVI
+                , LocalDateTime.of(2021,05,05,12,12,10)
+                , LocalDateTime.of(2021,05,05,12,12,15)
+                , LocalDateTime.of(2021,05,05,12,13,15));
         c =new Commandes(10);
         c = cdao.create(c);
         c.addCommandes(cp);
@@ -110,6 +122,45 @@ class CommandesPlatsDAO_Test {
     void testfindCommandesPlatsByIdFail(){
         List<CommandesPlats> commandes = cdao.findCommandesPlatsById(CommandesPlats.ETAT_PLAT.EN_PREPARATION);
         assertEquals(0,commandes.size());
+    }
+
+    @Test
+    @DisplayName("Test statistiques temps de preparation pour chaque plats")
+    void testStatTempsPreparation(){
+        mp.setQuantitee(new BigDecimal(1500));
+        mdao.update(mp);
+        c.addCommandes(cp3);
+        c.addCommandes(cp4);
+        c = cdao.update(c);
+        var map = cdao.getPreparationTimeByPlats();
+        assertEquals(0,map.get("PlatTest").compareTo(new BigDecimal(1)));
+    }
+
+    @Test
+    @DisplayName("Test statistiques plats prix par plats")
+    void testStatTempsPreparationTotal(){
+        mp.setQuantitee(new BigDecimal(1500));
+        mdao.update(mp);
+        c.addCommandes(cp3);
+        c.addCommandes(cp4);
+        c.addCommandes(cp5);
+        c = cdao.update(c);
+        var decimal = cdao.getPreparationTime();
+        assertEquals(0,decimal.compareTo(new BigDecimal(1)));
+    }
+
+    @Test
+    @DisplayName("Test statistiques benefices des plats")
+    void testStatPartBenef(){
+        mp.setQuantitee(new BigDecimal(1500));
+        mdao.update(mp);
+        c.addCommandes(cp3);
+        c.addCommandes(cp4);
+        c.addCommandes(cp5);
+        c = cdao.update(c);
+        var map = cdao.getPlatsBenef();
+        assertEquals(0,map.get("PlatTest").compareTo(new BigDecimal(31)));
+        assertEquals(0,map.get("PlatTest2").compareTo(new BigDecimal(15.50)));
     }
 
     @Test

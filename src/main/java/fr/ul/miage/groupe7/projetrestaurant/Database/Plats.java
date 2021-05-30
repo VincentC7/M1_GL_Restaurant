@@ -5,6 +5,7 @@ import org.bson.Document;
 import org.bson.types.ObjectId;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.*;
 
 public class Plats {
@@ -175,5 +176,37 @@ public class Plats {
         }
 
         return sb.toString();
+    }
+
+    public static String statistiquesPlats() {
+        CommandesDAO commandesDAO = new CommandesDAO();
+        PlatsDAO platsDAO = new PlatsDAO();
+        List<Commandes> commandes = commandesDAO.findAllCommand();
+        TreeMap<String, BigDecimal> statistiques = new TreeMap<>();
+        int total_plats = 0;
+        for (Commandes commande : commandes) {
+            for (CommandesPlats commandesPlat : commande.getCommandesPlats()) {
+                Plats plats = platsDAO.find(commandesPlat.getIdPlat());
+                if (statistiques.containsKey(plats.nom)) {
+                    BigDecimal old = statistiques.get(plats.nom);
+                    statistiques.put(plats.nom, old.add(new BigDecimal("1.00")));
+                }else{
+                    statistiques.put(plats.nom,new BigDecimal("1.00"));
+                }
+                total_plats++;
+            }
+        }
+
+        if (total_plats==0) return "Aucun plats donc pas de statistiques";
+
+        StringBuilder res = new StringBuilder("Statistiques sur la popularité des plats").append(System.lineSeparator());
+        int finalTotal_plats = total_plats;
+        statistiques.forEach( (plat, nbCommande) -> {
+            BigDecimal taux = nbCommande.divide(new BigDecimal(finalTotal_plats), 4, RoundingMode.FLOOR);
+            taux = taux.multiply(new BigDecimal(100));
+            taux = taux.setScale(2, RoundingMode.DOWN);
+            res.append("\t").append(plat).append(" : ").append(taux).append("% des commandes").append(System.lineSeparator());
+        });
+        return res.toString();
     }
 }

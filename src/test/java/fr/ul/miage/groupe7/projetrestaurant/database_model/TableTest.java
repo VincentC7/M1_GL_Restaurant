@@ -1,10 +1,13 @@
 package fr.ul.miage.groupe7.projetrestaurant.database_model;
 
+import fr.ul.miage.groupe7.projetrestaurant.Database.Reservation;
 import fr.ul.miage.groupe7.projetrestaurant.Database.Table;
 import fr.ul.miage.groupe7.projetrestaurant.Database.Utilisateurs;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+
+import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -60,41 +63,63 @@ public class TableTest {
         });
     }
 
+
+    @Test
+    @DisplayName("Vérfie qu'une reservation existe")
+    void reservationExist(){
+        Table table = new Table(1, 1, null, new Utilisateurs("Noirot","Quentin", Utilisateurs.ROLE.SERVEUR,"azerty","QNoirot"));
+        table.addReservation( new Reservation(Reservation.CRENEAU.MATIN,"Luc", LocalDate.of(2021,6,17)));
+        assertTrue(table.isReserved(LocalDate.of(2021,6,17),Reservation.CRENEAU.MATIN));
+        assertFalse(table.isReserved(LocalDate.of(2021,6,17),Reservation.CRENEAU.SOIR));
+    }
+
+    @Test
+    @DisplayName("Vérfie qu'une reservation est bien supprimé")
+    void reservationDelete(){
+        Table table = new Table(1, 1, null, new Utilisateurs("Noirot","Quentin", Utilisateurs.ROLE.SERVEUR,"azerty","QNoirot"));
+        table.addReservation( new Reservation(Reservation.CRENEAU.MATIN,"Luc", LocalDate.of(2021,6,17)));
+        assertEquals(1,table.getReservations().size());
+        table.deleteReservation(LocalDate.of(2021,6,17),Reservation.CRENEAU.MATIN);
+        assertEquals(0,table.getReservations().size());
+    }
+
+    @Test
+    @DisplayName("Vérfie qu'une reservation est bien supprimé")
+    void findReservation(){
+        Table table = new Table(1, 1, null, new Utilisateurs("Noirot","Quentin", Utilisateurs.ROLE.SERVEUR,"azerty","QNoirot"));
+        table.addReservation( new Reservation(Reservation.CRENEAU.MATIN,"Luc", LocalDate.of(2021,6,17)));
+        assertNotNull(table.getReservation(LocalDate.of(2021,6,17),Reservation.CRENEAU.MATIN));
+        assertNull(table.getReservation(LocalDate.of(2021,6,17),Reservation.CRENEAU.SOIR));
+    }
+
+
+
     @Nested
     @DisplayName("Test sur les différents ETATs")
     class ETAT {
 
         private Table table;
 
-
         @Test
         @DisplayName("Changement d'état propre à occupée")
         void changeEtatPtoO(){
             Table table = new Table(1, 1, Table.ETAT.PROPRE, null);
-            table.setEtat(Table.ETAT.OCUPEE);
-            assertEquals(Table.ETAT.OCUPEE, table.getEtat());
+            table.setEtat(Table.ETAT.OCCUPEE);
+            assertEquals(Table.ETAT.OCCUPEE, table.getEtat());
         }
 
         @Test
-        @DisplayName("Changement d'état ocupée à sale")
+        @DisplayName("Changement d'état occupée à sale")
         void changeEtatOtoS(){
-            Table table = new Table(1, 1, Table.ETAT.OCUPEE, null);
+            Table table = new Table(1, 1, Table.ETAT.OCCUPEE, null);
             table.setEtat(Table.ETAT.SALE);
             assertEquals(Table.ETAT.SALE, table.getEtat());
         }
 
         @Test
-        @DisplayName("Changement d'état sale à second service")
+        @DisplayName("Changement d'état sale à propore")
         void changeEtatStoSS(){
             Table table = new Table(1, 1, Table.ETAT.SALE, null);
-            table.setEtat(Table.ETAT.SECOND_SERVICE);
-            assertEquals(Table.ETAT.SECOND_SERVICE, table.getEtat());
-        }
-
-        @Test
-        @DisplayName("Changement d'état seconde service à prore")
-        void changeEtatSStoP(){
-            Table table = new Table(1, 1, Table.ETAT.SECOND_SERVICE, null);
             table.setEtat(Table.ETAT.PROPRE);
             assertEquals(Table.ETAT.PROPRE, table.getEtat());
         }
@@ -102,37 +127,26 @@ public class TableTest {
         @Test
         @DisplayName("Réserver une table")
         void changeEtatR(){
-            Table table = new Table(1, 1, Table.ETAT.SECOND_SERVICE, null);
+            Table table = new Table(1, 1, Table.ETAT.PROPRE, null);
             table.setEtat(Table.ETAT.RESERVEE);
             assertEquals(Table.ETAT.RESERVEE, table.getEtat());
         }
 
 
         @Test
-        @DisplayName("Exception changement d'état non permit ocupée à propre")
+        @DisplayName("Occupée reste à occupée")
         void changeEtatOtoP(){
-            Table table = new Table(1, 1, Table.ETAT.OCUPEE, null);
-            assertThrows(IllegalArgumentException.class,() -> {
-                table.setEtat(Table.ETAT.PROPRE);
-            });
+            Table table = new Table(1, 1, Table.ETAT.OCCUPEE, null);
+            table.setEtat(Table.ETAT.PROPRE);
+            assertEquals(Table.ETAT.OCCUPEE, table.getEtat());
         }
 
         @Test
-        @DisplayName("Exception changement d'état non permit ocupée à ocupée")
+        @DisplayName("Changement d'état non permit occupée à prore")
         void changeEtatOto0(){
-            Table table = new Table(1, 1, Table.ETAT.OCUPEE, null);
-            assertThrows(IllegalArgumentException.class,() -> {
-                table.setEtat(Table.ETAT.OCUPEE);
-            });
-        }
-
-        @Test
-        @DisplayName("Exception changement d'état non permit ocupée à second service")
-        void changeEtatOtoSS(){
-            Table table = new Table(1, 1, Table.ETAT.OCUPEE, null);
-            assertThrows(IllegalArgumentException.class,() -> {
-                table.setEtat(Table.ETAT.SECOND_SERVICE);
-            });
+            Table table = new Table(1, 1, Table.ETAT.OCCUPEE, null);
+            table.setEtat(Table.ETAT.PROPRE);
+            assertEquals(Table.ETAT.OCCUPEE, table.getEtat());
         }
 
 

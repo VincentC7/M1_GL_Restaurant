@@ -47,7 +47,20 @@ public class Restaurant {
                     new Action(8, "Débarrasser une table"                   , new Utilisateurs.ROLE[]{Utilisateurs.ROLE.ASSISTANT_SERVICE}),
                     new Action(9, "Sélectionner une table"                  , new Utilisateurs.ROLE[]{Utilisateurs.ROLE.SERVEUR, Utilisateurs.ROLE.ASSISTANT_SERVICE, Utilisateurs.ROLE.MAITRE_HOTEL}),
                     new Action(10, "Visualiser les commandes à cuisiner"    , new Utilisateurs.ROLE[]{Utilisateurs.ROLE.CUISINIER}),
-                    new Action(11, "Visualiser les commandes à servir"      , new Utilisateurs.ROLE[]{Utilisateurs.ROLE.SERVEUR}),
+                    new Action(11, "Placer un client qui a réservé "        , new Utilisateurs.ROLE[]{Utilisateurs.ROLE.MAITRE_HOTEL}),
+                    new Action(12, "Statistique sur le benefice de chaque plat"  , new Utilisateurs.ROLE[]{Utilisateurs.ROLE.DIRECTEUR}),
+                    new Action(13, "Statistique sur le temps de preparation de chaque plat"  , new Utilisateurs.ROLE[]{Utilisateurs.ROLE.DIRECTEUR}),
+                    new Action(14, "Statistique sur le temps de preparation total"  , new Utilisateurs.ROLE[]{Utilisateurs.ROLE.DIRECTEUR}),
+                    new Action(15, "Placer un client"                       , new Utilisateurs.ROLE[]{Utilisateurs.ROLE.MAITRE_HOTEL}),
+                    new Action(16, "Recette moyenne des déjeuners"  , new Utilisateurs.ROLE[]{Utilisateurs.ROLE.DIRECTEUR}),
+                    new Action(17, "Recette moyenne des dîners"  , new Utilisateurs.ROLE[]{Utilisateurs.ROLE.DIRECTEUR}),
+                    new Action(18, "Recette moyenne quotidienne"  , new Utilisateurs.ROLE[]{Utilisateurs.ROLE.DIRECTEUR}),
+                    new Action(19, "Recette moyenne hebdomadaire"  , new Utilisateurs.ROLE[]{Utilisateurs.ROLE.DIRECTEUR}),
+                    new Action(20, "Recette moyenne mensuelle"  , new Utilisateurs.ROLE[]{Utilisateurs.ROLE.DIRECTEUR}),
+                    new Action(21, "Créer un utilisateur"  , new Utilisateurs.ROLE[]{Utilisateurs.ROLE.DIRECTEUR}),
+                    new Action(22, "Afficher la carte"  , new Utilisateurs.ROLE[]{Utilisateurs.ROLE.DIRECTEUR}),
+                    new Action(23, "Editer la facture"               , new Utilisateurs.ROLE[]{Utilisateurs.ROLE.MAITRE_HOTEL}),
+                    new Action(24, "Statistiques sur la popularité des plats"  , new Utilisateurs.ROLE[]{Utilisateurs.ROLE.DIRECTEUR}),
             };
 
     //0 = Pas de commande 1 = Commandes
@@ -62,7 +75,7 @@ public class Restaurant {
                             new Action(0, "Revenir au menu superieur"       , new Utilisateurs.ROLE[0]),
                             new Action(1, "Ajouter un plat à une commande"  , new Utilisateurs.ROLE[]{Utilisateurs.ROLE.SERVEUR}),
                             new Action(2, "Affichage informations"          , new Utilisateurs.ROLE[]{Utilisateurs.ROLE.SERVEUR}),
-                            new Action(3, "Editer la facture"               , new Utilisateurs.ROLE[]{Utilisateurs.ROLE.MAITRE_HOTEL}),
+                            new Action(3, "Affichage des commandes à servir", new Utilisateurs.ROLE[]{Utilisateurs.ROLE.SERVEUR}),
                     }
             };
 
@@ -75,6 +88,19 @@ public class Restaurant {
                 System.out.println("\t"+(i++)+" : "+action.getAction());
             }
         }
+    }
+
+    private int get_id_action_tables(int user_action,int array_level){
+        int id_action = -1;
+        for (Action action : actionsTables[array_level]) {
+            if (action.peutFaire(utilisateur.getRole())) {
+                id_action++;
+                if (id_action == user_action) {
+                    return action.getNumAction();
+                }
+            }
+        }
+        return -1;
     }
 
     /**
@@ -140,14 +166,53 @@ public class Restaurant {
                 visualiser_commandes_cuisinier();
                 break;
             case 11:
-                visualiser_commandes_serveur();
+                placer_reservation();
+                break;
+            case 12:
+                stat_benef_par_plats();
+                break;
+            case 13:
+                stat_temps_de_preparation_par_plats();
+                break;
+            case 14:
+                stat_temps_de_preparation();
+                break;
+            case 15:
+                placer_client();
+                break;
+            case 16:
+                stat_recette_dejeuner();
+                break;
+            case 17:
+                stat_recette_diner();
+                break;
+            case 18:
+                stat_recette_quotidienne();
+                break;
+            case 19:
+                stat_recette_hebdmadaire();
+                break;
+            case 20:
+                stat_recette_mensuelle();
+                break;
+            case 21:
+                ceer_utilisateur();
+                break;
+            case 22:
+                afficher_carte();
+                break;
+            case 23:
+                genere_facture();
+            case 24:
+                stat_pop_plats();
+                break;
             default:
                 break;
         }
     }
 
     public void effectuer_action_table_creation_commandes(int user_action,Table t) {
-        switch (get_id_action(user_action)){
+        switch (get_id_action_tables(user_action,0)){
             case 1:
                 creer_commandes(t);
                 break;
@@ -160,7 +225,7 @@ public class Restaurant {
     }
 
     public void effectuer_action_table_ajout_commande(int user_action,Table t) {
-        switch (get_id_action(user_action)){
+        switch (get_id_action_tables(user_action,1)){
             case 1:
                 ajouter_plat_commandes(t);
                 break;
@@ -168,7 +233,7 @@ public class Restaurant {
                 affiche_infos_table(t);
                 break;
             case 3:
-                genere_facture(t);
+                visualiser_commandes_serveur(t);
                 break;
             default:
                 break;
@@ -180,6 +245,7 @@ public class Restaurant {
      */
     public void action_tables(){
         List<Table> tables = tablesDAO.findByServeur(utilisateur);
+        tables = tables.stream().filter((t) -> t.getEtat().equals(Table.ETAT.OCCUPEE)).collect(Collectors.toList());
         if(tables.isEmpty()){
             System.out.println("Vous n'avez pas de tables");
             return;
@@ -228,8 +294,8 @@ public class Restaurant {
     }
 
     public void affiche_infos_table(Table t){
-        Commandes cmd = commandesDAO.findByTable(t.getNumero());
         System.out.println(t.toStringServeur());
+        Commandes cmd = commandesDAO.findByTable(t.getNumero());
         cmd.getCommandesPlats().forEach(System.out::println);
     }
 
@@ -323,9 +389,6 @@ public class Restaurant {
         return sb.toString();
     }
 
-
-
-
     /**
      * Création des tables du restaurant pour tous les étages
      *
@@ -346,6 +409,13 @@ public class Restaurant {
                 Table t = tablesDAO.findByNum(numero_table);
                 if(t != null){
                     t.setEtage(i+1);
+                    if(t.getEtat().equals(Table.ETAT.PROPRE)) {
+                        LocalDateTime ldt = LocalDateTime.now();
+                        Reservation.CRENEAU c = (ldt.getHour() > 16) ? Reservation.CRENEAU.SOIR : Reservation.CRENEAU.MATIN;
+                        if (t.isReserved(ldt.toLocalDate(), c)) {
+                            t.setEtat(Table.ETAT.RESERVEE);
+                        }
+                    }
                     tablesDAO.update(t);
                 }
                 else{
@@ -446,6 +516,14 @@ public class Restaurant {
                 if(!ingredients.equals("T"))
                     hm = (HashMap<ObjectId, BigDecimal>) select_matiere_premiere(hm,ingredients);
             }while (!ingredients.equals("T"));
+            ArrayList<String> categs = new ArrayList<>();
+            String categ;
+            do{
+                System.out.println("\tDe quelle catégorie fait partie votre plat ? Appuyez sur T pour terminer cette étape");
+                categ = scanner.get_simple();
+                if(!categ.equals("T"))
+                    categs.add(categ);
+            }while (!categ.equals("T"));
             do{
                 System.out.println("\tQuel est le prix");
                 prix = scanner.get_float();
@@ -457,7 +535,7 @@ public class Restaurant {
             /*
             Ici pour les catégories plus tard
              */
-            plats = new Plats(nom,hm,prix,null,enfant.equals("y"));
+            plats = new Plats(nom,hm,prix,categs,enfant.equals("y"));
             plats = platsDAO.create(plats);
             if (plats == null)
                 System.out.println("\tLes paramètres que vous avez fourni sont faux, recommencez.");
@@ -542,46 +620,24 @@ public class Restaurant {
      * Permet de débarrasser une table (Passer de l'état sale à second_service)
      */
     private void debarrasser_une_table() {
-        Table t1 = tablesDAO.findByNum(1);
-        t1.setServeur(utilisateur);
-        t1.setEtat(Table.ETAT.OCUPEE);
-        t1.setEtat(Table.ETAT.SALE);
-        tablesDAO.update(t1);
-        Table t2 = tablesDAO.findByNum(2);
-        t2.setEtat(Table.ETAT.OCUPEE);
-        t2.setEtat(Table.ETAT.SALE);
-        t2.setServeur(utilisateur);
-        tablesDAO.update(t2);
-
-        List<Table> tables = tablesDAO.findByServeur(utilisateur);
-        tables.forEach((e) -> {
-            // on affiche que les tables sales que le serveur peut débarrasser
-            if(e.getEtat().equals(Table.ETAT.SALE)){
-                System.out.print(e.toStringServeur());
-            }
-        });
-
+        List<Table> tables = tablesDAO.findByEtat(Table.ETAT.SALE);
+        if (tables.isEmpty()){
+            System.out.println("Il n'y a pas de table à débarrasser");
+            return;
+        }
         int num_table;
-        do{
+        do {
+            for(int index = 0; index < tables.size(); index ++) {
+                System.out.println((index + 1) + " : " + tables.get(index).toString());
+            }
             System.out.println("Entrez le numéro de la table que vous voulez débarrasser");
             num_table = scanner.get_int();
-        }while (num_table < 1 || num_table > tables.size());
+        }while ((num_table) <= 0 || (num_table) > tables.size());
 
-        Table tmp = null;
-        for(Table t: tables){
-            if(t.getNumero() == num_table){
-                tmp = t;
-            }
-        }
-        tmp.setEtat(Table.ETAT.SECOND_SERVICE);
-        tablesDAO.update(tmp);
-        System.out.println("Table débarrassée, à drésser pour un second service !");
-
-        // on remet les tables par défaut
-        t1.setEtat(null);
-        tablesDAO.update(t1);
-        t2.setEtat(null);
-        tablesDAO.update(t2);
+        Table t = tables.get((num_table-1));
+        t.setEtat(Table.ETAT.PROPRE);
+        System.out.println("La table numéro " + t.getNumero()+ " à bien été débarrassée");
+        tablesDAO.update(t);
     }
 
 
@@ -595,12 +651,12 @@ public class Restaurant {
         Commandes cmd = commandesDAO.findByTable(t.getNumero());
         HashMap<String, ArrayList<Plats>> plats = Plats.trierPlatsByCat((ArrayList<Plats>) platsDAO.findByMenuAndDisponibility());
         Set<String> set = plats.keySet();
-        AtomicReference<String> cat = null;
+        AtomicReference<String> cat = new AtomicReference<>();
         do {
             AtomicInteger ai = new AtomicInteger(1);
             set.forEach((k) -> {
                 cat.set(k);
-                System.out.println(ai.getAndIncrement() + Main.RETOUR_LIGNE + k);
+                System.out.println(ai.getAndIncrement() + " : "+ k);
             } );
             System.out.println("Selectionner une catégorie ou 0 pour revenir en arriere");
             action = scanner.get_int();
@@ -627,7 +683,7 @@ public class Restaurant {
      */
     public void afficher_carte(){
         HashMap<String, ArrayList<Plats>> plats = Plats.trierPlatsByCat((ArrayList<Plats>) platsDAO.findByMenuAndDisponibility());
-        if(plats.isEmpty()){
+        if(!plats.isEmpty()){
             Set<String> cat = plats.keySet();
             for (String c: cat){
                 System.out.println(c);
@@ -650,10 +706,31 @@ public class Restaurant {
      * Génere la facture d'une table
      * @param t table de la commande
      */
-    public void genere_facture(Table t){
+    public void genere_facture(){
+        List<Table> tables = tablesDAO.findByEtat(Table.ETAT.OCCUPEE);
+        if (tables.isEmpty()){
+            System.out.println("Il n'y a pas de table à facturer");
+            return;
+        }
+        int num_table;
+        do {
+            for(int index = 0; index < tables.size(); index ++) {
+                System.out.println((index + 1) + " : Serveur " + tables.get(index).getServeur().getIdentifiant() + ", numéro de table "+ tables.get(index).getNumero());
+            }
+            System.out.println("Entrez le numéro de la table que vous voulez facturer");
+            num_table = scanner.get_int();
+        }while ((num_table) <= 0 || (num_table) > tables.size());
+
+        Table t = tables.get(num_table-1);
         Commandes cmd = commandesDAO.findByTable(t.getNumero());
         cmd.finir();
+        if(cmd.isEtat()){
+            t.setEtat(Table.ETAT.SALE);
+            TableDAO tableDAO = new TableDAO();
+            tableDAO.update(t);
+        }
         String facture = cmd.genererFacture();
+        commandesDAO.update(cmd);
         System.out.println(facture);
     }
 
@@ -692,23 +769,151 @@ public class Restaurant {
         this.utilisateur = utilisateur;
     }
 
-    public void visualiser_commandes_serveur(){
-        FileAttente fileAttente_serveur = new FileAttente();
-        LinkedList<CommandesPlats> file = fileAttente_serveur.getCommandes();
+    public void visualiser_commandes_serveur(Table t){
+        int num = t.getNumero();
+        Commandes c = commandesDAO.findByTable(num);
+        ArrayList<CommandesPlats> file = c.getCommandesPlats().stream()
+                .filter(p -> p.getEtat().equals(CommandesPlats.ETAT_PLAT.PRET)).collect(Collectors
+                        .toCollection(ArrayList::new));
         if(file.isEmpty()){
             System.out.println("Vous n'avez pas de plat à servir");
         }else{
             do {
-                System.out.println(fileAttente_serveur.afficherCommandes());
+                System.out.println(file.get(0));
                 System.out.println("Voulez-vous servir le plat suivant ? (y/n)");
 
                 String act = scanner.get_simple();
                 if(act.equals("y")){
-                    CommandesPlats plat = fileAttente_serveur.traiterCommande();
+                    c.change_etat_commande(file.get(0).get_id());
+                    commandesDAO.update(c);
                     System.out.println("Le plat est pret à etre servi");
+                    file.remove(0);
                 }else{ break; }
-            }while (!fileAttente_serveur.getCommandes().isEmpty());
+            }while (!file.isEmpty());
         }
+    }
+
+    public void placer_reservation(){
+        var tables = tablesDAO.findByEtat(Table.ETAT.RESERVEE);
+        if(tables.isEmpty()){
+            System.out.println("Il n'y a pas de table réservée");
+            return;
+        }
+        LocalDateTime ldt = LocalDateTime.now();
+        Reservation.CRENEAU c = (ldt.getHour() > 16) ? Reservation.CRENEAU.SOIR : Reservation.CRENEAU.MATIN;
+        int index;
+        do {
+            var i = new AtomicInteger(1);
+            tables.stream()
+                    .forEach(t -> System.out.println(i.getAndIncrement() + " " + t.getReservation(ldt.toLocalDate(), c).getNom()));
+            System.out.println("Selectionner le numéro de la réservation");
+            index = scanner.get_int();
+        }while ((index-1) < 0 || (index-1) >= tables.size());
+        Table t = tables.get((index-1));
+        t.setEtat(Table.ETAT.OCCUPEE);
+        t.deleteReservation(ldt.toLocalDate(),c);
+        System.out.println("La table est " + t.getNumero());
+        tablesDAO.update(t);
+    }
+
+    public void placer_client(){
+        var tables = tablesDAO.findByEtat(Table.ETAT.PROPRE);
+        if(tables.isEmpty()) {
+            System.out.println("Il n'y a plus de tables disponibles");
+            return;
+        }
+
+        int num_table;
+        do {
+            for(int index = 0; index < tables.size(); index ++) {
+                System.out.println((index + 1) + " : " + tables.get(index).toString());
+            }
+            System.out.println("Selectionnez une table par son numéro");
+            num_table = scanner.get_int();
+        }while ((num_table) <= 0 || (num_table) > tables.size());
+        Table t = tables.get((num_table-1));
+        t.setEtat(Table.ETAT.OCCUPEE);
+        System.out.println("La table numéro " + t.getNumero()+ " à bien été attribuée");
+        tablesDAO.update(t);
+    }
+
+    public void ceer_utilisateur(){
+        String nom;
+        do{
+            System.out.println("Entrez le nom du nouvel utilisateur (2 caractères au minimum");
+            nom = scanner.get_simple();
+        }while (nom.length() < 2);
+
+        String prenom;
+        do{
+            System.out.println("Entrez son prénon (2 caractères au minimum");
+            prenom = scanner.get_simple();
+        }while (prenom.length() < 2);
+
+        Utilisateurs.ROLE[] roles = Utilisateurs.ROLE.values();
+        int num_role;
+        do{
+            for(int i = 0; i < roles.length; i++){
+                System.out.println((i +1) +" : "+ roles[i]);
+            }
+            System.out.println("Selectionnez un rôle par son numéro");
+                    num_role = scanner.get_int();
+        }while ((num_role) <= 0 || (num_role) > roles.length);
+
+        Utilisateurs utilisateurs = new Utilisateurs(nom, prenom, roles[num_role-1], null, null);
+        utilisateurs = utilisateursDAO.create(utilisateurs);
+        System.out.println("Identidiant de l'utilisateur : "+utilisateurs.getIdentifiant());
+        System.out.println("Mot de passe de l'utilisateur : "+utilisateurs.getMdp());
+    }
+
+    public void stat_temps_de_preparation(){
+        System.out.println("Le temps de préparation moyen est " + commandesDAO.getPreparationTime() +" min");
+    }
+
+    public void stat_temps_de_preparation_par_plats(){
+        for(var c : commandesDAO.getPreparationTimeByPlats().entrySet()){
+            System.out.println("Le temps de préparation de "+ c.getKey() + " est de " + c.getValue() +" min");
+        }
+    }
+
+    public void stat_benef_par_plats(){
+        for(var c : commandesDAO.getPlatsBenef().entrySet()){
+            System.out.println("Le benéfice de "+ c.getKey() + " est de " + c.getValue() +" €");
+        }
+    }
+
+    public void stat_recette_dejeuner(){
+        ArrayList<Commandes> cmds = new ArrayList<>();
+        cmds.addAll(commandesDAO.findAllCommand());
+        System.out.println("La recette moyenne des déjeuners est de " + Commandes.recetteRepas(cmds, true)+" €");
+    }
+
+    public void stat_recette_diner(){
+        ArrayList<Commandes> cmds = new ArrayList<>();
+        cmds.addAll(commandesDAO.findAllCommand());
+        System.out.println("La recette moyenne des dîners est de " + Commandes.recetteRepas(cmds, false)+" €");
+    }
+
+    public void stat_recette_quotidienne(){
+        ArrayList<Commandes> cmds = new ArrayList<>();
+        cmds.addAll(commandesDAO.findAllCommand());
+        System.out.println("La recette moyenne quotidienne est de " + Commandes.recetteQuotidienne(cmds)+" €");
+    }
+
+    public void stat_recette_hebdmadaire(){
+        ArrayList<Commandes> cmds = new ArrayList<>();
+        cmds.addAll(commandesDAO.findAllCommand());
+        System.out.println("La recette moyenne des hebdomadaire est de " + Commandes.recetteHebdomadaire(cmds)+" €");
+    }
+
+    public void stat_recette_mensuelle(){
+        ArrayList<Commandes> cmds = new ArrayList<>();
+        cmds.addAll(commandesDAO.findAllCommand());
+        System.out.println("La recette moyenne des mensuelle est de " + Commandes.recetteMensuelle(cmds)+" €");
+    }
+
+    private void stat_pop_plats() {
+        System.out.println(Plats.statistiquesPlats());
     }
 
 }

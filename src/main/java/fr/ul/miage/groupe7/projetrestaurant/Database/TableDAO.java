@@ -55,12 +55,12 @@ public class TableDAO extends DAO<Table> {
     }
 
     public List<Table> findByServeur(Utilisateurs obj){
-        if(obj.role.equals(Utilisateurs.ROLE.SERVEUR)){
+        if(obj.role.equals(Utilisateurs.ROLE.SERVEUR) ){
             ArrayList<Document> list = connect.find(eq("serveur",obj.get_id())).into(new ArrayList<>());
             return (list.isEmpty()) ? Collections.emptyList()
                     : list.stream().map(Table::new).collect(Collectors.toList());
         }else{
-            throw new IllegalArgumentException();
+            return findAll();
         }
     }
 

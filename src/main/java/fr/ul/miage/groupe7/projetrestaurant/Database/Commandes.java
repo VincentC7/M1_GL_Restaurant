@@ -6,11 +6,14 @@ import org.bson.Document;
 import org.bson.types.ObjectId;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.temporal.WeekFields;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toCollection;
 
@@ -128,6 +131,99 @@ public class Commandes {
            commandesPlats.get_id().equals(id)).findFirst().get();
     }
 
+    private static ArrayList<Commandes> filterRepas(ArrayList<Commandes> commandes, boolean midi){
+        if(midi){
+            return commandes.stream().filter(c -> c.getDebut().getHour() < 16).collect(toCollection(ArrayList::new));
+        }else {
+            return commandes.stream().filter(c -> c.getDebut().getHour() > 16).collect(toCollection(ArrayList::new));
+        }
+    }
+
+    /**
+     * Retourne la recette moyenne du déjeuner ou du diner
+     *
+     * @param commandes
+     * @param midi, true pour la recette du midi, false pour la recette du soir
+     * @return
+     */
+    public static BigDecimal recetteRepas(ArrayList<Commandes> commandes, boolean midi){
+        BigDecimal prix = new BigDecimal("0");
+        BigDecimal count = new BigDecimal("0");
+
+        for (Commandes c : filterRepas(commandes, midi)){
+            prix = prix.add(c.getPrix());
+            count = count.add(new BigDecimal("1"));
+        }
+
+        if(count.equals(new BigDecimal("0"))){
+            return new BigDecimal("0.0");
+        }else {
+            return prix.divide(count, 2, BigDecimal.ROUND_HALF_UP);
+        }
+    }
+
+    /**
+     * Recette quotidienne moyenne
+     *
+     * @param commandes
+     * @return
+     */
+    public static BigDecimal recetteQuotidienne(ArrayList<Commandes> commandes){
+        BigDecimal prix = commandes.get(0).getPrix();
+        BigDecimal nb_jours = new BigDecimal("1");
+
+        for (int i = 1; i < commandes.size(); i++){
+            if(commandes.get(i-1).getDebut().getDayOfYear() != (commandes.get(i).getDebut().getDayOfYear())){
+                nb_jours = nb_jours.add(new BigDecimal("1"));
+            }
+            prix = prix.add(commandes.get(i).getPrix());
+        }
+
+        return prix.divide(nb_jours, 2 , BigDecimal.ROUND_HALF_UP);
+    }
+
+    /**
+     * Recette hebdomadaire moyenne
+     *
+     * @param commandes
+     * @return
+     */
+    public static BigDecimal recetteHebdomadaire(ArrayList<Commandes> commandes){
+        BigDecimal prix = commandes.get(0).getPrix();
+        BigDecimal nb_semaines = new BigDecimal("1");
+        WeekFields weekFields = WeekFields.of(Locale.getDefault());
+
+        for (int i = 1; i < commandes.size(); i++){
+            if(commandes.get(i-1).getDebut().get(weekFields.weekOfWeekBasedYear()) != commandes.get(i).getDebut().get(weekFields.weekOfWeekBasedYear())){
+                nb_semaines = nb_semaines.add(new BigDecimal("1"));
+            }
+            prix = prix.add(commandes.get(i).getPrix());
+        }
+
+        return prix.divide(nb_semaines, 2 , BigDecimal.ROUND_HALF_UP);
+    }
+
+    /**
+     * Recette mensuelle moyenne
+     *
+     * @param commandes
+     * @return
+     */
+    public static BigDecimal recetteMensuelle(ArrayList<Commandes> commandes){
+        BigDecimal prix = commandes.get(0).getPrix();
+        BigDecimal nb_mois= new BigDecimal("1");
+
+        for (int i = 1; i < commandes.size(); i++){
+            if(commandes.get(i-1).getDebut().getMonthValue() != commandes.get(i).getDebut().getMonthValue()){
+                nb_mois = nb_mois.add(new BigDecimal("1"));
+            }
+            prix = prix.add(commandes.get(i).getPrix());
+        }
+
+        return prix.divide(nb_mois, 2 , BigDecimal.ROUND_HALF_UP);
+    }
+
+
     public int getNumeroTable() {
         return numeroTable;
     }
@@ -154,6 +250,14 @@ public class Commandes {
 
     public ObjectId get_id() {
         return _id;
+    }
+
+    public void setDebut(LocalDateTime debut) {
+        this.debut = debut;
+    }
+
+    public void setPrix(BigDecimal prix) {
+        this.prix = prix;
     }
 
     @Override
